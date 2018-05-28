@@ -1,0 +1,17 @@
+# Cldr Currencies
+
+Packages the currency definitions from [CLDR](http://cldr.unicode.org) into a set of functions
+to return currency data.
+
+## Installation
+
+The package can be installed
+by adding `cldr_currencies` to your list of dependencies in `mix.exs`:
+
+```elixir
+def deps do
+  [
+    {:cldr_currencies, "~> 0.1.0"}
+  ]
+end
+```
