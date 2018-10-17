@@ -1,6 +1,14 @@
+# Changelog for Cldr_Currencies v1.1.0
+
+This is the changelog for Cldr_Currencies v1.1.0 released on October 18th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_numbers/tags)
+
+### Enhancements
+
+* Updated dependency on [ex_cldr](https://hex.pm/packages/ex_cldr) to version 1.8 which uses CLDR version 34 data.
+
 # Changelog for Cldr_Currencies v1.0.0
 
-This is the changelog for Cldr_Currencies v0.1.0 released on May 28th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_numbers/tags)
+This is the changelog for Cldr_Currencies v1.0.0 released on May 28th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_numbers/tags)
 
 ### Enhancements
 

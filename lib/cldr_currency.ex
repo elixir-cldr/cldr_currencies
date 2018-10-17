@@ -163,7 +163,7 @@ defmodule Cldr.Currency do
   ## Example
 
       iex> Cldr.Currency.known_currencies |> Enum.count
-      301
+      303
 
   """
   @spec known_currencies() :: list(atom)
