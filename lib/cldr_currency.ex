@@ -46,11 +46,12 @@ defmodule Cldr.Currency do
   @doc """
   Returns a `Currency` struct created from the arguments.
 
-  ## Options
+  ## Arguments
 
   * `currency` is a custom currency code of a format defined in ISO4217
 
-  * `options` is a map of options representing the optional elements of the `%Currency{}` struct
+  * `options` is a map of options representing the optional elements of
+    the `%Currency{}` struct
 
   ## Returns
 
@@ -108,15 +109,24 @@ defmodule Cldr.Currency do
   Returns the appropriate currency display name for the `currency`, based
   on the plural rules in effect for the `locale`.
 
-  ## Options
+  ## Arguments
 
   * `number` is an integer, float or `Decimal`
 
   * `currency` is any currency returned by `Cldr.Currency.known_currencies/0`
 
+  * `locale` is any valid locale name returned by `Cldr.known_locale_names/1`
+    or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
+
+  * `backend` is any module that includes `use Cldr` and therefore
+    is a `Cldr` backend module
+
   * `options` is a keyword list of options
-    * `:locale` is any locale returned by `Cldr.Locale.new!/1`. The
-    default is `Cldr.get_current_locale/0`
+
+  ## Options
+
+  * `:locale` is any locale returned by `Cldr.Locale.new!/2`. The
+    default is `Cldr.get_current_locale/1`
 
   ## Returns
 
@@ -126,34 +136,34 @@ defmodule Cldr.Currency do
 
   ## Examples
 
-      iex> Cldr.Currency.pluralize 1, :USD
+      iex> Cldr.Currency.pluralize 1, :USD, Test.Cldr
       {:ok, "US dollar"}
 
-      iex> Cldr.Currency.pluralize 3, :USD
+      iex> Cldr.Currency.pluralize 3, :USD, Test.Cldr
       {:ok, "US dollars"}
 
-      iex> Cldr.Currency.pluralize 12, :USD, locale: "zh"
+      iex> Cldr.Currency.pluralize 12, :USD, Test.Cldr, locale: "zh"
       {:ok, "美元"}
 
-      iex> Cldr.Currency.pluralize 12, :USD, locale: "fr"
+      iex> Cldr.Currency.pluralize 12, :USD, Test.Cldr, locale: "fr"
       {:ok, "dollars des États-Unis"}
 
-      iex> Cldr.Currency.pluralize 1, :USD, locale: "fr"
+      iex> Cldr.Currency.pluralize 1, :USD, Test.Cldr, locale: "fr"
       {:ok, "dollar des États-Unis"}
 
   """
   @spec pluralize(pos_integer, atom, Keyword.t()) ::
           {:ok, String.t()} | {:error, {Exception.t(), String.t()}}
-  def pluralize(number, currency, options \\ []) do
-    default_options = [locale: Cldr.get_current_locale()]
+  def pluralize(number, currency, backend, options \\ []) do
+    default_options = [locale: backend.default_locale()]
     options = Keyword.merge(default_options, options)
     locale = options[:locale]
 
     with {:ok, currency_code} <- Cldr.validate_currency(currency),
-         {:ok, locale} <- Cldr.validate_locale(locale),
-         {:ok, currency_data} <- currency_for_code(currency_code, locale) do
+         {:ok, locale} <- Cldr.validate_locale(locale, backend),
+         {:ok, currency_data} <- currency_for_code(currency_code, backend, options) do
       counts = Map.get(currency_data, :count)
-      {:ok, Cldr.Number.Cardinal.pluralize(number, locale, counts)}
+      {:ok, Module.concat(backend, Number.Cardinal).pluralize(number, locale, counts)}
     end
   end
 
@@ -174,7 +184,7 @@ defmodule Cldr.Currency do
   @doc """
   Returns a boolean indicating if the supplied currency code is known.
 
-  ## Options
+  ## Arguments
 
   * `currency_code` is a `binary` or `atom` representing an ISO4217
     currency code
@@ -222,7 +232,7 @@ defmodule Cldr.Currency do
   Note that since this function creates atoms but to a maximum of
   26 * 26 == 676 since the format permits 2 alphabetic characters only.
 
-  ## Options
+  ## Arguments
 
   * `currency_code` is a `String.t` or and `atom` representing the new
     currency code to be created
@@ -268,14 +278,24 @@ defmodule Cldr.Currency do
   @doc """
   Returns the currency metadata for the requested currency code.
 
-  ## Options
+  ## Arguments
 
   * `currency_code` is a `binary` or `atom` representation of an
     ISO 4217 currency code.
 
+  * `backend` is any module that includes `use Cldr` and therefore
+    is a `Cldr` backend module
+
+  * `options` is a `Keyword` list of options.
+
+  ## Options
+
+  * `:locale` is any valid locale name returned by `Cldr.known_locale_names/1`
+    or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
+
   ## Examples
 
-      iex> Cldr.Currency.currency_for_code("AUD")
+      iex> Cldr.Currency.currency_for_code("AUD", Test.Cldr)
       {:ok,
         %Cldr.Currency{
           cash_digits: 2,
@@ -291,7 +311,7 @@ defmodule Cldr.Currency do
           tender: true
       }}
 
-      iex> Cldr.Currency.currency_for_code("THB")
+      iex> Cldr.Currency.currency_for_code("THB", Test.Cldr)
       {:ok,
         %Cldr.Currency{
           cash_digits: 2,
@@ -308,12 +328,15 @@ defmodule Cldr.Currency do
       }}
 
   """
-  @spec currency_for_code(code, LanguageTag.t()) ::
+  @spec currency_for_code(code, LanguageTag.t(), Cldr.backend()) ::
           {:ok, t} | {:error, {Exception.t(), String.t()}}
-  def currency_for_code(currency_code, locale \\ Cldr.get_current_locale()) do
+
+  def currency_for_code(currency_code, backend, options \\ []) do
+    options = Keyword.merge([locale: apply(backend, :default_locale, [])], options)
+
     with {:ok, code} <- Cldr.validate_currency(currency_code),
-         {:ok, locale} <- Cldr.validate_locale(locale),
-         {:ok, currencies} <- currencies_for_locale(locale) do
+         {:ok, locale} <- Cldr.validate_locale(options[:locale], backend),
+         {:ok, currencies} <- currencies_for_locale(locale, backend) do
       {:ok, get_currency_metadata(code, Map.get(currencies, code))}
     end
   end
@@ -330,32 +353,12 @@ defmodule Cldr.Currency do
 
   @doc """
   Returns the currency metadata for a locale.
+
   """
-  @spec currencies_for_locale(Locale.name() | LanguageTag.t()) ::
+  @spec currencies_for_locale(Locale.name() | LanguageTag.t(), Cldr.backend()) ::
           {:ok, Map.t()} | {:error, {Exception.t(), String.t()}}
-  def currencies_for_locale(locale \\ Cldr.get_current_locale())
-
-  for locale_name <- Cldr.Config.known_locale_names() do
-    currencies =
-      locale_name
-      |> Cldr.Config.get_locale()
-      |> Map.get(:currencies)
-      |> Enum.map(fn {k, v} -> {k, struct(@struct, v)} end)
-      |> Enum.into(%{})
-
-    def currencies_for_locale(%LanguageTag{cldr_locale_name: unquote(locale_name)}) do
-      {:ok, unquote(Macro.escape(currencies))}
-    end
+  def currencies_for_locale(locale, backend) do
+    Module.concat(backend, Currency).currencies_for_locale(locale)
   end
 
-  def currencies_for_locale(locale_name) when is_binary(locale_name) do
-    case Locale.canonical_language_tag(locale_name) do
-      {:ok, locale} -> currencies_for_locale(locale)
-      {:error, reason} -> {:error, reason}
-    end
-  end
-
-  def currencies_for_locale(locale) do
-    {:error, Locale.locale_error(locale)}
-  end
 end
