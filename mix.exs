@@ -16,7 +16,8 @@ defmodule CldrCurrencies.MixProject do
       start_permanent: Mix.env() == :prod,
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
-      package: package()
+      package: package(),
+      cldr_provider: {Cldr.Currency.Backend, :define_currency_module, []}
     ]
   end
 
@@ -34,7 +35,7 @@ defmodule CldrCurrencies.MixProject do
 
   defp deps do
     [
-      {:ex_cldr, "~> 1.8"},
+      {:ex_cldr, path: "../cldr"},
       {:poison, "~> 2.1 or ~> 3.1", optional: true},
       {:jason, "~> 1.0", optional: true},
       {:ex_doc, "~> 0.18", only: :dev, optional: true}
