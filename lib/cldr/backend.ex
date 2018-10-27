@@ -14,7 +14,7 @@ defmodule Cldr.Currency.Backend do
         * `currency` is a custom currency code of a format defined in ISO4217
 
         * `options` is a map of options representing the optional elements of
-          the `%Currency{}` struct
+          the `%Cldr.Currency{}` struct
 
         ## Returns
 
@@ -62,15 +62,18 @@ defmodule Cldr.Currency.Backend do
         Returns the appropriate currency display name for the `currency`, based
         on the plural rules in effect for the `locale`.
 
-        ## Options
+        ## Arguments
 
         * `number` is an integer, float or `Decimal`
 
         * `currency` is any currency returned by `Cldr.Currency.known_currencies/0`
 
         * `options` is a keyword list of options
-          * `:locale` is any locale returned by `Cldr.Locale.new!/1`. The
-          default is `Cldr.get_current_locale/0`
+
+        ## Options
+
+        * `:locale` is any locale returned by `Cldr.Locale.new!/2`. The
+        default is `Cldr.get_current_locale/1`
 
         ## Returns
 
@@ -119,7 +122,7 @@ defmodule Cldr.Currency.Backend do
         @doc """
         Returns a boolean indicating if the supplied currency code is known.
 
-        ## Options
+        ## Arguments
 
         * `currency_code` is a `binary` or `atom` representing an ISO4217
           currency code
@@ -161,7 +164,7 @@ defmodule Cldr.Currency.Backend do
         Note that since this function creates atoms but to a maximum of
         26 * 26 == 676 since the format permits 2 alphabetic characters only.
 
-        ## Options
+        ## Arguments
 
         * `currency_code` is a `String.t` or and `atom` representing the new
           currency code to be created
@@ -249,6 +252,7 @@ defmodule Cldr.Currency.Backend do
 
         @doc """
         Returns the currency metadata for a locale.
+
         """
         @spec currencies_for_locale(Locale.name() | LanguageTag.t()) ::
                 {:ok, Map.t()} | {:error, {Exception.t(), String.t()}}
