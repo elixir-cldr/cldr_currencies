@@ -332,7 +332,8 @@ defmodule Cldr.Currency do
           {:ok, t} | {:error, {Exception.t(), String.t()}}
 
   def currency_for_code(currency_code, backend, options \\ []) do
-    options = Keyword.merge([locale: apply(backend, :default_locale, [])], options)
+    default_options = [locale: backend.default_locale()]
+    options = Keyword.merge(default_options, options)
 
     with {:ok, code} <- Cldr.validate_currency(currency_code),
          {:ok, locale} <- Cldr.validate_locale(options[:locale], backend),
