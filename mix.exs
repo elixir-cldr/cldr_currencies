@@ -36,7 +36,6 @@ defmodule CldrCurrencies.MixProject do
   defp deps do
     [
       {:ex_cldr, path: "../cldr"},
-      {:poison, "~> 2.1 or ~> 3.1", optional: true},
       {:jason, "~> 1.0", optional: true},
       {:ex_doc, "~> 0.18", only: :dev, optional: true}
     ]
