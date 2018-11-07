@@ -68,7 +68,7 @@ defmodule CldrCurrencies.MixProject do
 
   def links do
     %{
-      "GitHub" => "https://github.com/kipcole9/cldr_curencies",
+      "GitHub" => "https://github.com/kipcole9/cldr_currencies",
       "Readme" => "https://github.com/kipcole9/cldr_currencies/blob/v#{@version}/README.md",
       "Changelog" => "https://github.com/kipcole9/cldr_currencies/blob/v#{@version}/CHANGELOG.md"
     }
