@@ -1,6 +1,8 @@
-# Changelog for Cldr_Currencies v2.0.0
+# Changelog for Cldr_Currencies v2.0.0-rc.0
 
 This is the changelog for Cldr_Currencies v1.1.0 released on ______, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
+
+* Remove Poison from optional dependencies (can still be configured in a cliuent app)
 
 ### Breaking Changes
 
