@@ -4,6 +4,11 @@ This is the changelog for Cldr_Currencies v1.1.0 released on ______, 2018.  For 
 
 ### Enhancements
 
+<<<<<<< HEAD
+=======
+* Updated dependency on [ex_cldr](https://hex.pm/packages/ex_cldr) to version 1.8 which uses CLDR version 34 data.
+
+>>>>>>> bbbacf6459e9e929691df019cd1bde8f0d71eeba
 * Remove Poison from optional dependencies (can still be configured in a cliuent app)
 
 ### Breaking Changes
