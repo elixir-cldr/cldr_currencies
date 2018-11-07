@@ -1,3 +1,11 @@
+# Changelog for Cldr_Currencies v1.1.1
+
+This is the changelog for Cldr_Currencies v1.1.0 released on November 8th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
+
+### Bug Fixes
+
+* Corrects the github link in `mix.exs`.  Thanks to @dhedlund.
+
 # Changelog for Cldr_Currencies v1.1.0
 
 This is the changelog for Cldr_Currencies v1.1.0 released on October 18th, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
