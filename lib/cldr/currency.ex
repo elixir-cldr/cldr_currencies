@@ -154,6 +154,7 @@ defmodule Cldr.Currency do
   """
   @spec pluralize(pos_integer, atom, Keyword.t()) ::
           {:ok, String.t()} | {:error, {Exception.t(), String.t()}}
+
   def pluralize(number, currency, backend, options \\ []) do
     default_options = [locale: backend.default_locale()]
     options = Keyword.merge(default_options, options)
@@ -328,7 +329,7 @@ defmodule Cldr.Currency do
       }}
 
   """
-  @spec currency_for_code(code, LanguageTag.t(), Cldr.backend()) ::
+  @spec currency_for_code(code, Cldr.backend(), Keyword.t()) ::
           {:ok, t} | {:error, {Exception.t(), String.t()}}
 
   def currency_for_code(currency_code, backend, options \\ []) do
