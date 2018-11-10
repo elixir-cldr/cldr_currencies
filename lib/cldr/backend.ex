@@ -261,7 +261,7 @@ defmodule Cldr.Currency.Backend do
         for locale_name <- Cldr.Config.known_locale_names(config) do
           currencies =
             locale_name
-            |> Cldr.Config.get_locale()
+            |> Cldr.Config.get_locale(config)
             |> Map.get(:currencies)
             |> Enum.map(fn {k, v} -> {k, struct(Cldr.Currency, v)} end)
             |> Enum.into(%{})
