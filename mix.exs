@@ -1,7 +1,7 @@
 defmodule CldrCurrencies.MixProject do
   use Mix.Project
 
-  @version "2.0.0-rc.0"
+  @version "2.0.0"
 
   def project do
     [
@@ -35,7 +35,7 @@ defmodule CldrCurrencies.MixProject do
 
   defp deps do
     [
-      {:ex_cldr, "~> 2.0 or ~> 2.0.0-rc"},
+      {:ex_cldr, "~> 2.0"},
       {:jason, "~> 1.0", optional: true},
       {:ex_doc, "~> 0.18", only: :dev, optional: true}
     ]
