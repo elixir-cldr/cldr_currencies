@@ -403,4 +403,52 @@ defmodule Cldr.Currency do
   def all_currency_strings(backend, currency_status \\ :all) do
     Module.concat(backend, Currency).all_currency_strings(currency_status)
   end
+
+  @doc """
+  Return only those currencies meeting the
+  filter criteria.
+
+  ## Arguments
+
+  * `currency` is a `Cldr.Currency.t`, a list of `Cldr.Currency.t` or a
+    map where the values of each item is a `Cldr.Currency.t`
+
+  * `currency_status` is `:all`, `:current`, `:historic` or `:tender`
+    or a list of one or more status. The default is `:all`
+
+  """
+  @spec currency_filter(Cldr.Currency.t | [Cldr.Currency.t] | Map.t,
+    Cldr.Currency.currency_status) :: boolean
+
+  def currency_filter(currency, currency_status)
+
+  def currency_filter(%Cldr.Currency{} = _currency, :all) do
+    true
+  end
+
+  def currency_filter(%Cldr.Currency{} = currency, :current) do
+    !is_nil(currency.iso_digits) && is_nil(currency.to)
+  end
+
+  def currency_filter(%Cldr.Currency{} = currency, :historic) do
+    is_nil(currency.iso_digits) ||
+    (is_integer(currency.to) && currency.to < Date.utc_today.year)
+  end
+
+  def currency_filter(%Cldr.Currency{} = currency, :tender) do
+    currency.tender
+  end
+
+  def currency_filter(%Cldr.Currency{} = currency, status) when is_list(status) do
+    Enum.all?(status, fn s -> currency_filter(currency, s) end)
+  end
+
+  def currency_filter(currencies, currency_status) when is_map(currencies) do
+    Enum.filter(currencies, fn {_m, c} -> currency_filter(c, currency_status) end)
+    |> Map.new
+  end
+
+  def currency_filter(currencies, currency_status) when is_list(currencies) do
+    Enum.filter(currencies, &currency_filter(&1, currency_status))
+  end
 end

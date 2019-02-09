@@ -2,5 +2,4 @@
 use Mix.Config
 
 config :ex_cldr,
-  default_locale: "en",
-  locales: ["en", "fr", "de", "zh"]
+  default_locale: "en"

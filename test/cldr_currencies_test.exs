@@ -15,8 +15,8 @@ defmodule Cldr.Currency.Test do
   test "that we filter historic currencies correctly" do
     current_currencies =
       "en"
-      |> Currency.Cldr.Currency.currencies_for_locale!
-      |> Currency.Cldr.Currency.currency_filter([:current])
+      |> Test.Cldr.Currency.currencies_for_locale!
+      |> Cldr.Currency.currency_filter([:current])
 
     assert Map.get(current_currencies, :SDP) == nil
   end
@@ -24,8 +24,8 @@ defmodule Cldr.Currency.Test do
   test "that we have currency effective dates" do
     historic_currencies =
       "en"
-      |> Currency.Cldr.Currency.currencies_for_locale!
-      |> Currency.Cldr.Currency.currency_filter([:historic])
+      |> Test.Cldr.Currency.currencies_for_locale!
+      |> Cldr.Currency.currency_filter([:historic])
       |> Map.keys
 
     assert :ZWR in historic_currencies

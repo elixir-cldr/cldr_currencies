@@ -1,5 +1,8 @@
 defmodule Cldr.Currency.Backend do
   def define_currency_module(config) do
+    require Cldr
+    require Cldr.Currency
+
     module = inspect(__MODULE__)
     backend = config.backend
     config = Macro.escape(config)
@@ -49,8 +52,6 @@ defmodule Cldr.Currency.Backend do
             {:error, {Cldr.CurrencyAlreadyDefined, "Currency :XBC is already defined"}}
 
         """
-        alias Cldr.Locale
-
         @spec new(binary | atom, map | list) :: Cldr.Currency.t() | {:error, binary}
         def new(currency, options \\ [])
 
@@ -256,78 +257,16 @@ defmodule Cldr.Currency.Backend do
         ## Arguments
 
         * `locale` is any valid locale name returned by `Cldr.known_locale_names/1`
-          or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
+         or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
+
+        * `currency_status` is `:all`, `:current`, `:historic` or `:tender`
+          or a list of one or more status. The default is `:all`
 
         """
-        @spec currencies_for_locale(Locale.name() | LanguageTag.t()) ::
-                {:ok, Map.t()} | {:error, {Exception.t(), String.t()}}
-        def currencies_for_locale(locale)
+        @spec currencies_for_locale(Locale.name() | LanguageTag.t(), Cldr.Currency.currency_status) ::
+               {:ok, Map.t()} | {:error, {Exception.t(), String.t()}}
 
-        convert_or_nilify = fn
-          "" -> nil
-          other -> String.to_integer(other)
-        end
-
-        @reg Regex.compile! "(?<currency>[^\\(0-9]+)(\\((?<from>[0-9]{4}))?([–-](?<to>[0-9]{4}))?"
-        for locale_name <- Cldr.Config.known_locale_names(config) do
-          currencies =
-            locale_name
-            |> Cldr.Config.get_locale(config)
-            |> Map.get(:currencies)
-            |> Enum.map(fn {k, v} ->
-              name_and_range = Regex.named_captures(@reg, Map.get(v, :name))
-              name = Map.get(name_and_range, "currency") |> String.trim
-              from = convert_or_nilify.(Map.get(name_and_range, "from"))
-              to = convert_or_nilify.(Map.get(name_and_range, "to"))
-              count = Enum.map(Map.get(v, :count), fn {k, v} ->
-                {k, String.replace(v, ~r/ \(.*/, "")}
-              end)
-              |> Map.new
-
-              currency =
-                v
-                |> Map.put(:name, name)
-                |> Map.put(:from, from)
-                |> Map.put(:to, to)
-                |> Map.put(:count, count)
-
-              {k, struct(Cldr.Currency, currency)}
-            end)
-            |> Enum.into(%{})
-
-          def currencies_for_locale(%LanguageTag{cldr_locale_name: unquote(locale_name)}) do
-            {:ok, unquote(Macro.escape(currencies))}
-          end
-        end
-
-        def currencies_for_locale(locale_name) when is_binary(locale_name) do
-          with {:ok, locale} <- Cldr.validate_locale(locale_name, unquote(backend)) do
-            currencies_for_locale(locale)
-          end
-        end
-
-        def currencies_for_locale(locale) do
-          {:error, Locale.locale_error(locale)}
-        end
-
-        @doc """
-        Get currency data for a locale or raise
-
-        ## Arguments
-
-        * `locale` is any valid locale name returned by `Cldr.known_locale_names/1`
-          or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
-
-        """
-        @spec currencies_for_locale!(Locale.name() | LanguageTag.t()) ::
-                Map.t() | no_return
-
-        def currencies_for_locale!(locale) do
-          case currencies_for_locale(locale) do
-            {:ok, currencies} -> currencies
-            {:error, {exception, reason}} -> raise exception, reason
-          end
-        end
+        def currencies_for_locale(locale, currency_status \\ :all)
 
         @doc """
         Returns the string and symbols for a currency that
@@ -342,21 +281,70 @@ defmodule Cldr.Currency.Backend do
           or a list of one or more status. The default is `:all`
 
         """
-        @spec currency_strings(Cldr.Locale.t, Cldr.Currency.currency_status) :: Map.t
+        @spec currency_strings(Cldr.Locale.t, Cldr.Currency.currency_status) ::
+          {:ok, Map.t} | {:error, {Exception.t, String.t}}
+
         def currency_strings(locale, currency_status \\ :all)
 
-        def currency_strings(%LanguageTag{} = locale, currency_status) do
-          {:ok, currencies} = currencies_for_locale(locale)
-          for {currency_code, currency} <- currencies, currency_filter(currency, currency_status) do
-            strings =
-              [currency.name, currency.symbol, currency.code] ++ Map.values(currency.count)
-              |> Enum.reject(&is_nil/1)
-              |> Enum.map(&String.downcase/1)
-              |> Enum.uniq
+        for locale_name <- Cldr.Config.known_locale_names(config) do
+          currencies =
+            locale_name
+            |> Cldr.Config.currencies_for!(config)
+            |> Enum.map(fn {k, v} -> {k, struct(Cldr.Currency, v)} end)
+            |> Map.new
 
-            {currency_code, strings}
+          currency_strings =
+            for {currency_code, currency} <- Cldr.Config.currencies_for!(locale_name, config) do
+              strings =
+                [currency.name, currency.symbol, currency.code] ++ Map.values(currency.count)
+                |> Enum.reject(&is_nil/1)
+                |> Enum.map(&String.downcase/1)
+                |> Enum.uniq
+
+              {currency_code, strings}
+            end
+            |> Map.new
+
+          def currencies_for_locale(%LanguageTag{cldr_locale_name: unquote(locale_name)}, currency_status) do
+            filtered_currencies =
+              unquote(Macro.escape(currencies))
+              |> Cldr.Currency.currency_filter(currency_status)
+
+            {:ok, filtered_currencies}
           end
-          |> Map.new
+
+          def currency_strings(%LanguageTag{cldr_locale_name: unquote(locale_name)}, :all) do
+            {:ok, unquote(Macro.escape(currency_strings))}
+          end
+        end
+
+        def currencies_for_locale(locale_name, currency_status) when is_binary(locale_name) do
+          with {:ok, locale} <- Cldr.validate_locale(locale_name, unquote(backend)) do
+            currencies_for_locale(locale, currency_status)
+          end
+        end
+
+        def currencies_for_locale(locale, _currency_status) do
+          {:error, Cldr.Locale.locale_error(locale)}
+        end
+
+        @doc """
+        Returns the currency metadata for a locale or raises.
+
+        ## Arguments
+
+        * `locale` is any valid locale name returned by `Cldr.known_locale_names/1`
+         or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
+
+        * `currency_status` is `:all`, `:current`, `:historic` or `:tender`
+          or a list of one or more status. The default is `:all`
+
+        """
+        def currencies_for_locale!(locale, currency_status \\ :all) do
+          case currencies_for_locale(locale, currency_status) do
+            {:ok, currencies} -> currencies
+            {:error, {exception, reason}} -> raise exception, reason
+          end
         end
 
         def currency_strings(locale_name, currency_status) when is_binary(locale_name) do
@@ -365,67 +353,58 @@ defmodule Cldr.Currency.Backend do
           end
         end
 
+        def currency_strings(%LanguageTag{} = locale, currency_status) do
+          with {:ok, locales} <- currencies_for_locale(locale) do
+            filtered_locales =
+              locales
+              |> Cldr.Currency.currency_filter(currency_status)
+              |> Map.keys
+
+            locale
+            |> currency_strings!
+            |> Enum.filter(fn {k, v} -> k in filtered_locales end)
+            |> Map.new
+          end
+        end
+
+        def currency_strings(locale, _currency_status) do
+          {:error, Cldr.Locale.locale_error(locale)}
+        end
+
         @doc """
-        Return only those currencies meeting the
-        filter criteria.
+        Returns the string and symbols for a currency that
+        can be used to parse money. Raises on error.
 
         ## Arguments
 
-        * `currency` is a `Cldr.Currency.t`, a list of `Cldr.Currency.t` or a
-          map where the values of each item is a `Cldr.Currency.t`
+        * `locale` is any valid locale name returned by `Cldr.known_locale_names/1`
+          or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
 
         * `currency_status` is `:all`, `:current`, `:historic` or `:tender`
           or a list of one or more status. The default is `:all`
 
         """
-        @spec currency_filter(Cldr.Currency.t | [Cldr.Currency.t] | Map.t,
-          Cldr.Currency.currency_status) :: boolean
-
-        def currency_filter(currency, currency_status)
-
-        def currency_filter(%Cldr.Currency{} = _currency, :all) do
-          true
+        @spec currency_strings!(Cldr.Locale.t, Cldr.Currency.currency_status) :: Map.t
+        def currency_strings!(locale_name, currency_status \\ :all) do
+          case currency_strings(locale_name, currency_status) do
+            {:ok, currency_strings} -> currency_strings
+            {:error, {exception, reason}} -> raise exception, reason
+          end
         end
-
-        def currency_filter(%Cldr.Currency{} = currency, :current) do
-          !is_nil(currency.iso_digits) && is_nil(currency.to)
-        end
-
-        def currency_filter(%Cldr.Currency{} = currency, :historic) do
-          is_nil(currency.iso_digits) ||
-          (is_integer(currency.to) && currency.to < Date.utc_today.year)
-        end
-
-        def currency_filter(%Cldr.Currency{} = currency, :tender) do
-          currency.tender
-        end
-
-        def currency_filter(%Cldr.Currency{} = currency, status) when is_list(status) do
-          Enum.all?(status, fn s -> currency_filter(currency, s) end)
-        end
-
-        def currency_filter(currencies, currency_status) when is_map(currencies) do
-          Enum.filter(currencies, fn {_m, c} -> currency_filter(c, currency_status) end)
-          |> Map.new
-        end
-
-        def currency_filter(currencies, currency_status) when is_list(currencies) do
-          Enum.filter(currencies, &currency_filter(&1, currency_status))
-        end
-
-        @doc """
-        Returns all currency strings for all known locales
-
-        ## Arguments
-
-        * `currency_status` is `:all`, `:current`, `:historic` or `:tender`
-          or a list of one or more status. The default is `:all`
-
-        """
+        #
+        # @doc """
+        # Returns all currency strings for all known locales
+        #
+        # ## Arguments
+        #
+        # * `currency_status` is `:all`, `:current`, `:historic` or `:tender`
+        #   or a list of one or more status. The default is `:all`
+        #
+        # """
         @spec all_currency_strings(Cldr.Currency.currency_status) :: Map.t
         def all_currency_strings(currency_status \\ :all) do
-          for locale_name <- unquote(backend).known_locale_names -- ["root"] do
-            currency_strings(locale_name, currency_status)
+          for locale_name <- unquote(backend).known_locale_names do
+            currency_strings!(locale_name, currency_status)
           end
           |> merge_maps
           |> Enum.map(fn {k, v} -> {k, Enum.uniq(v)} end)
@@ -436,21 +415,6 @@ defmodule Cldr.Currency.Backend do
           Enum.reduce(maps, %{}, fn m, acc ->
             Map.merge(acc, m, fn _k, m1, m2 -> m1 ++ m2 end)
           end)
-        end
-
-        @doc false
-        def duplicate_narrow_symbols(currency_status \\ :all) do
-          [locale_name | _] = unquote(backend).known_locale_names -- ["root"]
-          currencies =
-            locale_name
-            |> currencies_for_locale!
-            |> currency_filter(currency_status)
-            |> Enum.map(fn {_c, m} -> m.narrow_symbol end)
-            |> Enum.reject(&is_nil/1)
-            |> Enum.group_by(fn x -> x end)
-            |> Enum.filter(fn {k, l} -> length(l) > 1 end)
-            |> Map.new
-            |> Map.keys
         end
       end
     end
