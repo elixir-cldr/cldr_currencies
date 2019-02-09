@@ -5,8 +5,7 @@ to return currency data.
 
 ## Installation
 
-The package can be installed
-by adding `ex_cldr_currencies` to your list of dependencies in `mix.exs`:
+The package can be installed by adding `ex_cldr_currencies` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do

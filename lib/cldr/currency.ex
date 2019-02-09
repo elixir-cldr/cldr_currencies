@@ -17,6 +17,8 @@ defmodule Cldr.Currency do
 
   @type code :: String.t()
 
+  @type currency_status :: :all | :current | :historic | :tender
+
   @type t :: %__MODULE__{
           code: code,
           name: String.t(),
@@ -28,7 +30,9 @@ defmodule Cldr.Currency do
           cash_digits: non_neg_integer,
           cash_rounding: non_neg_integer,
           iso_digits: non_neg_integer,
-          count: %{}
+          count: %{},
+          from: Date.year,
+          to: Date.year
         }
 
   defstruct code: nil,
@@ -41,7 +45,9 @@ defmodule Cldr.Currency do
             cash_rounding: 0,
             iso_digits: 0,
             tender: false,
-            count: nil
+            count: nil,
+            from: nil,
+            to: nil
 
   @doc """
   Returns a `Currency` struct created from the arguments.
@@ -363,4 +369,38 @@ defmodule Cldr.Currency do
     Module.concat(backend, Currency).currencies_for_locale(locale)
   end
 
+  @doc """
+  Returns the string and symbols for a currency that
+  can be used to parse money
+
+  ## Arguments
+
+  * `locale` is any valid locale name returned by `Cldr.known_locale_names/1`
+    or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
+
+  * `backend` is any module that includes `use Cldr` and therefore
+    is a `Cldr` backend module
+
+  * `currency_status` is `:all`, `:current`, `:historic` or `:tender`
+    or a list of one or more status. The default is `:all`
+
+  """
+  @spec currency_strings(Cldr.Locale.t, Cldr.backend(), currency_status) :: Map.t
+  def currency_strings(locale, backend, currency_status \\ :all) do
+    Module.concat(backend, Currency).currency_strings(locale, currency_status)
+  end
+
+  @doc """
+  Returns all currency strings for all known locales
+
+  ## Arguments
+
+  * `currency_status` is `:all`, `:current`, `:historic` or `:tender`
+    or a list of one or more status. The default is `:all`
+
+  """
+  @spec all_currency_strings(Cldr.backend(), currency_status) :: Map.t
+  def all_currency_strings(backend, currency_status \\ :all) do
+    Module.concat(backend, Currency).all_currency_strings(currency_status)
+  end
 end

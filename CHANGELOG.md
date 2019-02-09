@@ -1,3 +1,21 @@
+# Changelog for Cldr_Currencies v2.1.0
+
+This is the changelog for Cldr_Currencies v2.1.0 released on February 9th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
+
+### Enhancements
+
+The primary goal of this release is to provide a mechanism to support parsing money and currency input from a user. With this in mind, this release adds:
+
+* `Cldr.Currency.currency_strings/2` that returns a list of strings for a currency in a locale against which user input can be compared to identify a currency
+
+* `Cldr.Currency.all_currency_strings/2` which returns a similar list but for all known locales
+
+* `Cldr.Currency.currency_filter/2` that will filter a list currencies based upon whether they are current, historic or legal tender
+
+In addition the `Cldr.Currency.t` structure has changed:
+
+* The `Cldr.Currency.t` struct now includes effective dates `:to` and `:from`.  These were previously encoded in the currency name.  The currency name no longer includes these dates.
+
 # Changelog for Cldr_Currencies v2.0.0
 
 This is the changelog for Cldr_Currencies v2.0.0 released on November 22nd, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
