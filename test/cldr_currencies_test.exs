@@ -15,7 +15,7 @@ defmodule Cldr.Currency.Test do
   test "that we filter historic currencies correctly" do
     current_currencies =
       "en"
-      |> Test.Cldr.Currency.currencies_for_locale!
+      |> Test.Cldr.Currency.currencies_for_locale!()
       |> Cldr.Currency.currency_filter([:current])
 
     assert Map.get(current_currencies, :SDP) == nil
@@ -24,13 +24,18 @@ defmodule Cldr.Currency.Test do
   test "that we have currency effective dates" do
     historic_currencies =
       "en"
-      |> Test.Cldr.Currency.currencies_for_locale!
+      |> Test.Cldr.Currency.currencies_for_locale!()
       |> Cldr.Currency.currency_filter([:historic])
-      |> Map.keys
+      |> Map.keys()
 
     assert :ZWR in historic_currencies
     assert :YUN in historic_currencies
     assert :XFU in historic_currencies
     assert :ZRN in historic_currencies
+  end
+
+  test "names with annotations are intact" do
+    assert Cldr.Currency.strings_for_currency(:USN, "en", Test.Cldr) ==
+    ["us dollar (next day)", "usn", "us dollars (next day)"]
   end
 end

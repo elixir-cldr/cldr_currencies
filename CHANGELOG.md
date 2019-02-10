@@ -1,3 +1,19 @@
+# Changelog for Cldr_Currencies v2.1.1
+
+This is the changelog for Cldr_Currencies v2.1.1 released on February 10th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
+
+### Bug Fixes
+
+* Fixes the regex for parsing currency names that have date ranges in them. It now correctly parses names with non-ASCII characters too.
+
+* Removes `Cldr.Currency.all_currency_strings/2` since strings conflict across locales
+
+* Add `Cldr.Currency.currency_strings/2`
+
+### Enhancements
+
+* Added `:unannotated` to `Cldr.Currency.currency_filter/2`.  It omits currency names that have a "(...)" in then since these are typically financial instruments.
+
 # Changelog for Cldr_Currencies v2.1.0
 
 This is the changelog for Cldr_Currencies v2.1.0 released on February 9th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)

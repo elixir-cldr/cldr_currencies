@@ -1,4 +1,6 @@
 defmodule Cldr.Currency.Backend do
+  @moduledoc false
+
   def define_currency_module(config) do
     require Cldr
     require Cldr.Currency
@@ -117,7 +119,7 @@ defmodule Cldr.Currency.Backend do
         """
         @spec known_currencies() :: list(atom)
         def known_currencies do
-          Cldr.Currency.known_currencies
+          Cldr.Currency.known_currencies()
         end
 
         @doc """
@@ -150,7 +152,7 @@ defmodule Cldr.Currency.Backend do
             true
 
         """
-        @spec known_currency?(Cldr.Currency.code, [Cldr.Currency.t(), ...]) :: boolean
+        @spec known_currency?(Cldr.Currency.code(), [Cldr.Currency.t(), ...]) :: boolean
         def known_currency?(currency_code, custom_currencies \\ []) do
           Cldr.Currency.known_currency?(currency_code, custom_currencies)
         end
@@ -235,15 +237,26 @@ defmodule Cldr.Currency.Backend do
             }}
 
         """
-        @spec currency_for_code(Cldr.Currency.code, LanguageTag.t()) ::
+        @spec currency_for_code(Cldr.Currency.code(), LanguageTag.t()) ::
                 {:ok, Cldr.Currency.t()} | {:error, {Exception.t(), String.t()}}
-        def currency_for_code(currency_code, options \\ [locale: unquote(backend).default_locale()]) do
+        def currency_for_code(
+              currency_code,
+              options \\ [locale: unquote(backend).default_locale()]
+            ) do
           Cldr.Currency.currency_for_code(currency_code, unquote(backend), options)
         end
 
         defp get_currency_metadata(code, nil) do
           string_code = to_string(code)
-          {:ok, meta} = new(code, name: string_code, symbol: string_code, narrow_symbol: string_code, count: %{other: string_code})
+
+          {:ok, meta} =
+            new(code,
+              name: string_code,
+              symbol: string_code,
+              narrow_symbol: string_code,
+              count: %{other: string_code}
+            )
+
           meta
         end
 
@@ -252,37 +265,112 @@ defmodule Cldr.Currency.Backend do
         end
 
         @doc """
-        Returns the currency metadata for a locale.
-
-        ## Arguments
-
-        * `locale` is any valid locale name returned by `Cldr.known_locale_names/1`
-         or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
-
-        * `currency_status` is `:all`, `:current`, `:historic` or `:tender`
-          or a list of one or more status. The default is `:all`
-
-        """
-        @spec currencies_for_locale(Locale.name() | LanguageTag.t(), Cldr.Currency.currency_status) ::
-               {:ok, Map.t()} | {:error, {Exception.t(), String.t()}}
-
-        def currencies_for_locale(locale, currency_status \\ :all)
-
-        @doc """
-        Returns the string and symbols for a currency that
-        can be used to parse money
+        Returns a map of the metadata for all currencies for
+        a given locale.
 
         ## Arguments
 
         * `locale` is any valid locale name returned by `Cldr.known_locale_names/1`
           or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
 
-        * `currency_status` is `:all`, `:current`, `:historic` or `:tender`
-          or a list of one or more status. The default is `:all`
+        * `currency_status` is `:all`, `:current`, `:historic`,
+          `unannotated` or `:tender`; or a list of one or more status.
+          The default is `:all`. See `Cldr.Currency.currency_filter/2`.
+
+        ## Returns
+
+        * `{:ok, currency_map}` or
+
+        * `{:error, {exception, reason}}`
+
+        ## Example
+
+          => MyApp.Cldr.Currency.currencies_for_locale "en"
+          {:ok,
+           %{
+             FJD: %Cldr.Currency{
+               cash_digits: 2,
+               cash_rounding: 0,
+               code: "FJD",
+               count: %{one: "Fijian dollar", other: "Fijian dollars"},
+               digits: 2,
+               from: nil,
+               iso_digits: 2,
+               name: "Fijian Dollar",
+               narrow_symbol: "$",
+               rounding: 0,
+               symbol: "FJD",
+               tender: true,
+               to: nil
+             },
+             SUR: %Cldr.Currency{
+               cash_digits: 2,
+               cash_rounding: 0,
+               code: "SUR",
+               count: %{one: "Soviet rouble", other: "Soviet roubles"},
+               digits: 2,
+               from: nil,
+               iso_digits: nil,
+               name: "Soviet Rouble",
+               narrow_symbol: nil,
+               rounding: 0,
+               symbol: "SUR",
+               tender: true,
+               to: nil
+             },
+             ...
+            }}
 
         """
-        @spec currency_strings(Cldr.Locale.t, Cldr.Currency.currency_status) ::
-          {:ok, Map.t} | {:error, {Exception.t, String.t}}
+        @spec currencies_for_locale(
+                Locale.name() | LanguageTag.t(),
+                Cldr.Currency.currency_status()
+              ) ::
+                {:ok, Map.t()} | {:error, {Exception.t(), String.t()}}
+
+        def currencies_for_locale(locale, currency_status \\ :all)
+
+        @doc """
+        Returns a map that matches a currency string to a
+        currency code.
+
+        A currency string is a localised name or symbol
+        representing a currency in a locale-specific manner.
+
+        ## Arguments
+
+        * `locale` is any valid locale name returned by `Cldr.known_locale_names/1`
+          or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`.
+
+        * `currency_status` is `:all`, `:current`, `:historic`,
+          `unannotated` or `:tender`; or a list of one or more status.
+          The default is `:all`. See `Cldr.Currency.currency_filter/2`.
+
+        ## Returns
+
+        * `{:ok, currency_string_map}` or
+
+        * `{:error, {exception, reason}}`
+
+        ## Example
+
+            => MyApp.Cldr.Currency.currency_strings "en"
+            {:ok,
+             %{
+               "mexican silver pesos" => :MXP,
+               "sudanese dinar" => :SDD,
+               "bad" => :BAD,
+               "rsd" => :RSD,
+               "swazi lilangeni" => :SZL,
+               "zairean new zaire" => :ZRN,
+               "guyanaese dollars" => :GYD,
+               "equatorial guinean ekwele" => :GQE,
+               ...
+              }}
+
+        """
+        @spec currency_strings(Cldr.Locale.t(), Cldr.Currency.currency_status()) ::
+                {:ok, Map.t()} | {:error, {Exception.t(), String.t()}}
 
         def currency_strings(locale, currency_status \\ :all)
 
@@ -291,21 +379,28 @@ defmodule Cldr.Currency.Backend do
             locale_name
             |> Cldr.Config.currencies_for!(config)
             |> Enum.map(fn {k, v} -> {k, struct(Cldr.Currency, v)} end)
-            |> Map.new
+            |> Map.new()
 
           currency_strings =
             for {currency_code, currency} <- Cldr.Config.currencies_for!(locale_name, config) do
               strings =
-                [currency.name, currency.symbol, currency.code] ++ Map.values(currency.count)
+                ([currency.name, currency.symbol, currency.code] ++ Map.values(currency.count))
                 |> Enum.reject(&is_nil/1)
                 |> Enum.map(&String.downcase/1)
-                |> Enum.uniq
+                |> Enum.uniq()
 
               {currency_code, strings}
             end
-            |> Map.new
+            |> Map.new()
 
-          def currencies_for_locale(%LanguageTag{cldr_locale_name: unquote(locale_name)}, currency_status) do
+          inverted_currency_strings =
+            currency_strings
+            |> Cldr.Currency.invert_currency_strings()
+
+          def currencies_for_locale(
+                %LanguageTag{cldr_locale_name: unquote(locale_name)},
+                currency_status
+              ) do
             filtered_currencies =
               unquote(Macro.escape(currencies))
               |> Cldr.Currency.currency_filter(currency_status)
@@ -314,7 +409,7 @@ defmodule Cldr.Currency.Backend do
           end
 
           def currency_strings(%LanguageTag{cldr_locale_name: unquote(locale_name)}, :all) do
-            {:ok, unquote(Macro.escape(currency_strings))}
+            {:ok, unquote(Macro.escape(inverted_currency_strings))}
           end
         end
 
@@ -328,16 +423,88 @@ defmodule Cldr.Currency.Backend do
           {:error, Cldr.Locale.locale_error(locale)}
         end
 
+        def currency_strings(locale_name, currency_status) when is_binary(locale_name) do
+          with {:ok, locale} <- Cldr.validate_locale(locale_name, unquote(backend)) do
+            currency_strings(locale, currency_status)
+          end
+        end
+
+        def currency_strings(%LanguageTag{} = locale, currency_status) do
+          with {:ok, currencies} <- currencies_for_locale(locale) do
+            filtered_currencies =
+              currencies
+              |> Cldr.Currency.currency_filter(currency_status)
+              |> Map.keys()
+
+            strings =
+              locale
+              |> currency_strings!
+              |> Enum.filter(fn {k, v} -> v in filtered_currencies end)
+              |> Map.new()
+
+            {:ok, strings}
+          end
+        end
+
+        def currency_strings(locale, _currency_status) do
+          {:error, Cldr.Locale.locale_error(locale)}
+        end
+
         @doc """
-        Returns the currency metadata for a locale or raises.
+        Returns a map of the metadata for all currencies for
+        a given locale and raises on error.
 
         ## Arguments
 
         * `locale` is any valid locale name returned by `Cldr.known_locale_names/1`
-         or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
+          or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
 
-        * `currency_status` is `:all`, `:current`, `:historic` or `:tender`
-          or a list of one or more status. The default is `:all`
+        * `currency_status` is `:all`, `:current`, `:historic`,
+          `unannotated` or `:tender`; or a list of one or more status.
+          The default is `:all`. See `Cldr.Currency.currency_filter/2`.
+
+        ## Returns
+
+        * `{:ok, currency_map}` or
+
+        * raises an exception
+
+        ## Example
+
+          => MyApp.Cldr.Currency.currencies_for_locale! "en"
+          %{
+            FJD: %Cldr.Currency{
+              cash_digits: 2,
+              cash_rounding: 0,
+              code: "FJD",
+              count: %{one: "Fijian dollar", other: "Fijian dollars"},
+              digits: 2,
+              from: nil,
+              iso_digits: 2,
+              name: "Fijian Dollar",
+              narrow_symbol: "$",
+              rounding: 0,
+              symbol: "FJD",
+              tender: true,
+              to: nil
+            },
+            SUR: %Cldr.Currency{
+              cash_digits: 2,
+              cash_rounding: 0,
+              code: "SUR",
+              count: %{one: "Soviet rouble", other: "Soviet roubles"},
+              digits: 2,
+              from: nil,
+              iso_digits: nil,
+              name: "Soviet Rouble",
+              narrow_symbol: nil,
+              rounding: 0,
+              symbol: "SUR",
+              tender: true,
+              to: nil
+            },
+            ...
+           }
 
         """
         def currencies_for_locale!(locale, currency_status \\ :all) do
@@ -347,74 +514,77 @@ defmodule Cldr.Currency.Backend do
           end
         end
 
-        def currency_strings(locale_name, currency_status) when is_binary(locale_name) do
-          with {:ok, locale} <- Cldr.validate_locale(locale_name, unquote(backend)) do
-            currency_strings(locale, currency_status)
-          end
-        end
-
-        def currency_strings(%LanguageTag{} = locale, currency_status) do
-          with {:ok, locales} <- currencies_for_locale(locale) do
-            filtered_locales =
-              locales
-              |> Cldr.Currency.currency_filter(currency_status)
-              |> Map.keys
-
-            locale
-            |> currency_strings!
-            |> Enum.filter(fn {k, v} -> k in filtered_locales end)
-            |> Map.new
-          end
-        end
-
-        def currency_strings(locale, _currency_status) do
-          {:error, Cldr.Locale.locale_error(locale)}
-        end
-
         @doc """
-        Returns the string and symbols for a currency that
-        can be used to parse money. Raises on error.
+        Returns a map that matches a currency string to a
+        currency code or raises an exception.
+
+        A currency string is a localised name or symbol
+        representing a currency in a locale-specific manner.
 
         ## Arguments
 
         * `locale` is any valid locale name returned by `Cldr.known_locale_names/1`
-          or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
+          or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`.
 
-        * `currency_status` is `:all`, `:current`, `:historic` or `:tender`
-          or a list of one or more status. The default is `:all`
+        * `currency_status` is `:all`, `:current`, `:historic`,
+          `unannotated` or `:tender`; or a list of one or more status.
+          The default is `:all`. See `Cldr.Currency.currency_filter/2`.
+
+        ## Returns
+
+        * `{:ok, currency_string_map}` or
+
+        * raises an exception
+
+        ## Example
+
+            => MyApp.Cldr.Currency.currency_strings! "en"
+            %{
+              "mexican silver pesos" => :MXP,
+              "sudanese dinar" => :SDD,
+              "bad" => :BAD,
+              "rsd" => :RSD,
+              "swazi lilangeni" => :SZL,
+              "zairean new zaire" => :ZRN,
+              "guyanaese dollars" => :GYD,
+              "equatorial guinean ekwele" => :GQE,
+              ...
+             }
 
         """
-        @spec currency_strings!(Cldr.Locale.t, Cldr.Currency.currency_status) :: Map.t
+        @spec currency_strings!(Cldr.Locale.t(), Cldr.Currency.currency_status()) :: Map.t()
         def currency_strings!(locale_name, currency_status \\ :all) do
           case currency_strings(locale_name, currency_status) do
             {:ok, currency_strings} -> currency_strings
             {:error, {exception, reason}} -> raise exception, reason
           end
         end
-        #
-        # @doc """
-        # Returns all currency strings for all known locales
-        #
-        # ## Arguments
-        #
-        # * `currency_status` is `:all`, `:current`, `:historic` or `:tender`
-        #   or a list of one or more status. The default is `:all`
-        #
-        # """
-        @spec all_currency_strings(Cldr.Currency.currency_status) :: Map.t
-        def all_currency_strings(currency_status \\ :all) do
-          for locale_name <- unquote(backend).known_locale_names do
-            currency_strings!(locale_name, currency_status)
-          end
-          |> merge_maps
-          |> Enum.map(fn {k, v} -> {k, Enum.uniq(v)} end)
-          |> Map.new
-        end
 
-        defp merge_maps(maps) do
-          Enum.reduce(maps, %{}, fn m, acc ->
-            Map.merge(acc, m, fn _k, m1, m2 -> m1 ++ m2 end)
-          end)
+        @doc """
+        Returns the strings associated with a currency
+        in a given locale.
+
+        ## Arguments
+
+        * `currency` is an ISO4217 currency code
+
+        * `locale` is any valid locale name returned by `Cldr.known_locale_names/1`
+          or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`.
+
+        ## Returns
+
+        * A list of strings or
+
+        * `{:error, {exception, reason}}`
+
+        ## Example
+
+            iex> Test.Cldr.Currency.strings_for_currency :AUD, "en"
+            ["a$", "australian dollars", "aud", "australian dollar"]
+
+        """
+        def strings_for_currency(currency, locale) do
+          Cldr.Currency.strings_for_currency(currency, locale, unquote(backend))
         end
       end
     end
