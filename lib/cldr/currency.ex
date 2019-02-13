@@ -784,8 +784,8 @@ defmodule Cldr.Currency do
   end
 
   # Not a duplicate, process the rest of the list
-  defp do_remove_duplicates([{c1, code1} | [{_c2, _code2} | _rest] = other], currencies) do
-    [{c1, code1} | do_remove_duplicates(other, currencies)]
+  defp do_remove_duplicates([{c1, code1} | rest], currencies) do
+    [{c1, code1} | do_remove_duplicates(rest, currencies)]
   end
 
   @doc false
