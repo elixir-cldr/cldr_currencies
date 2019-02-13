@@ -1,3 +1,11 @@
+# Changelog for Cldr_Currencies v2.1.2
+
+This is the changelog for Cldr_Currencies v2.1.2 released on February 13th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
+
+### Bug Fixes
+
+* Some different currencies may have the same currency name.  This most commonly happens when there are historic currencies with the same name as a current currency. Afghan Afghanis, for example, has the code `:AFA` until 2002 when it was replaced by the currency code `:AFN`.  Now when extracting currency strings, the currency names map only to the current currency and the duplicated are therefore removed.
+
 # Changelog for Cldr_Currencies v2.1.1
 
 This is the changelog for Cldr_Currencies v2.1.1 released on February 10th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)

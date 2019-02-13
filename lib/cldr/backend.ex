@@ -391,11 +391,11 @@ defmodule Cldr.Currency.Backend do
 
               {currency_code, strings}
             end
-            |> Map.new()
 
           inverted_currency_strings =
-            currency_strings
-            |> Cldr.Currency.invert_currency_strings()
+            Cldr.Currency.invert_currency_strings(currency_strings)
+            |> Cldr.Currency.remove_duplicate_strings(currencies)
+            |> Map.new
 
           def currencies_for_locale(
                 %LanguageTag{cldr_locale_name: unquote(locale_name)},
@@ -434,12 +434,16 @@ defmodule Cldr.Currency.Backend do
             filtered_currencies =
               currencies
               |> Cldr.Currency.currency_filter(currency_status)
+
+            currency_codes =
+              filtered_currencies
               |> Map.keys()
 
             strings =
               locale
               |> currency_strings!
-              |> Enum.filter(fn {k, v} -> v in filtered_currencies end)
+              |> Enum.filter(fn {_k, v} -> v in currency_codes end)
+              |> Cldr.Currency.remove_duplicate_strings(filtered_currencies)
               |> Map.new()
 
             {:ok, strings}

@@ -727,12 +727,72 @@ defmodule Cldr.Currency do
     Enum.filter(currencies, &currency_filter(&1, currency_status))
   end
 
+  def historic?(%Cldr.Currency{} = currency) do
+    Cldr.Currency.currency_filter(currency, :historic)
+  end
+
+  def tender?(%Cldr.Currency{} = currency) do
+    Cldr.Currency.currency_filter(currency, :tender)
+  end
+
+  def current?(%Cldr.Currency{} = currency) do
+    Cldr.Currency.currency_filter(currency, :current)
+  end
+
+  def unannotated?(%Cldr.Currency{} = currency) do
+    Cldr.Currency.currency_filter(currency, :unannotated)
+  end
+
+  # Sort the list by string. If the string is the same
+  # then sort historic currencies after the current one
+  @doc false
+  def string_comparator({k, v1}, {k, v2}, currencies) do
+    cond do
+      historic?(currencies[v1]) -> false
+      historic?(currencies[v2]) -> true
+      true -> raise "String #{inspect k} has two current currencies of #{inspect v1} and " <>
+        "#{inspect v2}"
+    end
+  end
+
+  def string_comparator({k1, _v1}, {k2, _v2}, _currencies) do
+    k1 < k2
+  end
+
+  # Its possible that more than one currency will have a string
+  # in common with another currency. One example is `:AFA` and
+  # `:AFN`.  As in this csae, its most common when a country
+  # changes to a new currency with the same name.
+
+  # The strategy is to remove the duplicate string from the
+  # currency that is historic.
+  @doc false
+  def remove_duplicate_strings(strings, currencies) do
+    strings
+    |> Enum.sort(fn a, b -> string_comparator(a, b, currencies) end)
+    |> do_remove_duplicates(currencies)
+  end
+
+  defp do_remove_duplicates([{_, _}] = currency, _currencies) do
+    currency
+  end
+
+  # Same string, different code -> omit the 2nd one since
+  # we sort historic currencies after the current ones
+  defp do_remove_duplicates([{c1, code1} | [{c1, _code2} | rest]], currencies) do
+    do_remove_duplicates([{c1, code1} | rest], currencies)
+  end
+
+  # Not a duplicate, process the rest of the list
+  defp do_remove_duplicates([{c1, code1} | [{_c2, _code2} | _rest] = other], currencies) do
+    [{c1, code1} | do_remove_duplicates(other, currencies)]
+  end
+
   @doc false
   def invert_currency_strings(currency_strings) do
-    Enum.reduce(currency_strings, %{}, fn {code, strings}, acc ->
-      Enum.map(strings, fn string -> {string, code} end)
-      |> Map.new()
-      |> Map.merge(acc)
+    Enum.reduce(currency_strings, [], fn {code, strings}, acc ->
+      [Enum.map(strings, fn string -> {string, code} end) | acc]
     end)
+    |> List.flatten
   end
 end

@@ -36,6 +36,11 @@ defmodule Cldr.Currency.Test do
 
   test "names with annotations are intact" do
     assert Cldr.Currency.strings_for_currency(:USN, "en", Test.Cldr) ==
-    ["us dollar (next day)", "usn", "us dollars (next day)"]
+     ["us dollar (next day)", "usn", "us dollars (next day)"]
+  end
+
+  test "currency strings is a map" do
+    {:ok, strings} = Test.Cldr.Currency.currency_strings("en")
+    assert is_map(strings)
   end
 end
