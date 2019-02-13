@@ -770,22 +770,22 @@ defmodule Cldr.Currency do
   def remove_duplicate_strings(strings, currencies) do
     strings
     |> Enum.sort(fn a, b -> string_comparator(a, b, currencies) end)
-    |> do_remove_duplicates(currencies)
+    |> remove_duplicates(currencies)
   end
 
-  defp do_remove_duplicates([{_, _}] = currency, _currencies) do
+  defp remove_duplicates([{_, _}] = currency, _currencies) do
     currency
   end
 
   # Same string, different code -> omit the 2nd one since
   # we sort historic currencies after the current ones
-  defp do_remove_duplicates([{c1, code1} | [{c1, _code2} | rest]], currencies) do
-    do_remove_duplicates([{c1, code1} | rest], currencies)
+  defp remove_duplicates([{c1, code1} | [{c1, _code2} | rest]], currencies) do
+    remove_duplicates([{c1, code1} | rest], currencies)
   end
 
   # Not a duplicate, process the rest of the list
-  defp do_remove_duplicates([{c1, code1} | rest], currencies) do
-    [{c1, code1} | do_remove_duplicates(rest, currencies)]
+  defp remove_duplicates([{c1, code1} | rest], currencies) do
+    [{c1, code1} | remove_duplicates(rest, currencies)]
   end
 
   @doc false
