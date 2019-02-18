@@ -1,3 +1,11 @@
+# Changelog for Cldr_Currencies v2.1.3
+
+This is the changelog for Cldr_Currencies v2.1.3 released on February 18th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
+
+### Bug Fixes
+
+* Updates `ex_cldr` to fix the regex that parses currency names used for money parsing
+
 # Changelog for Cldr_Currencies v2.1.2
 
 This is the changelog for Cldr_Currencies v2.1.2 released on February 13th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
