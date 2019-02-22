@@ -4,7 +4,7 @@ This is the changelog for Cldr_Currencies v2.1.4 released on February 22nd, 2019
 
 ### Bug Fixes
 
-* Fixes significant performance regression in `Cldr.Currency.currencies_for_locale/2`.  Thanks to @doughsay for the issue.  Closes #98.
+* Fixes significant performance regression in `Cldr.Currency.currencies_for_locale/2`.  Thanks to @doughsay for the issue.  Closes #98 in [money](https://github.com/kipcole9/money).
 
 # Changelog for Cldr_Currencies v2.1.3
 
