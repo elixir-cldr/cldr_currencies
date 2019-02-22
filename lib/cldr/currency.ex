@@ -718,6 +718,10 @@ defmodule Cldr.Currency do
     Enum.all?(status, fn s -> currency_filter(currency, s) end)
   end
 
+  def currency_filter(currencies, :all) when is_map(currencies) do
+    currencies
+  end
+
   def currency_filter(currencies, currency_status) when is_map(currencies) do
     Enum.filter(currencies, fn {_m, c} -> currency_filter(c, currency_status) end)
     |> Map.new()

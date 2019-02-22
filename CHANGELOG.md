@@ -1,3 +1,11 @@
+# Changelog for Cldr_Currencies v2.1.4
+
+This is the changelog for Cldr_Currencies v2.1.4 released on February 22nd, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
+
+### Bug Fixes
+
+* Fixes significant performance regression in `Cldr.Currency.currencies_for_locale/2`.  Thanks to @doughsay for the issue.  Closes #98.
+
 # Changelog for Cldr_Currencies v2.1.3
 
 This is the changelog for Cldr_Currencies v2.1.3 released on February 18th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
