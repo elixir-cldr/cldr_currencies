@@ -1,3 +1,39 @@
+# Changelog for Cldr_Currencies v2.2.0
+
+This is the changelog for Cldr_Currencies v2.2.0 released on February 23nd, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
+
+### Enhancements
+
+This release adds mapping data from a territory to a list of currencies and functions to access them. This allows for identifying the current currency for a given locale.
+
+* Adds `Cldr.Currency.currency_history_for_locale/2`
+* Adds `Cldr.Currency.current_currency_for_locale/2`
+* Adds `Cldr.Currency.territory_currencies/0`
+
+Some examples:
+```
+iex> Cldr.Currency.territory_currencies |> Map.get("LT")
+%{
+  EUR: %{from: ~D[2015-01-01], to: nil},
+  LTL: %{from: nil, to: ~D[2014-12-31]},
+  LTT: %{from: nil, to: ~D[1993-06-25]},
+  SUR: %{from: nil, to: ~D[1992-10-01]}
+}
+
+iex> Cldr.Currency.currency_history_for_locale "en", MyApp.Cldr
+%{
+  USD: %{from: ~D[1792-01-01], to: nil},
+  USN: %{tender: false},
+  USS: %{from: nil, tender: false, to: ~D[2014-03-01]}
+}
+
+iex> Cldr.Currency.current_currency_for_locale "en", MyApp.Cldr
+:USD
+
+iex> Cldr.Currency.current_currency_for_locale "en-AU", MyApp.Cldr
+:AUD
+```
+
 # Changelog for Cldr_Currencies v2.1.4
 
 This is the changelog for Cldr_Currencies v2.1.4 released on February 22nd, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)

@@ -2,7 +2,7 @@ defmodule Cldr.Currency.Test do
   use ExUnit.Case
 
   doctest Cldr.Currency
-  doctest Test.Cldr.Currency
+  doctest MyApp.Cldr.Currency
 
   test "that we can confirm known currencies" do
     assert Cldr.Currency.known_currency?("USD") == true
@@ -15,7 +15,7 @@ defmodule Cldr.Currency.Test do
   test "that we filter historic currencies correctly" do
     current_currencies =
       "en"
-      |> Test.Cldr.Currency.currencies_for_locale!()
+      |> MyApp.Cldr.Currency.currencies_for_locale!()
       |> Cldr.Currency.currency_filter([:current])
 
     assert Map.get(current_currencies, :SDP) == nil
@@ -24,7 +24,7 @@ defmodule Cldr.Currency.Test do
   test "that we have currency effective dates" do
     historic_currencies =
       "en"
-      |> Test.Cldr.Currency.currencies_for_locale!()
+      |> MyApp.Cldr.Currency.currencies_for_locale!()
       |> Cldr.Currency.currency_filter([:historic])
       |> Map.keys()
 
@@ -35,12 +35,12 @@ defmodule Cldr.Currency.Test do
   end
 
   test "names with annotations are intact" do
-    assert Cldr.Currency.strings_for_currency(:USN, "en", Test.Cldr) ==
+    assert Cldr.Currency.strings_for_currency(:USN, "en", MyApp.Cldr) ==
      ["us dollar (next day)", "usn", "us dollars (next day)"]
   end
 
   test "currency strings is a map" do
-    {:ok, strings} = Test.Cldr.Currency.currency_strings("en")
+    {:ok, strings} = MyApp.Cldr.Currency.currency_strings("en")
     assert is_map(strings)
   end
 end

@@ -75,8 +75,9 @@ defmodule Cldr.Currency.Backend do
 
         ## Options
 
-        * `:locale` is any locale returned by `Cldr.Locale.new!/2`. The
-        default is `Cldr.get_current_locale/1`
+        * `locale` is any valid locale name returned by `MyApp.Cldr.known_locale_names/0`
+          or a `Cldr.LanguageTag` struct returned by `MyApp.Cldr.Locale.new!/1`. The
+          default is `Cldr.get_current_locale/1`
 
         ## Returns
 
@@ -270,8 +271,8 @@ defmodule Cldr.Currency.Backend do
 
         ## Arguments
 
-        * `locale` is any valid locale name returned by `Cldr.known_locale_names/1`
-          or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
+        * `locale` is any valid locale name returned by `MyApp.Cldr.known_locale_names/0`
+          or a `Cldr.LanguageTag` struct returned by `MyApp.Cldr.Locale.new!/1`
 
         * `currency_status` is `:all`, `:current`, `:historic`,
           `unannotated` or `:tender`; or a list of one or more status.
@@ -285,8 +286,8 @@ defmodule Cldr.Currency.Backend do
 
         ## Example
 
-          => MyApp.Cldr.Currency.currencies_for_locale "en"
-          {:ok,
+          MyApp.Cldr.Currency.currencies_for_locale "en"
+          => {:ok,
            %{
              FJD: %Cldr.Currency{
                cash_digits: 2,
@@ -339,8 +340,8 @@ defmodule Cldr.Currency.Backend do
 
         ## Arguments
 
-        * `locale` is any valid locale name returned by `Cldr.known_locale_names/1`
-          or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`.
+        * `locale` is any valid locale name returned by `MyApp.Cldr.known_locale_names/0`
+          or a `Cldr.LanguageTag` struct returned by `MyApp.Cldr.Locale.new!/1`
 
         * `currency_status` is `:all`, `:current`, `:historic`,
           `unannotated` or `:tender`; or a list of one or more status.
@@ -354,8 +355,8 @@ defmodule Cldr.Currency.Backend do
 
         ## Example
 
-            => MyApp.Cldr.Currency.currency_strings "en"
-            {:ok,
+            MyApp.Cldr.Currency.currency_strings "en"
+            => {:ok,
              %{
                "mexican silver pesos" => :MXP,
                "sudanese dinar" => :SDD,
@@ -460,8 +461,8 @@ defmodule Cldr.Currency.Backend do
 
         ## Arguments
 
-        * `locale` is any valid locale name returned by `Cldr.known_locale_names/1`
-          or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
+        * `locale` is any valid locale name returned by `MyApp.Cldr.known_locale_names/0`
+          or a `Cldr.LanguageTag` struct returned by `MyApp.Cldr.Locale.new!/1`
 
         * `currency_status` is `:all`, `:current`, `:historic`,
           `unannotated` or `:tender`; or a list of one or more status.
@@ -475,8 +476,8 @@ defmodule Cldr.Currency.Backend do
 
         ## Example
 
-          => MyApp.Cldr.Currency.currencies_for_locale! "en"
-          %{
+          MyApp.Cldr.Currency.currencies_for_locale! "en"
+          => %{
             FJD: %Cldr.Currency{
               cash_digits: 2,
               cash_rounding: 0,
@@ -527,8 +528,8 @@ defmodule Cldr.Currency.Backend do
 
         ## Arguments
 
-        * `locale` is any valid locale name returned by `Cldr.known_locale_names/1`
-          or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`.
+        * `locale` is any valid locale name returned by `MyApp.Cldr.known_locale_names/0`
+          or a `Cldr.LanguageTag` struct returned by `MyApp.Cldr.Locale.new!/1`
 
         * `currency_status` is `:all`, `:current`, `:historic`,
           `unannotated` or `:tender`; or a list of one or more status.
@@ -542,8 +543,8 @@ defmodule Cldr.Currency.Backend do
 
         ## Example
 
-            => MyApp.Cldr.Currency.currency_strings! "en"
-            %{
+            MyApp.Cldr.Currency.currency_strings! "en"
+            => %{
               "mexican silver pesos" => :MXP,
               "sudanese dinar" => :SDD,
               "bad" => :BAD,
@@ -572,8 +573,8 @@ defmodule Cldr.Currency.Backend do
 
         * `currency` is an ISO4217 currency code
 
-        * `locale` is any valid locale name returned by `Cldr.known_locale_names/1`
-          or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`.
+        * `locale` is any valid locale name returned by `MyApp.Cldr.known_locale_names/0`
+          or a `Cldr.LanguageTag` struct returned by `MyApp.Cldr.Locale.new!/1`
 
         ## Returns
 
@@ -583,12 +584,66 @@ defmodule Cldr.Currency.Backend do
 
         ## Example
 
-            iex> Test.Cldr.Currency.strings_for_currency :AUD, "en"
+            iex> MyApp.Cldr.Currency.strings_for_currency :AUD, "en"
             ["a$", "australian dollars", "aud", "australian dollar"]
 
         """
         def strings_for_currency(currency, locale) do
           Cldr.Currency.strings_for_currency(currency, locale, unquote(backend))
+        end
+
+        @doc """
+        Returns a list of historic and the current
+        currency for a given locale.
+
+        ## Arguments
+
+        * `locale` is any valid locale name returned by `MyApp.Cldr.known_locale_names/0`
+          or a `Cldr.LanguageTag` struct returned by `MyApp.Cldr.Locale.new!/1`
+
+        ## Example
+
+            iex> MyApp.Cldr.Currency.currency_history_for_locale "en"
+            %{
+              USD: %{from: ~D[1792-01-01], to: nil},
+              USN: %{tender: false},
+              USS: %{from: nil, tender: false, to: ~D[2014-03-01]}
+            }
+
+        """
+        @spec currency_history_for_locale(LanguageTag.t) :: map()
+        def currency_history_for_locale(%LanguageTag{} = language_tag) do
+          Cldr.Currency.currency_history_for_locale(language_tag)
+        end
+
+        @spec currency_history_for_locale(Locale.locale_name) :: map() | {:error, {Exception.t, String.t}}
+        def currency_history_for_locale(locale_name) when is_binary(locale_name) do
+          Cldr.Currency.currency_history_for_locale(locale_name, unquote(backend))
+        end
+
+        @doc """
+        Returns the current currency for a given locale.
+
+        ## Arguments
+
+        * `locale` is any valid locale name returned by `MyApp.Cldr.known_locale_names/0`
+          or a `Cldr.LanguageTag` struct returned by `MyApp.Cldr.Locale.new!/1`
+
+        ## Example
+
+            iex> MyApp.Cldr.Currency.current_currency_for_locale "en"
+            :USD
+
+            iex> MyApp.Cldr.Currency.current_currency_for_locale "en-AU"
+            :AUD
+
+        """
+        def current_currency_for_locale(%LanguageTag{} = locale) do
+          Cldr.Currency.current_currency_for_locale(locale)
+        end
+
+        def current_currency_for_locale(locale_name) when is_binary(locale_name) do
+          Cldr.Currency.current_currency_for_locale(locale_name, unquote(backend))
         end
       end
     end

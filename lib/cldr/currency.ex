@@ -142,19 +142,19 @@ defmodule Cldr.Currency do
 
   ## Examples
 
-      iex> Cldr.Currency.pluralize 1, :USD, Test.Cldr
+      iex> Cldr.Currency.pluralize 1, :USD, MyApp.Cldr
       {:ok, "US dollar"}
 
-      iex> Cldr.Currency.pluralize 3, :USD, Test.Cldr
+      iex> Cldr.Currency.pluralize 3, :USD, MyApp.Cldr
       {:ok, "US dollars"}
 
-      iex> Cldr.Currency.pluralize 12, :USD, Test.Cldr, locale: "zh"
+      iex> Cldr.Currency.pluralize 12, :USD, MyApp.Cldr, locale: "zh"
       {:ok, "美元"}
 
-      iex> Cldr.Currency.pluralize 12, :USD, Test.Cldr, locale: "fr"
+      iex> Cldr.Currency.pluralize 12, :USD, MyApp.Cldr, locale: "fr"
       {:ok, "dollars des États-Unis"}
 
-      iex> Cldr.Currency.pluralize 1, :USD, Test.Cldr, locale: "fr"
+      iex> Cldr.Currency.pluralize 1, :USD, MyApp.Cldr, locale: "fr"
       {:ok, "dollar des États-Unis"}
 
   """
@@ -186,6 +186,97 @@ defmodule Cldr.Currency do
   @spec known_currencies() :: list(atom)
   def known_currencies do
     Cldr.known_currencies()
+  end
+
+  @doc """
+  Returns a mapping of all ISO3166 territory
+  codes and a list of historic and the current
+  currency for those territories.
+
+  ## Example
+
+      iex> Cldr.Currency.territory_currencies |> Map.get("LT")
+      %{
+        EUR: %{from: ~D[2015-01-01], to: nil},
+        LTL: %{from: nil, to: ~D[2014-12-31]},
+        LTT: %{from: nil, to: ~D[1993-06-25]},
+        SUR: %{from: nil, to: ~D[1992-10-01]}
+      }
+
+  """
+  @territory_currencies Cldr.Config.territory_currency_data()
+  def territory_currencies do
+    @territory_currencies
+  end
+
+  @doc """
+  Returns a list of historic and the current
+  currency for a given locale.
+
+  ## Arguments
+
+  * `locale` is any valid locale name returned by `Cldr.known_locale_names/1`
+    or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
+
+  * `backend` is any module that includes `use Cldr` and therefore
+    is a `Cldr` backend module
+
+  ## Example
+
+      iex> Cldr.Currency.currency_history_for_locale "en", MyApp.Cldr
+      %{
+        USD: %{from: ~D[1792-01-01], to: nil},
+        USN: %{tender: false},
+        USS: %{from: nil, tender: false, to: ~D[2014-03-01]}
+      }
+
+  """
+  @spec currency_history_for_locale(LanguageTag.t) :: map()
+  def currency_history_for_locale(%LanguageTag{territory: territory}) do
+    territory_currencies()
+    |> Map.get(territory)
+  end
+
+  @spec currency_history_for_locale(Locale.locale_name, Cldr.backend) :: map() | {:error, {Exception.t, String.t}}
+  def currency_history_for_locale(locale_name, backend) when is_binary(locale_name) do
+    with {:ok, locale} <- Cldr.validate_locale(locale_name, backend) do
+      currency_history_for_locale(locale)
+    end
+  end
+
+  @doc """
+  Returns the current currency for a given locale.
+
+  ## Arguments
+
+  * `locale` is any valid locale name returned by `Cldr.known_locale_names/1`
+    or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
+
+  * `backend` is any module that includes `use Cldr` and therefore
+    is a `Cldr` backend module
+
+  ## Example
+
+      iex> Cldr.Currency.current_currency_for_locale "en", MyApp.Cldr
+      :USD
+
+      iex> Cldr.Currency.current_currency_for_locale "en-AU", MyApp.Cldr
+      :AUD
+
+  """
+  def current_currency_for_locale(%LanguageTag{} = locale) do
+    {currency, _} =
+      currency_history_for_locale(locale)
+      |> Enum.filter(fn {_currency, dates} -> Map.has_key?(dates, :to) && is_nil(dates.to) end)
+      |> hd
+
+    currency
+  end
+
+  def current_currency_for_locale(locale_name, backend) when is_binary(locale_name) do
+    with {:ok, locale} <- Cldr.validate_locale(locale_name, backend) do
+      current_currency_for_locale(locale)
+    end
   end
 
   @doc """
@@ -302,7 +393,7 @@ defmodule Cldr.Currency do
 
   ## Examples
 
-      iex> Cldr.Currency.currency_for_code("AUD", Test.Cldr)
+      iex> Cldr.Currency.currency_for_code("AUD", MyApp.Cldr)
       {:ok,
         %Cldr.Currency{
           cash_digits: 2,
@@ -318,7 +409,7 @@ defmodule Cldr.Currency do
           tender: true
       }}
 
-      iex> Cldr.Currency.currency_for_code("THB", Test.Cldr)
+      iex> Cldr.Currency.currency_for_code("THB", MyApp.Cldr)
       {:ok,
         %Cldr.Currency{
           cash_digits: 2,
@@ -633,13 +724,13 @@ defmodule Cldr.Currency do
 
   ## Example
 
-      iex> Cldr.Currency.strings_for_currency :AUD, "en", Test.Cldr
+      iex> Cldr.Currency.strings_for_currency :AUD, "en", MyApp.Cldr
       ["a$", "australian dollars", "aud", "australian dollar"]
 
-      iex> Cldr.Currency.strings_for_currency :AUD, "de", Test.Cldr
+      iex> Cldr.Currency.strings_for_currency :AUD, "de", MyApp.Cldr
       ["australische dollar", "australischer dollar", "au$", "aud"]
 
-      iex> Cldr.Currency.strings_for_currency :AUD, "zh", Test.Cldr
+      iex> Cldr.Currency.strings_for_currency :AUD, "zh", MyApp.Cldr
       ["澳大利亚元", "au$", "aud"]
 
   """

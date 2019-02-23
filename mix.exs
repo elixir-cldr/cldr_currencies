@@ -1,7 +1,7 @@
 defmodule CldrCurrencies.MixProject do
   use Mix.Project
 
-  @version "2.1.4"
+  @version "2.2.0"
 
   def project do
     [
@@ -36,7 +36,7 @@ defmodule CldrCurrencies.MixProject do
     [
       {:ex_cldr, "~> 2.0"},
       {:jason, "~> 1.0", optional: true},
-      {:ex_doc, "~> 0.18", only: [:dev, :release], optional: true}
+      {:ex_doc, "~> 0.18", only: [:dev, :release, :test], optional: true}
     ]
   end
 
@@ -61,7 +61,8 @@ defmodule CldrCurrencies.MixProject do
       source_ref: "v#{@version}",
       main: "readme",
       extras: ["README.md", "CHANGELOG.md", "LICENSE.md"],
-      logo: "logo.png"
+      logo: "logo.png",
+      skip_undefined_reference_warnings_on: ["changelog"]
     ]
   end
 
