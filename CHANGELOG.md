@@ -1,3 +1,11 @@
+# Changelog for Cldr_Currencies v2.2.1
+
+This is the changelog for Cldr_Currencies v2.2.1 released on March 6th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
+
+### Bug Fixes
+
+* Fix or silence dialyzer warnings
+
 # Changelog for Cldr_Currencies v2.2.0
 
 This is the changelog for Cldr_Currencies v2.2.0 released on February 23nd, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
@@ -110,5 +118,5 @@ This is the changelog for Cldr_Currencies v2.0.0 released on November 22nd, 2018
 The @spec for the new signature is:
 ```
   @spec currency_for_code(code, Cldr.backend(), Keyword.t()) ::
-          {:ok, t} | {:error, {Exception.t(), String.t()}}
+          {:ok, t} | {:error, {module(), String.t()}}
 ```

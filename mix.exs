@@ -1,7 +1,7 @@
 defmodule CldrCurrencies.MixProject do
   use Mix.Project
 
-  @version "2.2.0"
+  @version "2.2.1"
 
   def project do
     [
@@ -16,7 +16,11 @@ defmodule CldrCurrencies.MixProject do
       start_permanent: Mix.env() == :prod,
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
-      package: package()
+      package: package(),
+      dialyzer: [
+        ignore_warnings: ".dialyzer_ignore_warnings",
+        plt_add_apps: ~w(gettext inets jason mix plug)a
+      ]
     ]
   end
 
@@ -36,7 +40,8 @@ defmodule CldrCurrencies.MixProject do
     [
       {:ex_cldr, "~> 2.0"},
       {:jason, "~> 1.0", optional: true},
-      {:ex_doc, "~> 0.18", only: [:dev, :release, :test], optional: true}
+      {:ex_doc, "~> 0.18", only: [:dev, :release, :test], optional: true},
+      {:dialyxir, "~> 1.0.0-rc.4", only: [:dev], runtime: false}
     ]
   end
 
