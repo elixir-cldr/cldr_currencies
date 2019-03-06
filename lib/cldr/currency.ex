@@ -318,8 +318,7 @@ defmodule Cldr.Currency do
       true
 
   """
-  @spec known_currency?(code) :: boolean
- 	@spec known_currency?(code, list(t())) :: boolean
+  @spec known_currency?(code(), list(t())) :: boolean
 
   def known_currency?(currency_code, custom_currencies \\ []) do
     with {:ok, currency_code} <- Cldr.validate_currency(currency_code),
@@ -834,19 +833,19 @@ defmodule Cldr.Currency do
   end
 
   def historic?(%Cldr.Currency{} = currency) do
-    Cldr.Currency.currency_filter(currency, :historic)
+    currency_filter(currency, :historic)
   end
 
   def tender?(%Cldr.Currency{} = currency) do
-    Cldr.Currency.currency_filter(currency, :tender)
+    currency_filter(currency, :tender)
   end
 
   def current?(%Cldr.Currency{} = currency) do
-    Cldr.Currency.currency_filter(currency, :current)
+    currency_filter(currency, :current)
   end
 
   def unannotated?(%Cldr.Currency{} = currency) do
-    Cldr.Currency.currency_filter(currency, :unannotated)
+    currency_filter(currency, :unannotated)
   end
 
   # Sort the list by string. If the string is the same

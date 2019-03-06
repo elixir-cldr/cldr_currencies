@@ -54,7 +54,9 @@ defmodule Cldr.Currency.Backend do
             {:error, {Cldr.CurrencyAlreadyDefined, "Currency :XBC is already defined"}}
 
         """
-        @spec new(binary | atom, map | list) :: Cldr.Currency.t() | {:error, binary}
+        @spec new(Cldr.Currency.code(), map() | Keyword.t) ::
+          {:ok, Cldr.Currency.t} | {:error, {module(), String.t}}
+
         def new(currency, options \\ [])
 
         def new(currency, options) do
@@ -154,7 +156,8 @@ defmodule Cldr.Currency.Backend do
             true
 
         """
-        @spec known_currency?(Cldr.Currency.code(), [Cldr.Currency.t(), ...]) :: boolean
+        @spec known_currency?(Cldr.Currency.code(), list(Cldr.Currency.t())) :: boolean
+
         def known_currency?(currency_code, custom_currencies \\ []) do
           Cldr.Currency.known_currency?(currency_code, custom_currencies)
         end
@@ -239,8 +242,9 @@ defmodule Cldr.Currency.Backend do
             }}
 
         """
-        @spec currency_for_code(Cldr.Currency.code(), LanguageTag.t()) ::
-                {:ok, Cldr.Currency.t()} | {:error, {module(), String.t()}}
+        @spec currency_for_code(Cldr.Currency.code, Keyword.t()) ::
+                {:ok, Cldr.Currency.t} | {:error, {module(), String.t()}}
+
         def currency_for_code(
               currency_code,
               options \\ [locale: unquote(backend).default_locale()]
@@ -325,7 +329,7 @@ defmodule Cldr.Currency.Backend do
 
         """
         @spec currencies_for_locale(
-                Locale.locale_name() | LanguageTag.t(),
+                Cldr.Locale.locale_name() | LanguageTag.t(),
                 Cldr.Currency.currency_status()
               ) ::
                 {:ok, Map.t()} | {:error, {module(), String.t()}}
@@ -373,6 +377,8 @@ defmodule Cldr.Currency.Backend do
         """
         @spec currency_strings(Cldr.LanguageTag.t() | Cldr.Locale.locale_name(), Cldr.Currency.currency_status()) ::
                 {:ok, Map.t()} | {:error, {module(), String.t()}}
+
+        @dialyzer {:nowarn_function, currency_strings: 2}
 
         def currency_strings(locale, currency_status \\ :all)
 
@@ -614,7 +620,7 @@ defmodule Cldr.Currency.Backend do
             }
 
         """
-        @spec currency_history_for_locale(LanguageTag.t | Locale.locale_name) ::
+        @spec currency_history_for_locale(LanguageTag.t | Cldr.Locale.locale_name) ::
           map() | {:error, {module(), String.t}}
 
         def currency_history_for_locale(%LanguageTag{} = language_tag) do

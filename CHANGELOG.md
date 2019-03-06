@@ -1,3 +1,11 @@
+# Changelog for Cldr_Currencies v2.2.2
+
+This is the changelog for Cldr_Currencies v2.2.1 released on March 7th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
+
+### Bug Fixes
+
+* Fix or silence all remaining dialyzer warnings
+
 # Changelog for Cldr_Currencies v2.2.1
 
 This is the changelog for Cldr_Currencies v2.2.1 released on March 6th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
