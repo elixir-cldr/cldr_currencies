@@ -530,7 +530,7 @@ defmodule Cldr.Currency do
 
   """
   @spec currencies_for_locale(Locale.locale_name() | LanguageTag.t(), Cldr.backend(), currency_status) ::
-          {:ok, Map.t()} | {:error, {module(), String.t()}}
+          {:ok, map()} | {:error, {module(), String.t()}}
 
   def currencies_for_locale(locale, backend, currency_status \\ :all) do
     Module.concat(backend, Currency).currencies_for_locale(locale, currency_status)
@@ -597,7 +597,7 @@ defmodule Cldr.Currency do
 
   """
   @spec currencies_for_locale!(Locale.locale_name() | LanguageTag.t(), Cldr.backend(), currency_status) ::
-          Map.t() | no_return()
+          map() | no_return()
 
   def currencies_for_locale!(locale, backend, currency_status \\ :all) do
     Module.concat(backend, Currency).currencies_for_locale!(locale, currency_status)
@@ -658,7 +658,7 @@ defmodule Cldr.Currency do
 
   """
   @spec currency_strings(Cldr.LanguageTag.t() | Cldr.Locale.locale_name(), Cldr.Currency.currency_status()) ::
-          {:ok, Map.t()} | {:error, {module(), String.t()}}
+          {:ok, map()} | {:error, {module(), String.t()}}
 
   def currency_strings(locale, backend, currency_status \\ :all) do
     Module.concat(backend, Currency).currency_strings(locale, currency_status)
@@ -703,7 +703,7 @@ defmodule Cldr.Currency do
 
   """
   @spec currency_strings!(Cldr.LanguageTag.t() | Cldr.Locale.locale_name(), Cldr.Currency.currency_status()) ::
-          Map.t() | no_return
+          map() | no_return
 
   def currency_strings!(locale, backend, currency_status \\ :all) do
     case Module.concat(backend, Currency).currency_strings(locale, currency_status) do
@@ -788,7 +788,7 @@ defmodule Cldr.Currency do
 
   """
   @spec currency_filter(
-          Cldr.Currency.t() | [Cldr.Currency.t()] | Map.t(),
+          Cldr.Currency.t() | [Cldr.Currency.t()] | map(),
           Cldr.Currency.currency_status()
         ) :: boolean
 

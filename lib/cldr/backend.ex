@@ -332,7 +332,9 @@ defmodule Cldr.Currency.Backend do
                 Cldr.Locale.locale_name() | LanguageTag.t(),
                 Cldr.Currency.currency_status()
               ) ::
-                {:ok, Map.t()} | {:error, {module(), String.t()}}
+                {:ok, map()} | {:error, {module(), String.t()}}
+
+        @dialyzer {:nowarn_function, currencies_for_locale: 2}
 
         def currencies_for_locale(locale, currency_status \\ :all)
 
@@ -376,7 +378,7 @@ defmodule Cldr.Currency.Backend do
 
         """
         @spec currency_strings(Cldr.LanguageTag.t() | Cldr.Locale.locale_name(), Cldr.Currency.currency_status()) ::
-                {:ok, Map.t()} | {:error, {module(), String.t()}}
+                {:ok, map()} | {:error, {module(), String.t()}}
 
         @dialyzer {:nowarn_function, currency_strings: 2}
 
@@ -519,6 +521,9 @@ defmodule Cldr.Currency.Backend do
            }
 
         """
+        @spec currencies_for_locale(Cldr.Locale.locale_name() | LanguageTag.t(), Cldr.Currency.currency_status()) ::
+          map() | no_return()
+
         def currencies_for_locale!(locale, currency_status \\ :all) do
           case currencies_for_locale(locale, currency_status) do
             {:ok, currencies} -> currencies
@@ -565,7 +570,7 @@ defmodule Cldr.Currency.Backend do
 
         """
         @spec currency_strings!(Cldr.LanguageTag.t() | Cldr.Locale.locale_name(), Cldr.Currency.currency_status()) ::
-                Map.t() | no_return()
+                map() | no_return()
 
         def currency_strings!(locale_name, currency_status \\ :all) do
           case currency_strings(locale_name, currency_status) do
