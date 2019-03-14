@@ -43,4 +43,12 @@ defmodule Cldr.Currency.Test do
     {:ok, strings} = MyApp.Cldr.Currency.currency_strings("en")
     assert is_map(strings)
   end
+
+  test "that no module docs are generated for a backend" do
+    assert {:docs_v1, _, :elixir, _, :hidden, %{}, _} = Code.fetch_docs(NoDoc.Cldr.Currency)
+  end
+
+  assert "that module docs are generated for a backend" do
+    {:docs_v1, 3, :elixir, "text/markdown", _, %{}, _} = Code.fetch_docs(MyApp.Cldr.Currency)
+  end
 end

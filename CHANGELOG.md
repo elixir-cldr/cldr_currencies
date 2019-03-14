@@ -1,3 +1,20 @@
+# Changelog for Cldr_Currencies v2.2.4
+
+This is the changelog for Cldr_Currencies v2.2.4 released on March 15th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
+
+### Enhancements
+
+* Makes generation of documentation for backend modules optional.  This is implemented by the `:generate_docs` option to the backend configuration.  The default is `true`. For example:
+
+```
+defmodule MyApp.Cldr do
+  use Cldr,
+    default_locale: "en-001",
+    locales: ["en", "ja"],
+    gettext: MyApp.Gettext,
+    generate_docs: false
+end
+
 # Changelog for Cldr_Currencies v2.2.3
 
 This is the changelog for Cldr_Currencies v2.2.3 released on March 7th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)

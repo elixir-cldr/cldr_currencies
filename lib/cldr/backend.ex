@@ -11,6 +11,10 @@ defmodule Cldr.Currency.Backend do
 
     quote location: :keep, bind_quoted: [module: module, backend: backend, config: config] do
       defmodule Currency do
+        unless Cldr.Config.include_module_docs?(config.generate_docs) do
+          @moduledoc false
+        end
+
         @doc """
         Returns a `Currency` struct created from the arguments.
 
