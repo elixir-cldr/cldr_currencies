@@ -237,8 +237,6 @@ defmodule Cldr.Currency do
     |> Map.get(territory)
   end
 
-  @dialyzer {:nowarn_function, currency_history_for_locale: 2}
-
   @spec currency_history_for_locale(Locale.locale_name, Cldr.backend) :: map() | {:error, {module(), String.t}}
   def currency_history_for_locale(locale_name, backend) when is_binary(locale_name) do
     with {:ok, locale} <- Cldr.validate_locale(locale_name, backend) do
@@ -279,8 +277,6 @@ defmodule Cldr.Currency do
 
   @spec current_currency_for_locale(Cldr.Locale.locale_name(), Cldr.backend()) ::
     code() | nil | {:error, {module(), String.t()}}
-
-  @dialyzer {:nowarn_function, current_currency_for_locale: 2}
 
   def current_currency_for_locale(locale_name, backend) when is_binary(locale_name) do
     with {:ok, locale} <- Cldr.validate_locale(locale_name, backend) do
