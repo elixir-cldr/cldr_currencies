@@ -334,13 +334,14 @@ defmodule Cldr.Currency.Backend do
         """
         @spec currencies_for_locale(
                 Cldr.Locale.locale_name() | LanguageTag.t(),
-                Cldr.Currency.currency_status()
+                only :: Cldr.Currency.filter(),
+                except :: Cldr.Currency.filter()
               ) ::
                 {:ok, map()} | {:error, {module(), String.t()}}
 
-        @dialyzer {:nowarn_function, currencies_for_locale: 2}
+        @dialyzer {:nowarn_function, currencies_for_locale: 3}
 
-        def currencies_for_locale(locale, currency_status \\ :all)
+        def currencies_for_locale(locale, only \\ :all, except \\ nil)
 
         @doc """
         Returns a map that matches a currency string to a
@@ -381,12 +382,14 @@ defmodule Cldr.Currency.Backend do
               }}
 
         """
-        @spec currency_strings(Cldr.LanguageTag.t() | Cldr.Locale.locale_name(), Cldr.Currency.currency_status()) ::
+        @spec currency_strings(Cldr.LanguageTag.t() | Cldr.Locale.locale_name(),
+                only :: Cldr.Currency.filter(),
+                except :: Cldr.Currency.filter()) ::
                 {:ok, map()} | {:error, {module(), String.t()}}
 
-        @dialyzer {:nowarn_function, currency_strings: 2}
+        @dialyzer {:nowarn_function, currency_strings: 3}
 
-        def currency_strings(locale, currency_status \\ :all)
+        def currency_strings(locale, only \\ :all, except \\ nil)
 
         for locale_name <- Cldr.Config.known_locale_names(config) do
           currencies =
@@ -413,41 +416,41 @@ defmodule Cldr.Currency.Backend do
 
           def currencies_for_locale(
                 %LanguageTag{cldr_locale_name: unquote(locale_name)},
-                currency_status
+                only, except
               ) do
             filtered_currencies =
               unquote(Macro.escape(currencies))
-              |> Cldr.Currency.currency_filter(currency_status)
+              |> Cldr.Currency.currency_filter(only, except)
 
             {:ok, filtered_currencies}
           end
 
-          def currency_strings(%LanguageTag{cldr_locale_name: unquote(locale_name)}, :all) do
+          def currency_strings(%LanguageTag{cldr_locale_name: unquote(locale_name)}, :all, nil) do
             {:ok, unquote(Macro.escape(inverted_currency_strings))}
           end
         end
 
-        def currencies_for_locale(locale_name, currency_status) when is_binary(locale_name) do
+        def currencies_for_locale(locale_name, only, except) when is_binary(locale_name) do
           with {:ok, locale} <- Cldr.validate_locale(locale_name, unquote(backend)) do
-            currencies_for_locale(locale, currency_status)
+            currencies_for_locale(locale, only, except)
           end
         end
 
-        def currencies_for_locale(locale, _currency_status) do
+        def currencies_for_locale(locale, _only, _except) do
           {:error, Cldr.Locale.locale_error(locale)}
         end
 
-        def currency_strings(locale_name, currency_status) when is_binary(locale_name) do
+        def currency_strings(locale_name, only, except) when is_binary(locale_name) do
           with {:ok, locale} <- Cldr.validate_locale(locale_name, unquote(backend)) do
-            currency_strings(locale, currency_status)
+            currency_strings(locale, only, except)
           end
         end
 
-        def currency_strings(%LanguageTag{} = locale, currency_status) do
+        def currency_strings(%LanguageTag{} = locale, only, except) do
           with {:ok, currencies} <- currencies_for_locale(locale) do
             filtered_currencies =
               currencies
-              |> Cldr.Currency.currency_filter(currency_status)
+              |> Cldr.Currency.currency_filter(only, except)
 
             currency_codes =
               filtered_currencies
@@ -464,7 +467,7 @@ defmodule Cldr.Currency.Backend do
           end
         end
 
-        def currency_strings(locale, _currency_status) do
+        def currency_strings(locale, _only, _except) do
           {:error, Cldr.Locale.locale_error(locale)}
         end
 
@@ -525,11 +528,12 @@ defmodule Cldr.Currency.Backend do
            }
 
         """
-        @spec currencies_for_locale(Cldr.Locale.locale_name() | LanguageTag.t(), Cldr.Currency.currency_status()) ::
+        @spec currencies_for_locale(Cldr.Locale.locale_name() | LanguageTag.t(),
+          only :: Cldr.Currency.filter(), except :: Cldr.Currency.filter()) ::
           map() | no_return()
 
-        def currencies_for_locale!(locale, currency_status \\ :all) do
-          case currencies_for_locale(locale, currency_status) do
+        def currencies_for_locale!(locale, only \\ :all, except \\ nil) do
+          case currencies_for_locale(locale, only, except) do
             {:ok, currencies} -> currencies
             {:error, {exception, reason}} -> raise exception, reason
           end
@@ -573,11 +577,12 @@ defmodule Cldr.Currency.Backend do
              }
 
         """
-        @spec currency_strings!(Cldr.LanguageTag.t() | Cldr.Locale.locale_name(), Cldr.Currency.currency_status()) ::
+        @spec currency_strings!(Cldr.LanguageTag.t() | Cldr.Locale.locale_name(),
+                only :: Cldr.Currency.filter(), except :: Cldr.Currency.filter()) ::
                 map() | no_return()
 
-        def currency_strings!(locale_name, currency_status \\ :all) do
-          case currency_strings(locale_name, currency_status) do
+        def currency_strings!(locale_name, only \\ :all, except \\ nil) do
+          case currency_strings(locale_name, only, except) do
             {:ok, currency_strings} -> currency_strings
             {:error, {exception, reason}} -> raise exception, reason
           end

@@ -1,7 +1,7 @@
 defmodule CldrCurrencies.MixProject do
   use Mix.Project
 
-  @version "2.3.0"
+  @version "2.4.0"
 
   def project do
     [
@@ -19,7 +19,7 @@ defmodule CldrCurrencies.MixProject do
       package: package(),
       dialyzer: [
         ignore_warnings: ".dialyzer_ignore_warnings",
-        plt_add_apps: ~w(gettext inets jason mix plug)a
+        plt_add_apps: ~w(inets jason mix)a
       ]
     ]
   end

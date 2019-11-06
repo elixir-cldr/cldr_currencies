@@ -19,6 +19,8 @@ defmodule Cldr.Currency do
 
   @type currency_status :: :all | :current | :historic | :tender | :unannotated
 
+  @type filter :: list(currency_status | code) | currency_status | code
+
   @type t :: %__MODULE__{
           code: code,
           name: String.t(),
@@ -525,11 +527,12 @@ defmodule Cldr.Currency do
       }}
 
   """
-  @spec currencies_for_locale(Locale.locale_name() | LanguageTag.t(), Cldr.backend(), currency_status) ::
+  @spec currencies_for_locale(Locale.locale_name() | LanguageTag.t(), Cldr.backend(),
+          only :: filter(), except :: filter()) ::
           {:ok, map()} | {:error, {module(), String.t()}}
 
-  def currencies_for_locale(locale, backend, currency_status \\ :all) do
-    Module.concat(backend, Currency).currencies_for_locale(locale, currency_status)
+  def currencies_for_locale(locale, backend, only \\ :all, except \\ nil) do
+    Module.concat(backend, Currency).currencies_for_locale(locale, only, except)
   end
 
   @doc """
@@ -592,11 +595,14 @@ defmodule Cldr.Currency do
      }
 
   """
-  @spec currencies_for_locale!(Locale.locale_name() | LanguageTag.t(), Cldr.backend(), currency_status) ::
+  @spec currencies_for_locale!(Locale.locale_name() | LanguageTag.t(),
+          Cldr.backend(),
+          only :: filter(),
+          except :: filter()) ::
           map() | no_return()
 
-  def currencies_for_locale!(locale, backend, currency_status \\ :all) do
-    Module.concat(backend, Currency).currencies_for_locale!(locale, currency_status)
+  def currencies_for_locale!(locale, backend, only \\ :all, except \\ nil) do
+    Module.concat(backend, Currency).currencies_for_locale!(locale, only, except)
   end
 
   @doc """
@@ -611,8 +617,8 @@ defmodule Cldr.Currency do
   * `locale` is any valid locale name returned by `Cldr.known_locale_names/1`
     or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`.
 
-  * `currency_status` is `:all`, `:current`, `:historic`,
-    `unannotated` or `:tender`; or a list of one or more status.
+  * `:only` is `:all`, `:current`, `:historic`,
+    `unannotated` or `:tender`; or a list of one or more status
     The default is `:all`. See `Cldr.Currency.currency_filter/2`.
 
   ## Returns
@@ -653,11 +659,12 @@ defmodule Cldr.Currency do
       }}
 
   """
-  @spec currency_strings(Cldr.LanguageTag.t() | Cldr.Locale.locale_name(), Cldr.Currency.currency_status()) ::
+  @spec currency_strings(Cldr.LanguageTag.t() | Cldr.Locale.locale_name(),
+          only :: filter(), except :: filter()) ::
           {:ok, map()} | {:error, {module(), String.t()}}
 
-  def currency_strings(locale, backend, currency_status \\ :all) do
-    Module.concat(backend, Currency).currency_strings(locale, currency_status)
+  def currency_strings(locale, backend, only \\ :all, except \\ nil) do
+    Module.concat(backend, Currency).currency_strings(locale, only, except)
   end
 
   @doc """
@@ -698,11 +705,12 @@ defmodule Cldr.Currency do
       }
 
   """
-  @spec currency_strings!(Cldr.LanguageTag.t() | Cldr.Locale.locale_name(), Cldr.Currency.currency_status()) ::
+  @spec currency_strings!(Cldr.LanguageTag.t() | Cldr.Locale.locale_name(),
+          only :: filter(), except :: filter()) ::
           map() | no_return
 
-  def currency_strings!(locale, backend, currency_status \\ :all) do
-    case Module.concat(backend, Currency).currency_strings(locale, currency_status) do
+  def currency_strings!(locale, backend, only \\ :all, except \\ nil) do
+    case Module.concat(backend, Currency).currency_strings(locale, only, except) do
       {:ok, currency_strings} -> currency_strings
       {:error, {exception, reason}} -> raise exception, reason
     end
@@ -759,8 +767,13 @@ defmodule Cldr.Currency do
   * `currency` is a `Cldr.Currency.t`, a list of `Cldr.Currency.t` or a
     map where the values of each item is a `Cldr.Currency.t`
 
-  * `currency_status` is `:all`, `:current`, `:historic`, `:tender`
-    `unannotated` or a list of one or more status. The default is `:all`
+  * `only` is `:all`, `:current`, `:historic`, `:tender`
+    `unannotated` or a list of one or more status or currency codes.
+    The default is `:all`
+
+  * `except` is `:current`, `:historic`, `:tender`
+    `unannotated` or a list of one or more status or currency codes.
+    The default is `nil`
 
   ## Currency Status
 
@@ -786,46 +799,77 @@ defmodule Cldr.Currency do
   @spec currency_filter(
           Cldr.Currency.t() | [Cldr.Currency.t()] | map(),
           Cldr.Currency.currency_status()
-        ) :: boolean
+        ) :: list(Cldr.Currency.t)
 
-  def currency_filter(currency, currency_status)
+  def currency_filter(currencies, only \\ :all, except \\ nil)
 
-  def currency_filter(%Cldr.Currency{} = _currency, :all) do
-    true
+  def currency_filter(currencies, only, except) when not is_list(only) do
+    currency_filter(currencies, [only], except)
   end
 
-  def currency_filter(%Cldr.Currency{} = currency, :current) do
-    !is_nil(currency.iso_digits) && is_nil(currency.to)
+  def currency_filter(currencies, only, except) when not is_list(except) do
+    currency_filter(currencies, only, [except])
   end
 
-  def currency_filter(%Cldr.Currency{} = currency, :historic) do
-    is_nil(currency.iso_digits) ||
-      (is_integer(currency.to) && currency.to < Date.utc_today().year)
+  def currency_filter(%Cldr.Currency{} = currency, only, except)  do
+    currency_filter([currency], only, except)
   end
 
-  def currency_filter(%Cldr.Currency{} = currency, :tender) do
-    currency.tender
+  def currency_filter(currencies, only, except) when is_map(currencies) do
+    currencies
+    |> Map.values
+    |> currency_filter(only, except)
+    |> Map.new(fn currency -> {String.to_atom(currency.code), currency} end)
   end
 
-  def currency_filter(%Cldr.Currency{} = currency, :unannotated) do
-    !String.contains?(currency.name, "(")
-  end
-
-  def currency_filter(%Cldr.Currency{} = currency, status) when is_list(status) do
-    Enum.all?(status, fn s -> currency_filter(currency, s) end)
-  end
-
-  def currency_filter(currencies, :all) when is_map(currencies) do
+  def currency_filter(currencies, [:all], [nil])  do
     currencies
   end
 
-  def currency_filter(currencies, currency_status) when is_map(currencies) do
-    Enum.filter(currencies, fn {_m, c} -> currency_filter(c, currency_status) end)
-    |> Map.new()
+  def currency_filter(currencies, only, except)  do
+    expand_filter(currencies, :only, only) -- expand_filter(currencies, :except, except)
   end
 
-  def currency_filter(currencies, currency_status) when is_list(currencies) do
-    Enum.filter(currencies, &currency_filter(&1, currency_status))
+  def expand_filter(currencies, :only, [:all]) do
+    currencies
+  end
+
+  def expand_filter(_currencies, :except, [nil]) do
+    []
+  end
+
+  def expand_filter(currencies, _, filter_list) do
+    Enum.flat_map(filter_list, fn filter ->
+      case filter do
+        :historic ->
+          Enum.filter(currencies, fn currency ->
+            is_nil(currency.iso_digits) ||
+            (is_integer(currency.to) && currency.to < Date.utc_today().year)
+          end)
+        :tender ->
+          Enum.filter(currencies, fn currency ->
+            currency.tender
+          end)
+        :current ->
+          Enum.filter(currencies, fn currency ->
+            !is_nil(currency.iso_digits) && is_nil(currency.to)
+          end)
+        :annotated ->
+          Enum.filter(currencies, fn currency ->
+            !String.contains?(currency.name, "(")
+          end)
+        code when is_binary(code) ->
+          Enum.filter(currencies, fn currency ->
+            currency.code == code
+          end)
+        code when is_atom(code) ->
+          code = to_string(code)
+          Enum.filter(currencies, fn currency ->
+            currency.code == code
+          end)
+      end
+    end)
+    |> Enum.uniq
   end
 
   def historic?(%Cldr.Currency{} = currency) do
