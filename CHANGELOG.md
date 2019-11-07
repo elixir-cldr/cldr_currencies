@@ -1,3 +1,11 @@
+# Changelog for Cldr_Currencies v2.4,1
+
+This is the changelog for Cldr_Currencies v2.4.1 released on November 7th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
+
+### Bug Fixes
+
+* In some rare cases, currency strings have a trailing `.`. These are now removed when producing currency strings that are used for parsing money amounts in `ex_money`.
+
 # Changelog for Cldr_Currencies v2.4,0
 
 This is the changelog for Cldr_Currencies v2.4.0 released on November 6th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)

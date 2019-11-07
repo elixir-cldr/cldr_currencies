@@ -404,6 +404,7 @@ defmodule Cldr.Currency.Backend do
                 ([currency.name, currency.symbol, currency.code] ++ Map.values(currency.count))
                 |> Enum.reject(&is_nil/1)
                 |> Enum.map(&String.downcase/1)
+                |> Enum.map(&String.trim_trailing(&1, "."))
                 |> Enum.uniq()
 
               {currency_code, strings}
