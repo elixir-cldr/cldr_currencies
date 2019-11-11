@@ -7,10 +7,11 @@ defmodule CldrCurrencies.MixProject do
     [
       app: :ex_cldr_currencies,
       version: @version,
+      licenses: ["Apache-2.0"],
       elixir: "~> 1.5",
       name: "Cldr Currencies",
       description: description(),
-      source_url: "https://github.com/kipcole9/cldr_currencies",
+      source_url: "https://github.com/elixir-cldr/cldr_currencies",
       docs: docs(),
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,

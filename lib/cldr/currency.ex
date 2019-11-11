@@ -134,7 +134,7 @@ defmodule Cldr.Currency do
   ## Options
 
   * `:locale` is any locale returned by `Cldr.Locale.new!/2`. The
-    default is `Cldr.get_current_locale/1`
+    default is `Cldr.get_locale/1`
 
   ## Returns
 
@@ -842,22 +842,15 @@ defmodule Cldr.Currency do
     Enum.flat_map(filter_list, fn filter ->
       case filter do
         :historic ->
-          Enum.filter(currencies, fn currency ->
-            is_nil(currency.iso_digits) ||
-            (is_integer(currency.to) && currency.to < Date.utc_today().year)
-          end)
+          Enum.filter(currencies, &historic?/1)
         :tender ->
-          Enum.filter(currencies, fn currency ->
-            currency.tender
-          end)
+          Enum.filter(currencies, &tender?/1)
         :current ->
-          Enum.filter(currencies, fn currency ->
-            !is_nil(currency.iso_digits) && is_nil(currency.to)
-          end)
+          Enum.filter(currencies, &current?/1)
         :annotated ->
-          Enum.filter(currencies, fn currency ->
-            !String.contains?(currency.name, "(")
-          end)
+          Enum.filter(currencies, &annotated?/1)
+        :unannotated ->
+          Enum.filter(currencies, &unannotated?/1)
         code when is_binary(code) ->
           Enum.filter(currencies, fn currency ->
             currency.code == code
@@ -873,19 +866,24 @@ defmodule Cldr.Currency do
   end
 
   def historic?(%Cldr.Currency{} = currency) do
-    currency_filter(currency, :historic)
+    is_nil(currency.iso_digits) ||
+    (is_integer(currency.to) && currency.to < Date.utc_today().year)
   end
 
   def tender?(%Cldr.Currency{} = currency) do
-    currency_filter(currency, :tender)
+    !!currency.tender
   end
 
   def current?(%Cldr.Currency{} = currency) do
-    currency_filter(currency, :current)
+    !is_nil(currency.iso_digits) && is_nil(currency.to)
+  end
+
+  def annotated?(%Cldr.Currency{} = currency) do
+    String.contains?(currency.name, "(")
   end
 
   def unannotated?(%Cldr.Currency{} = currency) do
-    currency_filter(currency, :unannotated)
+    !String.contains?(currency.name, "(")
   end
 
   # Sort the list by string. If the string is the same
