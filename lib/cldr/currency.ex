@@ -294,7 +294,7 @@ defmodule Cldr.Currency do
       }
 
   """
-  @spec currency_history_for_locale(LanguageTag.t) :: map() | nil
+  @spec currency_history_for_locale(LanguageTag.t) :: {:ok, map()} | {:error, {atom, binary}}
   def currency_history_for_locale(%LanguageTag{} = locale) do
     locale
     |> Cldr.Locale.territory_from_locale()
@@ -302,7 +302,7 @@ defmodule Cldr.Currency do
   end
 
   @spec currency_history_for_locale(Locale.locale_name, Cldr.backend) ::
-    map() | {:error, {module(), String.t}}
+    {:ok, map()} | {:error, {module(), String.t}}
   def currency_history_for_locale(locale_name, backend) when is_binary(locale_name) do
     with {:ok, locale} <- Cldr.validate_locale(locale_name, backend) do
       currency_history_for_locale(locale)
