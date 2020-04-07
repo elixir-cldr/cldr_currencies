@@ -49,6 +49,8 @@ defmodule Cldr.Currency do
             from: nil,
             to: nil
 
+  alias Cldr.LanguageTag
+
   @doc """
   Returns a `Currency` struct created from the arguments.
 
@@ -189,13 +191,52 @@ defmodule Cldr.Currency do
   end
 
   @doc """
+  Returns the effective currency for a given locale
+
+  ## Arguments
+
+  * `locale` is any valid locale name returned by `Cldr.known_locale_names/1`
+    or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
+
+  ## Returns
+
+  * A ISO 4217 currency code as an upcased atom
+
+  ## Examples
+
+      iex> {:ok, locale} = Cldr.validate_locale "en", MyApp.Cldr
+      iex> Cldr.Currency.currency_from_locale locale
+      :USD
+
+      iex> {:ok, locale} = Cldr.validate_locale "en-AU", MyApp.Cldr
+      iex> Cldr.Currency.currency_from_locale locale
+      :AUD
+
+      iex> {:ok, locale} = Cldr.validate_locale "en-AU-u-cu-eur", MyApp.Cldr
+      iex> Cldr.Currency.currency_from_locale locale
+      :EUR
+
+  """
+  def currency_from_locale(%LanguageTag{locale: %{currency: nil}} = locale) do
+    current_currency_for_locale(locale)
+  end
+
+  def currency_from_locale(%LanguageTag{locale: %{currency: currency}}) do
+    currency
+  end
+
+  def currency_from_locale(%LanguageTag{} = locale) do
+    current_currency_for_locale(locale)
+  end
+
+  @doc """
   Returns a mapping of all ISO3166 territory
   codes and a list of historic and the current
   currency for those territories.
 
   ## Example
 
-      iex> Cldr.Currency.territory_currencies |> Map.get("LT")
+      iex> Cldr.Currency.territory_currencies |> Map.get(:LT)
       %{
         EUR: %{from: ~D[2015-01-01], to: nil},
         LTL: %{from: nil, to: ~D[2014-12-31]},
@@ -207,6 +248,24 @@ defmodule Cldr.Currency do
   @territory_currencies Cldr.Config.territory_currency_data()
   def territory_currencies do
     @territory_currencies
+  end
+
+  def territory_currencies(territory) do
+    with {:ok, territory} <- Cldr.validate_territory(territory),
+         {:ok, currencies} <- Map.fetch(territory_currencies(), territory) do
+      {:ok, currencies}
+    else
+      :error -> {:error, {Cldr.UnknownCurrencyError,
+        "No currencies for #{inspect territory} were found"}}
+      other -> other
+    end
+  end
+
+  def territory_currencies!(territory) do
+    case territory_currencies(territory) do
+      {:ok, currencies} -> currencies
+      {:error, {exception, reason}} -> raise exception, reason
+    end
   end
 
   @doc """
@@ -224,20 +283,24 @@ defmodule Cldr.Currency do
   ## Example
 
       iex> Cldr.Currency.currency_history_for_locale "en", MyApp.Cldr
-      %{
-        USD: %{from: ~D[1792-01-01], to: nil},
-        USN: %{tender: false},
-        USS: %{from: nil, tender: false, to: ~D[2014-03-01]}
+      {:ok,
+        %{
+          USD: %{from: ~D[1792-01-01], to: nil},
+          USN: %{tender: false},
+          USS: %{from: nil, tender: false, to: ~D[2014-03-01]}
+        }
       }
 
   """
   @spec currency_history_for_locale(LanguageTag.t) :: map() | nil
-  def currency_history_for_locale(%LanguageTag{territory: territory}) do
-    territory_currencies()
-    |> Map.get(territory)
+  def currency_history_for_locale(%LanguageTag{} = locale) do
+    locale
+    |> Cldr.Locale.territory_from_locale()
+    |> territory_currencies()
   end
 
-  @spec currency_history_for_locale(Locale.locale_name, Cldr.backend) :: map() | {:error, {module(), String.t}}
+  @spec currency_history_for_locale(Locale.locale_name, Cldr.backend) ::
+    map() | {:error, {module(), String.t}}
   def currency_history_for_locale(locale_name, backend) when is_binary(locale_name) do
     with {:ok, locale} <- Cldr.validate_locale(locale_name, backend) do
       currency_history_for_locale(locale)
@@ -267,12 +330,11 @@ defmodule Cldr.Currency do
   @spec current_currency_for_locale(LanguageTag.t()) :: any()
 
   def current_currency_for_locale(%LanguageTag{} = locale) do
-    {currency, _} =
-      currency_history_for_locale(locale)
-      |> Enum.filter(fn {_currency, dates} -> Map.has_key?(dates, :to) && is_nil(dates.to) end)
-      |> hd
-
-    currency
+    with {:ok, history} <- currency_history_for_locale(locale) do
+      history
+      |> Enum.find(fn {_currency, dates} -> Map.has_key?(dates, :to) && is_nil(dates.to) end)
+      |> elem(0)
+    end
   end
 
   @spec current_currency_for_locale(Cldr.Locale.locale_name(), Cldr.backend()) ::

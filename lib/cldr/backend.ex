@@ -622,10 +622,12 @@ defmodule Cldr.Currency.Backend do
         ## Example
 
             iex> MyApp.Cldr.Currency.currency_history_for_locale "en"
-            %{
-              USD: %{from: ~D[1792-01-01], to: nil},
-              USN: %{tender: false},
-              USS: %{from: nil, tender: false, to: ~D[2014-03-01]}
+            {:ok,
+                %{
+                USD: %{from: ~D[1792-01-01], to: nil},
+                USN: %{tender: false},
+                USS: %{from: nil, tender: false, to: ~D[2014-03-01]}
+              }
             }
 
         """

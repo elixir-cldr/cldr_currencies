@@ -1,4 +1,12 @@
-# Changelog for Cldr_Currencies v2.3.0
+# Changelog for Cldr_Currencies v2.4.0
+
+This is the changelog for Cldr_Currencies v2.4.0 released on ________.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
+
+### Enhancements
+
+* Adds 	`Cldr.Currency.currency_from_locale/1`
+
+# Changelog for Cldr_Currencies v2.4.0
 
 This is the changelog for Cldr_Currencies v2.3.0 released on March 28th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
 
