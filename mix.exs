@@ -1,7 +1,7 @@
 defmodule CldrCurrencies.MixProject do
   use Mix.Project
 
-  @version "2.4.0-dev"
+  @version "2.5.0-dev"
 
   def project do
     [
@@ -10,7 +10,7 @@ defmodule CldrCurrencies.MixProject do
       elixir: "~> 1.5",
       name: "Cldr Currencies",
       description: description(),
-      source_url: "https://github.com/kipcole9/cldr_currencies",
+      source_url: "https://github.com/elixir-cldr/cldr_currencies",
       docs: docs(),
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,

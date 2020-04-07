@@ -1,14 +1,31 @@
-# Changelog for Cldr_Currencies v2.4.0
+# Changelog for Cldr_Currencies v2.5.0
 
-This is the changelog for Cldr_Currencies v2.4.0 released on ________.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
+This is the changelog for Cldr_Currencies v2.5.0 released on ________.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
 
 ### Enhancements
 
 * Adds 	`Cldr.Currency.currency_from_locale/1`
 
+# Changelog for Cldr_Currencies v2.4,1
+
+This is the changelog for Cldr_Currencies v2.4.1 released on November 7th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
+
+### Bug Fixes
+
+* In some rare cases, currency strings have a trailing `.`. These are now removed when producing currency strings that are used for parsing money amounts in `ex_money`.
+
 # Changelog for Cldr_Currencies v2.4.0
 
-This is the changelog for Cldr_Currencies v2.3.0 released on March 28th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
+This is the changelog for Cldr_Currencies v2.4.0 released on November 6th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
+
+### Enhancements
+
+* Adds the options `:only` and `:except` to `Cldr.Currency.filter_currencies/3`. These options are exercised in [ex_money](https://hex.pm/pacakges/ex_money) in the `Money.parse/2` function to limited parsed user input to a particular set of currencies.
+
+# Changelog for Cldr_Currencies v2.3.0
+>>>>>>> 174009a17407d557f2aa7d7622ea8c196e7d6e3e
+
+This is the changelog for Cldr_Currencies v2.3.0 released on March 28th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
 
 ### Enhancements
 
@@ -16,7 +33,7 @@ This is the changelog for Cldr_Currencies v2.3.0 released on March 28th, 2019.  
 
 # Changelog for Cldr_Currencies v2.2.5
 
-This is the changelog for Cldr_Currencies v2.2.4 released on March 15th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
+This is the changelog for Cldr_Currencies v2.2.4 released on March 15th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
 
 ### Bug Fixes
 
@@ -24,7 +41,7 @@ This is the changelog for Cldr_Currencies v2.2.4 released on March 15th, 2019.  
 
 # Changelog for Cldr_Currencies v2.2.4
 
-This is the changelog for Cldr_Currencies v2.2.4 released on March 15th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
+This is the changelog for Cldr_Currencies v2.2.4 released on March 15th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
 
 ### Enhancements
 
@@ -41,7 +58,7 @@ end
 
 # Changelog for Cldr_Currencies v2.2.3
 
-This is the changelog for Cldr_Currencies v2.2.3 released on March 7th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
+This is the changelog for Cldr_Currencies v2.2.3 released on March 7th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
 
 ### Bug Fixes
 
@@ -49,7 +66,7 @@ This is the changelog for Cldr_Currencies v2.2.3 released on March 7th, 2019.  F
 
 # Changelog for Cldr_Currencies v2.2.2
 
-This is the changelog for Cldr_Currencies v2.2.2 released on March 7th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
+This is the changelog for Cldr_Currencies v2.2.2 released on March 7th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
 
 ### Bug Fixes
 
@@ -57,7 +74,7 @@ This is the changelog for Cldr_Currencies v2.2.2 released on March 7th, 2019.  F
 
 # Changelog for Cldr_Currencies v2.2.1
 
-This is the changelog for Cldr_Currencies v2.2.1 released on March 6th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
+This is the changelog for Cldr_Currencies v2.2.1 released on March 6th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
 
 ### Bug Fixes
 
@@ -65,7 +82,7 @@ This is the changelog for Cldr_Currencies v2.2.1 released on March 6th, 2019.  F
 
 # Changelog for Cldr_Currencies v2.2.0
 
-This is the changelog for Cldr_Currencies v2.2.0 released on February 23nd, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
+This is the changelog for Cldr_Currencies v2.2.0 released on February 23nd, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
 
 ### Enhancements
 
@@ -101,15 +118,15 @@ iex> Cldr.Currency.current_currency_for_locale "en-AU", MyApp.Cldr
 
 # Changelog for Cldr_Currencies v2.1.4
 
-This is the changelog for Cldr_Currencies v2.1.4 released on February 22nd, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
+This is the changelog for Cldr_Currencies v2.1.4 released on February 22nd, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
 
 ### Bug Fixes
 
-* Fixes significant performance regression in `Cldr.Currency.currencies_for_locale/2`.  Thanks to @doughsay for the issue.  Closes #98 in [money](https://github.com/kipcole9/money).
+* Fixes significant performance regression in `Cldr.Currency.currencies_for_locale/2`.  Thanks to @doughsay for the issue.  Closes #98 in [money](https://github.com/elixir-cldr/money).
 
 # Changelog for Cldr_Currencies v2.1.3
 
-This is the changelog for Cldr_Currencies v2.1.3 released on February 18th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
+This is the changelog for Cldr_Currencies v2.1.3 released on February 18th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
 
 ### Bug Fixes
 
@@ -117,7 +134,7 @@ This is the changelog for Cldr_Currencies v2.1.3 released on February 18th, 2019
 
 # Changelog for Cldr_Currencies v2.1.2
 
-This is the changelog for Cldr_Currencies v2.1.2 released on February 13th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
+This is the changelog for Cldr_Currencies v2.1.2 released on February 13th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
 
 ### Bug Fixes
 
@@ -125,7 +142,7 @@ This is the changelog for Cldr_Currencies v2.1.2 released on February 13th, 2019
 
 # Changelog for Cldr_Currencies v2.1.1
 
-This is the changelog for Cldr_Currencies v2.1.1 released on February 10th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
+This is the changelog for Cldr_Currencies v2.1.1 released on February 10th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
 
 ### Bug Fixes
 
@@ -141,7 +158,7 @@ This is the changelog for Cldr_Currencies v2.1.1 released on February 10th, 2019
 
 # Changelog for Cldr_Currencies v2.1.0
 
-This is the changelog for Cldr_Currencies v2.1.0 released on February 9th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
+This is the changelog for Cldr_Currencies v2.1.0 released on February 9th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
 
 ### Enhancements
 
@@ -159,7 +176,7 @@ In addition the `Cldr.Currency.t` structure has changed:
 
 # Changelog for Cldr_Currencies v2.0.0
 
-This is the changelog for Cldr_Currencies v2.0.0 released on November 22nd, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
+This is the changelog for Cldr_Currencies v2.0.0 released on November 22nd, 2018.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
 
 ### Enhancements
 
