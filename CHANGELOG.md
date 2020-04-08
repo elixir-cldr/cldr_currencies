@@ -4,7 +4,9 @@ This is the changelog for Cldr_Currencies v2.5.0 released on ________.  For olde
 
 ### Enhancements
 
-* Adds 	`Cldr.Currency.currency_from_locale/1`
+* Add `Cldr.Currency.currency_from_locale/1`
+
+* Add `Cldr.Currency.currency_format_from_locale/1`
 
 # Changelog for Cldr_Currencies v2.4,1
 
