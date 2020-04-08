@@ -15,7 +15,7 @@ defmodule Cldr.Currency do
           | :percent
           | :scientific
 
-  @type code :: String.t() | atom()
+  @type code :: atom()
 
   @type currency_status :: :all | :current | :historic | :tender | :unannotated
 
@@ -197,8 +197,7 @@ defmodule Cldr.Currency do
 
   ## Arguments
 
-  * `locale` is any valid locale name returned by `Cldr.known_locale_names/1`
-    or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
+  * `locale` is a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
 
   ## Returns
 
@@ -229,6 +228,44 @@ defmodule Cldr.Currency do
 
   def currency_from_locale(%LanguageTag{} = locale) do
     current_currency_for_locale(locale)
+  end
+
+  @doc """
+  Returns the effective currency format for a given locale
+
+  ## Arguments
+
+  * `locale` a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
+
+  ## Returns
+
+  * Either `:accounting` or `:currency`
+
+  ## Examples
+
+      iex> {:ok, locale} = Cldr.validate_locale "en", MyApp.Cldr
+      iex> Cldr.Currency.currency_format_from_locale locale
+      :currency
+
+      iex> {:ok, locale} = Cldr.validate_locale "en-AU-u-cu-eur", MyApp.Cldr
+      iex> Cldr.Currency.currency_format_from_locale locale
+      :currency
+
+      iex> {:ok, locale} = Cldr.validate_locale "en-AU-u-cu-eur-cf-account", MyApp.Cldr
+      iex> Cldr.Currency.currency_format_from_locale locale
+      :accounting
+
+  """
+  def currency_format_from_locale(%LanguageTag{locale: %{currency_format: nil}}) do
+    :currency
+  end
+
+  def currency_format_from_locale(%LanguageTag{locale: %{currency_format: currency_format}}) do
+    currency_format
+  end
+
+  def currency_format_from_locale(%LanguageTag{}) do
+    :currency
   end
 
   @doc """
