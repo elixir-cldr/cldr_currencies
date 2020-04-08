@@ -38,6 +38,8 @@ defmodule CldrCurrencies.MixProject do
 
   defp deps do
     [
+      # {:ex_cldr, "~> 2.14"},
+
       {:ex_cldr, path: "../cldr"},
       {:jason, "~> 1.0", optional: true},
       {:ex_doc, "~> 0.18", only: [:dev, :release, :test], optional: true},
