@@ -136,7 +136,7 @@ defmodule Cldr.Currency do
   ## Options
 
   * `:locale` is any locale returned by `Cldr.Locale.new!/2`. The
-    default is `Cldr.get_locale/1`
+    default is `<backend>.get_locale/1`
 
   ## Returns
 
@@ -166,9 +166,8 @@ defmodule Cldr.Currency do
           {:ok, String.t()} | {:error, {module(), String.t()}}
 
   def pluralize(number, currency, backend, options \\ []) do
-    default_options = [locale: backend.default_locale()]
-    options = Keyword.merge(default_options, options)
-    locale = options[:locale]
+    locale = Keyword.get_lazy(options, :locale, &backend.get_locale/0)
+    options = Keyword.put(options, :locale, locale)
 
     with {:ok, currency_code} <- Cldr.validate_currency(currency),
          {:ok, locale} <- Cldr.validate_locale(locale, backend),
