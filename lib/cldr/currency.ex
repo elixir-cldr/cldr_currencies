@@ -212,6 +212,9 @@ defmodule Cldr.Currency do
       iex> Cldr.Currency.currency_from_locale locale
       :AUD
 
+      iex> Cldr.Currency.currency_from_locale "en-GB"
+      :GBP
+
       iex> {:ok, locale} = Cldr.validate_locale "en-AU-u-cu-eur", MyApp.Cldr
       iex> Cldr.Currency.currency_from_locale locale
       :EUR
@@ -227,6 +230,12 @@ defmodule Cldr.Currency do
 
   def currency_from_locale(%LanguageTag{} = locale) do
     current_currency_for_locale(locale)
+  end
+
+  def currency_from_locale(locale) when is_binary(locale) do
+    with {:ok, locale} <- Cldr.validate_locale(locale) do
+      current_currency_for_locale(locale)
+    end
   end
 
   @doc """
