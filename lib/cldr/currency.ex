@@ -339,7 +339,9 @@ defmodule Cldr.Currency do
       }
 
   """
-  @spec currency_history_for_locale(LanguageTag.t) :: {:ok, map()} | {:error, {atom, binary}}
+  @spec currency_history_for_locale(LanguageTag.t) ::
+    {:ok, map()} | {:error, {atom, binary}}
+
   def currency_history_for_locale(%LanguageTag{} = locale) do
     locale
     |> Cldr.Locale.territory_from_locale()
@@ -348,6 +350,7 @@ defmodule Cldr.Currency do
 
   @spec currency_history_for_locale(Locale.locale_name, Cldr.backend) ::
     {:ok, map()} | {:error, {module(), String.t}}
+
   def currency_history_for_locale(locale_name, backend) when is_binary(locale_name) do
     with {:ok, locale} <- Cldr.validate_locale(locale_name, backend) do
       currency_history_for_locale(locale)
@@ -365,7 +368,7 @@ defmodule Cldr.Currency do
   * `backend` is any module that includes `use Cldr` and therefore
     is a `Cldr` backend module
 
-  ## Example
+  ## Examples
 
       iex> Cldr.Currency.current_currency_for_locale "en", MyApp.Cldr
       :USD
@@ -377,11 +380,9 @@ defmodule Cldr.Currency do
   @spec current_currency_for_locale(LanguageTag.t()) :: any()
 
   def current_currency_for_locale(%LanguageTag{} = locale) do
-    with {:ok, history} <- currency_history_for_locale(locale) do
-      history
-      |> Enum.find(fn {_currency, dates} -> Map.has_key?(dates, :to) && is_nil(dates.to) end)
-      |> elem(0)
-    end
+    locale
+    |> Cldr.Locale.territory_from_locale()
+    |> current_currency_for_territory()
   end
 
   @spec current_currency_for_locale(Cldr.Locale.locale_name(), Cldr.backend()) ::
@@ -390,6 +391,36 @@ defmodule Cldr.Currency do
   def current_currency_for_locale(locale_name, backend) when is_binary(locale_name) do
     with {:ok, locale} <- Cldr.validate_locale(locale_name, backend) do
       current_currency_for_locale(locale)
+    end
+  end
+
+  @doc """
+  Returns the current currency for a given territory.
+
+  ## Arguments
+
+  * `territory` is any valid territory name returned by
+    `Cldr.known_territories/0`
+
+  ## Examples
+
+      iex> Cldr.Currency.current_currency_for_territory :US
+      :USD
+
+      iex> Cldr.Currency.current_currency_for_territory :AU
+      :AUD
+
+  """
+  @spec current_currency_for_territory(Cldr.territory()) ::
+    code() | nil | {:error, {module(), String.t()}}
+
+  def current_currency_for_territory(territory) do
+    with {:ok, territory} <- Cldr.validate_territory(territory),
+         {:ok, history} <- territory_currencies(territory) do
+
+      history
+      |> Enum.find(fn {_currency, dates} -> Map.has_key?(dates, :to) && is_nil(dates.to) end)
+      |> elem(0)
     end
   end
 

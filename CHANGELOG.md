@@ -6,6 +6,10 @@ This is the changelog for Cldr_Currencies v2.5.0 released on ________.  For olde
 
 * Add `Cldr.Currency.currency_from_locale/1`
 
+* Add `Cldr.Currency.current_currency_for_locale/1`
+
+* Add `Cldr.Currency.current_currency_for_territory/1`
+
 * Add `Cldr.Currency.currency_format_from_locale/1`
 
 # Changelog for Cldr_Currencies v2.4,1
