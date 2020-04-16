@@ -167,6 +167,65 @@ defmodule Cldr.Currency.Backend do
         end
 
         @doc """
+        Returns the effective currency for a given locale
+
+        ## Arguments
+
+        * `locale` is a `Cldr.LanguageTag` struct returned by
+          `Cldr.Locale.new!/2`
+
+        ## Returns
+
+        * A ISO 4217 currency code as an upcased atom
+
+        ## Examples
+
+            iex> {:ok, locale} = #{inspect backend}.validate_locale "en"
+            iex> #{inspect __MODULE__}.currency_from_locale locale
+            :USD
+
+            iex> {:ok, locale} = #{inspect backend}.validate_locale "en-AU"
+            iex> #{inspect __MODULE__}.currency_from_locale locale
+            :AUD
+
+            iex> #{inspect __MODULE__}.currency_from_locale "en-GB"
+            :GBP
+
+        """
+
+        def currency_from_locale(%LanguageTag{} = locale) do
+          Cldr.Currency.currency_from_locale(locale)
+        end
+
+        @doc """
+        Returns the effective currency for a given locale
+
+        ## Arguments
+
+        * `locale` is any valid locale name returned by
+          `Cldr.known_locale_names/1`
+
+        * `backend` is any module that includes `use Cldr` and therefore
+          is a `Cldr` backend module. The default is `Cldr.default_backend/0`
+
+        ## Returns
+
+        * A ISO 4217 currency code as an upcased atom
+
+        ## Examples
+
+            iex> Cldr.Currency.currency_from_locale "fr-CH", MyApp.Cldr
+            :CHF
+
+            iex> Cldr.Currency.currency_from_locale "fr-CH-u-cu-INR", MyApp.Cldr
+            :INR
+
+        """
+        def currency_from_locale(locale) when is_binary(locale) do
+          Cldr.Currency.currency_from_locale(locale, unquote(backend))
+        end
+
+        @doc """
         Returns a valid normalized ISO4217 format custom currency code or an error.
 
         Currency codes conform to the ISO4217 standard which means that any
@@ -651,6 +710,11 @@ defmodule Cldr.Currency.Backend do
         @doc """
         Returns the current currency for a given locale.
 
+        This function does not consider the `U` extenion
+        parameters `cu` or `rg`. It is recommended to us
+        `Cldr.Currency.currency_from_locale/1` in most
+        circumstances.
+
         ## Arguments
 
         * `locale` is any valid locale name returned by `MyApp.Cldr.known_locale_names/0`
@@ -658,19 +722,19 @@ defmodule Cldr.Currency.Backend do
 
         ## Example
 
-            iex> MyApp.Cldr.Currency.current_currency_for_locale "en"
+            iex> MyApp.Cldr.Currency.current_currency_from_locale "en"
             :USD
 
-            iex> MyApp.Cldr.Currency.current_currency_for_locale "en-AU"
+            iex> MyApp.Cldr.Currency.current_currency_from_locale "en-AU"
             :AUD
 
         """
-        def current_currency_for_locale(%LanguageTag{} = locale) do
-          Cldr.Currency.current_currency_for_locale(locale)
+        def current_currency_from_locale(%LanguageTag{} = locale) do
+          Cldr.Currency.current_currency_from_locale(locale)
         end
 
-        def current_currency_for_locale(locale_name) when is_binary(locale_name) do
-          Cldr.Currency.current_currency_for_locale(locale_name, unquote(backend))
+        def current_currency_from_locale(locale_name) when is_binary(locale_name) do
+          Cldr.Currency.current_currency_from_locale(locale_name, unquote(backend))
         end
       end
     end

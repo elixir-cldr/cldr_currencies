@@ -215,13 +215,9 @@ defmodule Cldr.Currency do
       iex> Cldr.Currency.currency_from_locale "en-GB"
       :GBP
 
-      iex> {:ok, locale} = Cldr.validate_locale "en-AU-u-cu-eur", MyApp.Cldr
-      iex> Cldr.Currency.currency_from_locale locale
-      :EUR
-
   """
   def currency_from_locale(%LanguageTag{locale: %{currency: nil}} = locale) do
-    current_currency_for_locale(locale)
+    current_currency_from_locale(locale)
   end
 
   def currency_from_locale(%LanguageTag{locale: %{currency: currency}}) do
@@ -229,12 +225,36 @@ defmodule Cldr.Currency do
   end
 
   def currency_from_locale(%LanguageTag{} = locale) do
-    current_currency_for_locale(locale)
+    current_currency_from_locale(locale)
   end
 
-  def currency_from_locale(locale) when is_binary(locale) do
-    with {:ok, locale} <- Cldr.validate_locale(locale) do
-      current_currency_for_locale(locale)
+  @doc """
+  Returns the effective currency for a given locale
+
+  ## Arguments
+
+  * `locale` is any valid locale name returned by
+    `Cldr.known_locale_names/1`
+
+  * `backend` is any module that includes `use Cldr` and therefore
+    is a `Cldr` backend module. The default is `Cldr.default_backend/0`
+
+  ## Returns
+
+  * A ISO 4217 currency code as an upcased atom
+
+  ## Examples
+
+      iex> Cldr.Currency.currency_from_locale "fr-CH", MyApp.Cldr
+      :CHF
+
+      iex> Cldr.Currency.currency_from_locale "fr-CH-u-cu-INR", MyApp.Cldr
+      :INR
+
+  """
+  def currency_from_locale(locale, backend \\ Cldr.default_backend()) when is_binary(locale) do
+    with {:ok, locale} <- Cldr.validate_locale(locale, backend) do
+      currency_from_locale(locale)
     end
   end
 
@@ -358,7 +378,12 @@ defmodule Cldr.Currency do
   end
 
   @doc """
-  Returns the current currency for a given locale.
+  Returns the current currency from a given locale.
+
+  This function does not consider the `U` extenion
+  parameters `cu` or `rg`. It is recommended to us
+  `Cldr.Currency.currency_from_locale/1` in most
+  circumstances.
 
   ## Arguments
 
@@ -370,27 +395,27 @@ defmodule Cldr.Currency do
 
   ## Examples
 
-      iex> Cldr.Currency.current_currency_for_locale "en", MyApp.Cldr
+      iex> Cldr.Currency.current_currency_from_locale "en", MyApp.Cldr
       :USD
 
-      iex> Cldr.Currency.current_currency_for_locale "en-AU", MyApp.Cldr
+      iex> Cldr.Currency.current_currency_from_locale "en-AU", MyApp.Cldr
       :AUD
 
   """
-  @spec current_currency_for_locale(LanguageTag.t()) :: any()
+  @spec current_currency_from_locale(LanguageTag.t()) :: any()
 
-  def current_currency_for_locale(%LanguageTag{} = locale) do
+  def current_currency_from_locale(%LanguageTag{} = locale) do
     locale
     |> Cldr.Locale.territory_from_locale()
     |> current_currency_for_territory()
   end
 
-  @spec current_currency_for_locale(Cldr.Locale.locale_name(), Cldr.backend()) ::
+  @spec current_currency_from_locale(Cldr.Locale.locale_name(), Cldr.backend()) ::
     code() | nil | {:error, {module(), String.t()}}
 
-  def current_currency_for_locale(locale_name, backend) when is_binary(locale_name) do
+  def current_currency_from_locale(locale_name, backend) when is_binary(locale_name) do
     with {:ok, locale} <- Cldr.validate_locale(locale_name, backend) do
-      current_currency_for_locale(locale)
+      current_currency_from_locale(locale)
     end
   end
 
