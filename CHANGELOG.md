@@ -40,7 +40,7 @@ This is the changelog for Cldr_Currencies v2.3.0 released on March 28th, 2019.  
 
 # Changelog for Cldr_Currencies v2.2.5
 
-This is the changelog for Cldr_Currencies v2.2.4 released on March 15th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
+This is the changelog for Cldr_Currencies v2.2.5 released on March 15th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
 
 ### Bug Fixes
 
