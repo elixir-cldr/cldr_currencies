@@ -31,7 +31,6 @@ This is the changelog for Cldr_Currencies v2.4.0 released on November 6th, 2019.
 * Adds the options `:only` and `:except` to `Cldr.Currency.filter_currencies/3`. These options are exercised in [ex_money](https://hex.pm/pacakges/ex_money) in the `Money.parse/2` function to limited parsed user input to a particular set of currencies.
 
 # Changelog for Cldr_Currencies v2.3.0
->>>>>>> 174009a17407d557f2aa7d7622ea8c196e7d6e3e
 
 This is the changelog for Cldr_Currencies v2.3.0 released on March 28th, 2019.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
 
