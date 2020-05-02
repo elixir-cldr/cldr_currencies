@@ -1,6 +1,6 @@
 # Changelog for Cldr_Currencies v2.5.0
 
-This is the changelog for Cldr_Currencies v2.5.0 released on ________.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
+This is the changelog for Cldr_Currencies v2.5.0 released on May 2nd, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
 
 ### Enhancements
 
