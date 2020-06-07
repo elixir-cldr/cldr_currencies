@@ -83,7 +83,7 @@ defmodule Cldr.Currency.Backend do
 
         * `locale` is any valid locale name returned by `MyApp.Cldr.known_locale_names/0`
           or a `Cldr.LanguageTag` struct returned by `MyApp.Cldr.Locale.new!/1`. The
-          default is `Cldr.get_current_locale/1`
+          default is `#{inspect backend}.get_locale/0`
 
         ## Returns
 
