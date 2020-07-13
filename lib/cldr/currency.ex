@@ -102,7 +102,7 @@ defmodule Cldr.Currency do
   * `:alt_code` is an alternative currency code for application use.
   * `:cash_digits` is the precision of the currency when used as cash.
     Optional.
-  * `:cash_rounding_nearest` is the rounding precision when used as cash
+  * `:cash_round_nearest` is the rounding precision when used as cash
     such as `0.05`. Optional.
 
   ## Returns
@@ -158,11 +158,11 @@ defmodule Cldr.Currency do
         alt_code: options[:alt_code] || code,
         name: options[:name],
         symbol: options[:symbol] || to_string(code),
-        narrow_symbol: options[:narrow_symbol] || options[:symbole],
+        narrow_symbol: options[:narrow_symbol] || options[:symbol],
         digits: options[:digits],
-        rounding: options[:rounding] || 0,
+        rounding: options[:round_nearest] || 0,
         cash_digits: options[:cash_digits] || options[:digits],
-        cash_rounding: options[:cash_rounding] || options[:rounding],
+        cash_rounding: options[:cash_round_nearest] || options[:round_nearest],
         iso_digits: options[:digits],
         tender: options[:tender] || false,
         count: options[:count] || %{other: options[:name]}
