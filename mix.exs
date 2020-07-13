@@ -1,7 +1,7 @@
-defmodule CldrCurrencies.MixProject do
+defmodule Cldr.Currencies.MixProject do
   use Mix.Project
 
-  @version "2.5.0"
+  @version "2.5.0-dev"
 
   def project do
     [

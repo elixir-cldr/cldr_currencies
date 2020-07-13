@@ -241,30 +241,6 @@ defmodule Cldr.Currency.Backend do
           Cldr.Currency.currency_from_locale(locale)
         end
 
-        @doc """
-        Returns the effective currency for a given locale
-
-        ## Arguments
-
-        * `locale` is any valid locale name returned by
-          `Cldr.known_locale_names/1`
-
-        * `backend` is any module that includes `use Cldr` and therefore
-          is a `Cldr` backend module. The default is `Cldr.default_backend/0`
-
-        ## Returns
-
-        * A ISO 4217 currency code as an upcased atom
-
-        ## Examples
-
-            iex> Cldr.Currency.currency_from_locale "fr-CH", MyApp.Cldr
-            :CHF
-
-            iex> Cldr.Currency.currency_from_locale "fr-CH-u-cu-INR", MyApp.Cldr
-            :INR
-
-        """
         def currency_from_locale(locale) when is_binary(locale) do
           Cldr.Currency.currency_from_locale(locale, unquote(backend))
         end

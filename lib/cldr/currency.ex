@@ -801,7 +801,7 @@ defmodule Cldr.Currency do
 
   ## Example
 
-    => MyApp.Cldr.Currency.currencies_for_locale! "en"
+    #=> MyApp.Cldr.Currency.currencies_for_locale! "en"
     %{
       FJD: %Cldr.Currency{
         cash_digits: 2,
@@ -1093,6 +1093,8 @@ defmodule Cldr.Currency do
           Enum.filter(currencies, &annotated?/1)
         :unannotated ->
           Enum.filter(currencies, &unannotated?/1)
+        :private ->
+          private_currencies()
         code when is_binary(code) ->
           Enum.filter(currencies, fn currency ->
             currency.code == code
