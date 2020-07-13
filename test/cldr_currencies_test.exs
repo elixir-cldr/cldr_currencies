@@ -4,12 +4,17 @@ defmodule Cldr.Currency.Test do
   doctest Cldr.Currency
   doctest MyApp.Cldr.Currency
 
+  setup do
+    Cldr.Currency.start_link()
+    :ok
+  end
+
   test "that we can confirm known currencies" do
-    assert Cldr.Currency.known_currency?("USD") == true
+    assert Cldr.Currency.known_currency_code?("USD") == true
   end
 
   test "that we reject unknown currencies" do
-    assert Cldr.Currency.known_currency?("ABCD") == false
+    assert Cldr.Currency.known_currency_code?("ABCD") == false
   end
 
   test "that we filter historic currencies correctly" do

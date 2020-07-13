@@ -1,3 +1,24 @@
+# Changelog for Cldr_Currencies v2.6.0
+
+This is the changelog for Cldr_Currencies v2.6.0 released on July 13th, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
+
+### Breaking change
+
+* Remove `Cldr.Currency.make_currency_code/1` whose need is replaced by `Cldr.validate_currency/1`.
+
+
+### Deprecations
+
+* Deprecate `Cldr.Currency.known_currency?/1` in favour of `Cldr.Currency.known_currency_code?/1`
+
+* Deprecate `Cldr.Currency.known_currencies/0` in favour of `Cldr.Currency.known_currency_codes/0`
+
+### Enhancements
+
+* Support the creation of new currencies with `Cldr.Currency.new/2`. Newly created currencies are stored in an `:ets:` table which means that currencies will need to be recreated on each application restart. Creating the currencies is a developer responsibility although this may change in the future.  In order to create currencies a supervisor and `:ets` table owner must be started.  See the README for further details on adding this to your application supervision tree.
+
+* Add `:alt_code` to the `Cldr.Currency` struct. When creating a new currency, the currency code must conform to ISO4217 meaning that any new code must be in the "private use" range. This in turn means that the currency code must start with "X" and be three characters long. Many crypto currencies have either conflicting currency codes (do not comply with ISO4217 private use) or are invalid codes (longer than three characters).  The `:alt_code` can be used to store an arbitrary alternative currency code than can be used to identify cryptocurrencies by a more familiar code.
+
 # Changelog for Cldr_Currencies v2.5.0
 
 This is the changelog for Cldr_Currencies v2.5.0 released on May 2nd, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)

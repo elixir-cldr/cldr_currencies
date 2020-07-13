@@ -55,7 +55,7 @@ defmodule Cldr.Currency.Backend do
               tender: false}}
 
             iex> #{inspect(__MODULE__)}.new(:XBC)
-            {:error, {Cldr.CurrencyAlreadyDefined, "Currency :XBC is already defined"}}
+            {:error, {Cldr.CurrencyAlreadyDefined, "Currency :XBC is already defined."}}
 
         """
         @spec new(Cldr.Currency.code(), map() | Keyword.t) ::
@@ -121,14 +121,17 @@ defmodule Cldr.Currency.Backend do
 
         ## Example
 
-            iex> #{inspect(__MODULE__)}.known_currencies |> Enum.count
+            iex> #{inspect(__MODULE__)}.known_currency_codes |> Enum.count
             303
 
         """
-        @spec known_currencies() :: list(atom)
-        def known_currencies do
-          Cldr.Currency.known_currencies()
+        @spec known_currency_codes() :: list(atom)
+        def known_currency_codes do
+          Cldr.Currency.known_currency_codes()
         end
+
+        @deprecate "Use #{inspect(__MODULE__)}.known_currency_codes/0"
+        defdelegate known_currencies, to: __MODULE__, as: :known_currency_codes
 
         @doc """
         Returns a boolean indicating if the supplied currency code is known.
@@ -138,33 +141,59 @@ defmodule Cldr.Currency.Backend do
         * `currency_code` is a `binary` or `atom` representing an ISO4217
           currency code
 
-        * `custom_currencies` is an optional list of custom currencies created by the
-          `Cldr.Currency.new/2` function
-
         ## Returns
 
         * `true` or `false`
 
         ## Examples
 
-            iex> #{inspect(__MODULE__)}.known_currency? "AUD"
+            iex> #{inspect(__MODULE__)}.known_currency_code? "AUD"
             true
 
-            iex> #{inspect(__MODULE__)}.known_currency? "GGG"
+            iex> #{inspect(__MODULE__)}.known_currency_code? "GGG"
             false
 
-            iex> #{inspect(__MODULE__)}.known_currency? :XCV
+            iex> #{inspect(__MODULE__)}.known_currency_code? :XCV
             false
-
-            iex> #{inspect(__MODULE__)}.known_currency? :XCV, [%Cldr.Currency{code: :XCV}]
-            true
 
         """
-        @spec known_currency?(Cldr.Currency.code(), list(Cldr.Currency.t())) :: boolean
-
-        def known_currency?(currency_code, custom_currencies \\ []) do
-          Cldr.Currency.known_currency?(currency_code, custom_currencies)
+        @spec known_currency_code?(Cldr.Currency.code()) :: boolean
+        def known_currency_code?(currency_code) do
+          Cldr.Currency.known_currency_code?(currency_code)
         end
+
+        @doc """
+        Returns a 2-tuple indicating if the supplied currency code is known.
+
+        ## Arguments
+
+        * `currency_code` is a `binary` or `atom` representing an ISO4217
+          currency code
+
+        ## Returns
+
+        * `{:ok, currency_code}` or
+
+        * `{:error, {exception, reason}}`
+
+        ## Examples
+
+            iex> #{inspect(__MODULE__)}.known_currency_code "AUD"
+            {:ok, "AUD"}
+
+            iex> #{inspect(__MODULE__)}.known_currency_code "GGG"
+            {:error, {Cldr.UnknownCurrencyError, "Currency \\"GGG\\" is not known."}}
+
+        """
+        @spec known_currency_code(Cldr.Currency.code()) ::
+          {:ok, Cldr.Currency.code} | {:error, {module, String.t}}
+
+        def known_currency_code(currency_code) do
+          Cldr.Currency.known_currency_code(currency_code)
+        end
+
+        @deprecate "Use #{inspect(__MODULE__)}.known_currency_code?/0"
+        defdelegate known_currency?(code), to: __MODULE__, as: :known_currency_code?
 
         @doc """
         Returns the effective currency for a given locale
@@ -223,43 +252,6 @@ defmodule Cldr.Currency.Backend do
         """
         def currency_from_locale(locale) when is_binary(locale) do
           Cldr.Currency.currency_from_locale(locale, unquote(backend))
-        end
-
-        @doc """
-        Returns a valid normalized ISO4217 format custom currency code or an error.
-
-        Currency codes conform to the ISO4217 standard which means that any
-        custom currency code must start with an "X" followed by two alphabetic
-        characters.
-
-        Note that since this function creates atoms but to a maximum of
-        26 * 26 == 676 since the format permits 2 alphabetic characters only.
-
-        ## Arguments
-
-        * `currency_code` is a `String.t` or and `atom` representing the new
-          currency code to be created
-
-        ## Returns
-
-        * `{:ok, currency_code}` or
-
-        * `{:error, {exception, message}}`
-
-        ## Examples
-
-            iex> #{inspect(__MODULE__)}.make_currency_code("xzz")
-            {:ok, :XZZ}
-
-            iex> #{inspect(__MODULE__)}.make_currency_code("aaa")
-            {:error, {Cldr.CurrencyCodeInvalid,
-             "Invalid currency code \\"AAA\\".  Currency codes must start with 'X' followed by 2 alphabetic characters only."}}
-
-        """
-        @valid_currency_code Regex.compile!("^X[A-Z]{2}$")
-        @spec make_currency_code(binary | atom) :: {:ok, atom} | {:error, binary}
-        def make_currency_code(code) do
-          Cldr.Currency.make_currency_code(code)
         end
 
         @doc """

@@ -23,6 +23,7 @@ defmodule Cldr.Currency do
 
   @type t :: %__MODULE__{
           code: code,
+          alt_code: code,
           name: String.t(),
           tender: boolean,
           symbol: String.t(),
@@ -38,6 +39,7 @@ defmodule Cldr.Currency do
         }
 
   defstruct code: nil,
+            alt_code: nil,
             name: "",
             symbol: "",
             narrow_symbol: nil,
@@ -52,6 +54,32 @@ defmodule Cldr.Currency do
             to: nil
 
   alias Cldr.LanguageTag
+
+  # Starts the supervisor for the private use
+  # currencies, delegated to Eternal which
+  # keeps :ets tables alive as much as is
+  # possible
+
+  @doc false
+  def start_link(_init_arg) do
+    start_link()
+  end
+
+  @doc false
+  def start_link do
+    Eternal.start_link(__MODULE__, [ :set, { :read_concurrency, true }], [ quiet: true ])
+  end
+
+  @doc false
+  def child_spec(opts) do
+    %{
+      id: __MODULE__,
+      start: {__MODULE__, :start_link, [opts]},
+      type: :supervisor,
+      restart: :permanent,
+      shutdown: 500
+    }
+  end
 
   @doc """
   Returns a `Currency` struct created from the arguments.
@@ -86,33 +114,59 @@ defmodule Cldr.Currency do
         digits: 0, name: "Custom Name", narrow_symbol: nil, rounding: 0, symbol: "",
         tender: false}}
 
-      iex> Cldr.Currency.new(:XAA, name: "Custom Name")
+      iex> Cldr.Currency.new(:XAB, name: "Custom Name")
       {:ok,
-       %Cldr.Currency{cash_digits: 0, cash_rounding: 0, code: :XAA, count: nil,
+       %Cldr.Currency{cash_digits: 0, cash_rounding: 0, code: :XAB, count: nil,
         digits: 0, name: "Custom Name", narrow_symbol: nil, rounding: 0, symbol: "",
         tender: false}}
 
       iex> Cldr.Currency.new(:XBC)
-      {:error, {Cldr.CurrencyAlreadyDefined, "Currency :XBC is already defined"}}
+      {:error, {Cldr.CurrencyAlreadyDefined, "Currency :XBC is already defined."}}
 
   """
   @spec new(binary | atom, map | list) :: {:ok, t} | {:error, {module(), String.t}}
   def new(currency, options \\ [])
 
-  def new(currency, options) do
+  def new(currency, options) when is_list(options) do
     with {:ok, currency_code} <- Cldr.validate_currency(currency),
-         false <- currency_code in known_currencies() do
-      {:ok, struct(@struct, [{:code, currency_code} | options])}
-    else
-      true ->
-        {
-          :error,
-          {Cldr.CurrencyAlreadyDefined, "Currency #{inspect(currency)} is already defined"}
-        }
-
-      error ->
-        error
+         {:ok, currency_code} <- validate_new_currency(currency_code),
+         {:ok, options} <- validate_options(options) do
+      currency = struct(@struct, [{:code, currency_code} | options])
+      store_currency(currency)
     end
+  end
+
+  defp validate_options(options) do
+    {:ok, options}
+  end
+
+  @doc """
+  Determines is a new currency is already
+  defined.
+
+  ## Example
+
+      iex> Cldr.Currency.validate_new_currency :XAC
+      {:ok, :XAC}
+
+      iex> Cldr.Currency.validate_new_currency :USD
+      {:error, {Cldr.CurrencyAlreadyDefined, "Currency :USD is already defined."}}
+
+  """
+  @spec validate_new_currency(code) :: {:ok, code} | {:error, {module, String.t}}
+  def validate_new_currency(code) do
+    if code in known_currency_codes() do
+      {:error, {Cldr.CurrencyAlreadyDefined, currency_already_defined_error(code)}}
+    else
+      {:ok, code}
+    end
+  end
+
+  def store_currency(%Cldr.Currency{code: code} = currency) do
+    :ets.insert_new(__MODULE__, {code, currency})
+    {:ok, currency}
+  rescue ArgumentError ->
+    {:error, {Cldr.CurrencyNotSavedError, currency_not_saved_error(code)}}
   end
 
   @doc """
@@ -182,13 +236,109 @@ defmodule Cldr.Currency do
 
   ## Example
 
-      iex> Cldr.Currency.known_currencies |> Enum.count
+      iex> Cldr.Currency.known_currency_codes |> Enum.count
       303
 
   """
-  @spec known_currencies() :: list(atom)
-  def known_currencies do
-    Cldr.known_currencies()
+  @spec known_currency_codes() :: list(atom)
+  def known_currency_codes do
+    Cldr.known_currencies() ++ private_currency_codes()
+  end
+
+  @deprecated "Use known_currency_codes/0"
+  defdelegate known_currencies, to: __MODULE__, as: :known_currency_codes
+
+  @doc """
+  Returns a boolean indicating if the supplied currency code is known.
+
+  ## Arguments
+
+  * `currency_code` is a `binary` or `atom` representing an ISO4217
+    currency code
+
+  ## Returns
+
+  * `true` or `false`
+
+  ## Examples
+
+      iex> Cldr.Currency.known_currency_code? "AUD"
+      true
+
+      iex> Cldr.Currency.known_currency_code? "GGG"
+      false
+
+      iex> Cldr.Currency.known_currency_code? :XCV
+      false
+
+  """
+  @spec known_currency_code?(code()) :: boolean
+  def known_currency_code?(currency_code) do
+    with {:ok, currency_code} <- Cldr.validate_currency(currency_code) do
+      currency_code in known_currency_codes()
+    else
+      _other -> false
+    end
+  end
+
+  @deprecated "Use known_currency_code?/0"
+  defdelegate known_currency?(currency), to: __MODULE__, as: :known_currency_code?
+
+  @doc """
+  Returns a 2-tuple indicating if the supplied currency code is known.
+
+  ## Arguments
+
+  * `currency_code` is a `binary` or `atom` representing an ISO4217
+    currency code
+
+  ## Returns
+
+  * `{:ok, currency_code}` or
+
+  * `{:error, {exception, reason}}`
+
+  ## Examples
+
+      iex> Cldr.Currency.known_currency_code "AUD"
+      {:ok, "AUD"}
+
+      iex> Cldr.Currency.known_currency_code "GGG"
+      {:error, {Cldr.UnknownCurrencyError, "Currency \\"GGG\\" is not known."}}
+
+  """
+  @spec known_currency_code?(code()) :: {:ok, code} | {:error, {module, String.t}}
+  def known_currency_code(currency_code) do
+    if known_currency_code?(currency_code) do
+      {:ok, currency_code}
+    else
+      {:error, {Cldr.UnknownCurrencyError, unknown_currency_code_error(currency_code)}}
+    end
+  end
+
+  @doc """
+  Returns a list of all private currency codes.
+
+  """
+  @spec private_currency_codes() :: list(atom)
+  def private_currency_codes do
+    Map.keys(private_currencies())
+  end
+
+  @doc """
+  Returns a map of private currencies.
+
+  These comprise all currencies created with
+  `Cldr.Currency.new/2`.
+
+  """
+  @spec private_currencies :: %{code => t}
+  def private_currencies do
+    __MODULE__
+    |> :ets.tab2list
+    |> Map.new
+  rescue ArgumentError ->
+    %{}
   end
 
   @doc """
@@ -450,101 +600,6 @@ defmodule Cldr.Currency do
   end
 
   @doc """
-  Returns a boolean indicating if the supplied currency code is known.
-
-  ## Arguments
-
-  * `currency_code` is a `binary` or `atom` representing an ISO4217
-    currency code
-
-  * `custom_currencies` is an optional list of custom currencies created by the
-    `Cldr.Currency.new/2` function
-
-  ## Returns
-
-  * `true` or `false`
-
-  ## Examples
-
-      iex> Cldr.Currency.known_currency? "AUD"
-      true
-
-      iex> Cldr.Currency.known_currency? "GGG"
-      false
-
-      iex> Cldr.Currency.known_currency? :XCV
-      false
-
-      iex> Cldr.Currency.known_currency? :XCV, [%Cldr.Currency{code: :XCV}]
-      true
-
-  """
-  @spec known_currency?(code(), list(t())) :: boolean
-
-  def known_currency?(currency_code, custom_currencies \\ []) do
-    with {:ok, currency_code} <- Cldr.validate_currency(currency_code),
-         true <- currency_code in known_currencies() do
-      true
-    else
-      {:error, _reason} -> Enum.any?(custom_currencies, &(currency_code == &1.code))
-      false -> Enum.any?(custom_currencies, &(currency_code == &1.code))
-    end
-  end
-
-  @doc """
-  Returns a valid normalized ISO4217 format custom currency code or an error.
-
-  Currency codes conform to the ISO4217 standard which means that any
-  custom currency code must start with an "X" followed by two alphabetic
-  characters.
-
-  Note that since this function creates atoms but to a maximum of
-  26 * 26 == 676 since the format permits 2 alphabetic characters only.
-
-  ## Arguments
-
-  * `currency_code` is a `String.t` or and `atom` representing the new
-    currency code to be created
-
-  ## Returns
-
-  * `{:ok, currency_code}` or
-
-  * `{:error, {exception, message}}`
-
-  ## Examples
-
-      iex> Cldr.Currency.make_currency_code("xzz")
-      {:ok, :XZZ}
-
-      iex> Cldr.Currency.make_currency_code("aaa")
-      {:error, {Cldr.CurrencyCodeInvalid,
-       "Invalid currency code \\"AAA\\".  Currency codes must start with 'X' followed by 2 alphabetic characters only."}}
-
-  """
-  @valid_currency_code Regex.compile!("^X[A-Z]{2}$")
-  @spec make_currency_code(binary | atom) :: {:ok, atom} | {:error, binary}
-  def make_currency_code(code) do
-    currency_code =
-      code
-      |> to_string
-      |> String.upcase()
-
-    if String.match?(currency_code, @valid_currency_code) do
-      {:ok, String.to_atom(currency_code)}
-    else
-      {
-        :error,
-        {
-          Cldr.CurrencyCodeInvalid,
-          "Invalid currency code #{inspect(currency_code)}.  " <>
-            "Currency codes must start with 'X' followed by 2 alphabetic characters only."
-        }
-      }
-    end
-  end
-
-  @doc """
   Returns the currency metadata for the requested currency code.
 
   ## Arguments
@@ -597,36 +652,19 @@ defmodule Cldr.Currency do
       }}
 
   """
+
   @spec currency_for_code(code, Cldr.backend(), Keyword.t()) ::
           {:ok, t} | {:error, {module(), String.t()}}
 
   def currency_for_code(currency_code, backend, options \\ []) do
-    default_options = [locale: backend.default_locale()]
-    options = Keyword.merge(default_options, options)
+    {locale, backend} = Cldr.locale_and_backend_from(options[:locale], backend)
 
-    with {:ok, code} <- Cldr.validate_currency(currency_code),
-         {:ok, locale} <- Cldr.validate_locale(options[:locale], backend),
+    with {:ok, code} <- known_currency_code(currency_code),
+         {:ok, locale} <- Cldr.validate_locale(locale, backend),
          {:ok, currencies} <- currencies_for_locale(locale, backend) do
-      {:ok, get_currency_metadata(code, Map.get(currencies, code))}
+
+      {:ok, Map.get_lazy(currencies, code, fn -> Map.get(private_currencies(), code) end)}
     end
-  end
-
-  defp get_currency_metadata(code, nil) do
-    string_code = to_string(code)
-
-    {:ok, meta} =
-      new(code,
-        name: string_code,
-        symbol: string_code,
-        narrow_symbol: string_code,
-        count: %{other: string_code}
-      )
-
-    meta
-  end
-
-  defp get_currency_metadata(_code, meta) do
-    meta
   end
 
   @doc """
@@ -1057,7 +1095,7 @@ defmodule Cldr.Currency do
       historic?(currencies[v1]) -> false
       historic?(currencies[v2]) -> true
       true -> raise "String #{inspect k} has two current currencies of #{inspect v1} and " <>
-        "#{inspect v2}"
+        "#{inspect v2}."
     end
   end
 
@@ -1100,5 +1138,25 @@ defmodule Cldr.Currency do
       [Enum.map(strings, fn string -> {string, code} end) | acc]
     end)
     |> List.flatten
+  end
+
+  defp unknown_currency_code_error(code) do
+    "Currency #{inspect(code)} is not known."
+  end
+
+  defp currency_already_defined_error(code) do
+    "Currency #{inspect(code)} is already defined."
+  end
+
+  defp currency_not_saved_error(code) do
+    """
+    The currency #{inspect code} could not be defined.
+
+    This is probably because the table is not defined
+    in which the new currency information is saved.
+
+    Please ensure you have the `Cldr.Currency` supervisor
+    defined as a child in your application supervisor tree.
+    """
   end
 end
