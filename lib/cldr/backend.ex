@@ -23,7 +23,21 @@ defmodule Cldr.Currency.Backend do
         * `currency` is a custom currency code of a format defined in ISO4217
 
         * `options` is a map of options representing the optional elements of
-          the `%Cldr.Currency{}` struct
+          the `t:Cldr.Currency.t` struct
+
+        ## Options
+
+        * `:name` is the name of the currenct. Required.
+        * `:digits` is the precision of the currency. Required.
+        * `:symbol` is the currency symbol. Optional.
+        * `:narrow_symbol` is an alternative narrow symbol. Optional.
+        * `:round_nearest` is the rounding precision such as `0.05`.
+          Optional.
+        * `:alt_code` is an alternative currency code for application use.
+        * `:cash_digits` is the precision of the currency when used as cash.
+          Optional.
+        * `:cash_rounding_nearest` is the rounding precision when used as cash
+          such as `0.05`. Optional.
 
         ## Returns
 
@@ -33,29 +47,30 @@ defmodule Cldr.Currency.Backend do
 
         ## Example
 
-            iex> #{inspect(__MODULE__)}.new(:XAA)
+            iex> #{inspect(__MODULE__)}.new(:XAA, name: "Custom Name", digits: 0)
             {:ok,
-             %Cldr.Currency{cash_digits: 0, cash_rounding: 0, code: :XAA, count: nil,
-              digits: 0, name: "", narrow_symbol: nil, rounding: 0, symbol: "",
-              tender: false}}
+             %Cldr.Currency{
+               alt_code: :XAA,
+               cash_digits: 0,
+               cash_rounding: nil,
+               code: :XAA,
+               count: %{other: "Custom Name"},
+               digits: 0,
+               from: nil,
+               iso_digits: 0,
+               name: "Custom Name",
+               narrow_symbol: nil,
+               rounding: 0,
+               symbol: "XAA",
+               tender: false,
+               to: nil
+             }}
 
-            iex> #{inspect(__MODULE__)}.new(:ZAA, name: "Invalid Custom Name")
-            {:error, {Cldr.UnknownCurrencyError, "The currency :ZAA is invalid"}}
+           iex> MyApp.Cldr.Currency.new(:XAA, name: "Custom Name")
+           {:error, "Required option(s) missing. Required options are [:name, :digits]"}
 
-            iex> #{inspect(__MODULE__)}.new("xaa", name: "Custom Name")
-            {:ok,
-             %Cldr.Currency{cash_digits: 0, cash_rounding: 0, code: :XAA, count: nil,
-              digits: 0, name: "Custom Name", narrow_symbol: nil, rounding: 0, symbol: "",
-              tender: false}}
-
-            iex> #{inspect(__MODULE__)}.new(:XAA, name: "Custom Name")
-            {:ok,
-             %Cldr.Currency{cash_digits: 0, cash_rounding: 0, code: :XAA, count: nil,
-              digits: 0, name: "Custom Name", narrow_symbol: nil, rounding: 0, symbol: "",
-              tender: false}}
-
-            iex> #{inspect(__MODULE__)}.new(:XBC)
-            {:error, {Cldr.CurrencyAlreadyDefined, "Currency :XBC is already defined."}}
+           iex> #{inspect(__MODULE__)}.new(:XBC)
+           {:error, {Cldr.CurrencyAlreadyDefined, "Currency :XBC is already defined."}}
 
         """
         @spec new(Cldr.Currency.code(), map() | Keyword.t) ::
@@ -179,10 +194,10 @@ defmodule Cldr.Currency.Backend do
         ## Examples
 
             iex> #{inspect(__MODULE__)}.known_currency_code "AUD"
-            {:ok, "AUD"}
+            {:ok, :AUD}
 
             iex> #{inspect(__MODULE__)}.known_currency_code "GGG"
-            {:error, {Cldr.UnknownCurrencyError, "Currency \\"GGG\\" is not known."}}
+            {:error, {Cldr.UnknownCurrencyError, "The currency \\"GGG\\" is invalid"}}
 
         """
         @spec known_currency_code(Cldr.Currency.code()) ::

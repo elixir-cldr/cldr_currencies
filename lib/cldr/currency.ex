@@ -17,7 +17,7 @@ defmodule Cldr.Currency do
 
   @type code :: atom()
 
-  @type currency_status :: :all | :current | :historic | :tender | :unannotated
+  @type currency_status :: :all | :current | :historic | :tender | :unannotated | :private
 
   @type filter :: list(currency_status | code) | currency_status | code
 
@@ -89,7 +89,21 @@ defmodule Cldr.Currency do
   * `currency` is a custom currency code of a format defined in ISO4217
 
   * `options` is a map of options representing the optional elements of
-    the `%Currency{}` struct
+    the `t:Cldr.Currency.t` struct
+
+  ## Options
+
+  * `:name` is the name of the currenct. Required.
+  * `:digits` is the precision of the currency. Required.
+  * `:symbol` is the currency symbol. Optional.
+  * `:narrow_symbol` is an alternative narrow symbol. Optional.
+  * `:round_nearest` is the rounding precision such as `0.05`.
+    Optional.
+  * `:alt_code` is an alternative currency code for application use.
+  * `:cash_digits` is the precision of the currency when used as cash.
+    Optional.
+  * `:cash_rounding_nearest` is the rounding precision when used as cash
+    such as `0.05`. Optional.
 
   ## Returns
 
@@ -99,29 +113,30 @@ defmodule Cldr.Currency do
 
   ## Example
 
-      iex> Cldr.Currency.new(:XAA)
+      iex> Cldr.Currency.new(:XAA, name: "XAA currency", digits: 0)
       {:ok,
-       %Cldr.Currency{cash_digits: 0, cash_rounding: 0, code: :XAA, count: nil,
-        digits: 0, name: "", narrow_symbol: nil, rounding: 0, symbol: "",
-        tender: false}}
-
-      iex> Cldr.Currency.new(:ZAA, name: "Invalid Custom Name")
-      {:error, {Cldr.UnknownCurrencyError, "The currency :ZAA is invalid"}}
-
-      iex> Cldr.Currency.new("xaa", name: "Custom Name")
-      {:ok,
-       %Cldr.Currency{cash_digits: 0, cash_rounding: 0, code: :XAA, count: nil,
-        digits: 0, name: "Custom Name", narrow_symbol: nil, rounding: 0, symbol: "",
-        tender: false}}
-
-      iex> Cldr.Currency.new(:XAB, name: "Custom Name")
-      {:ok,
-       %Cldr.Currency{cash_digits: 0, cash_rounding: 0, code: :XAB, count: nil,
-        digits: 0, name: "Custom Name", narrow_symbol: nil, rounding: 0, symbol: "",
-        tender: false}}
+       %Cldr.Currency{
+         alt_code: :XAA,
+         cash_digits: 0,
+         cash_rounding: nil,
+         code: :XAA,
+         count: %{other: "XAA currency"},
+         digits: 0,
+         from: nil,
+         iso_digits: 0,
+         name: "XAA currency",
+         narrow_symbol: nil,
+         rounding: 0,
+         symbol: "XAA",
+         tender: false,
+         to: nil
+       }}
 
       iex> Cldr.Currency.new(:XBC)
       {:error, {Cldr.CurrencyAlreadyDefined, "Currency :XBC is already defined."}}
+
+      iex> Cldr.Currency.new(:ZAA, name: "Invalid Custom Name", digits: 0)
+      {:error, {Cldr.UnknownCurrencyError, "The currency :ZAA is invalid"}}
 
   """
   @spec new(binary | atom, map | list) :: {:ok, t} | {:error, {module(), String.t}}
@@ -130,16 +145,40 @@ defmodule Cldr.Currency do
   def new(currency, options) when is_list(options) do
     with {:ok, currency_code} <- Cldr.validate_currency(currency),
          {:ok, currency_code} <- validate_new_currency(currency_code),
-         {:ok, options} <- validate_options(options) do
+         {:ok, options} <- validate_options(currency_code, options) do
       currency = struct(@struct, [{:code, currency_code} | options])
       store_currency(currency)
     end
   end
 
-  defp validate_options(options) do
-    {:ok, options}
+  defp validate_options(code, options) do
+    with {:ok, options} <- assert_options(options, [:name, :digits]) do
+      options = [
+        code: code,
+        alt_code: options[:alt_code] || code,
+        name: options[:name],
+        symbol: options[:symbol] || to_string(code),
+        narrow_symbol: options[:narrow_symbol] || options[:symbole],
+        digits: options[:digits],
+        rounding: options[:rounding] || 0,
+        cash_digits: options[:cash_digits] || options[:digits],
+        cash_rounding: options[:cash_rounding] || options[:rounding],
+        iso_digits: options[:digits],
+        tender: options[:tender] || false,
+        count: options[:count] || %{other: options[:name]}
+      ]
+
+      {:ok, options}
+    end
   end
 
+  defp assert_options(options, keys) do
+    if Enum.all?(keys, &options[&1]) do
+      {:ok, options}
+    else
+      {:error, "Required option(s) missing. Required options are #{inspect keys}"}
+    end
+  end
   @doc """
   Determines is a new currency is already
   defined.
@@ -301,18 +340,20 @@ defmodule Cldr.Currency do
   ## Examples
 
       iex> Cldr.Currency.known_currency_code "AUD"
-      {:ok, "AUD"}
+      {:ok, :AUD}
 
       iex> Cldr.Currency.known_currency_code "GGG"
-      {:error, {Cldr.UnknownCurrencyError, "Currency \\"GGG\\" is not known."}}
+      {:error, {Cldr.UnknownCurrencyError, "The currency \\"GGG\\" is invalid"}}
 
   """
-  @spec known_currency_code?(code()) :: {:ok, code} | {:error, {module, String.t}}
+  @spec known_currency_code(code()) :: {:ok, code} | {:error, {module, String.t}}
   def known_currency_code(currency_code) do
-    if known_currency_code?(currency_code) do
-      {:ok, currency_code}
-    else
-      {:error, {Cldr.UnknownCurrencyError, unknown_currency_code_error(currency_code)}}
+    with {:ok, currency_code} <- Cldr.validate_currency(currency_code) do
+      if currency_code in known_currency_codes() do
+        {:ok, currency_code}
+      else
+        {:error, {Cldr.UnknownCurrencyError, Cldr.unknown_currency_error(currency_code)}}
+      end
     end
   end
 
@@ -1138,10 +1179,6 @@ defmodule Cldr.Currency do
       [Enum.map(strings, fn string -> {string, code} end) | acc]
     end)
     |> List.flatten
-  end
-
-  defp unknown_currency_code_error(code) do
-    "Currency #{inspect(code)} is not known."
   end
 
   defp currency_already_defined_error(code) do
