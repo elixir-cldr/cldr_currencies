@@ -34,7 +34,6 @@ defmodule MyApp do
   use Application
 
   def start(_type, _args) do
-
     # Start the service which maintains the
     # :ets table that holds the private use currencies
     children = [
@@ -55,8 +54,9 @@ If private use currencies are required then defining them when the application s
 defmodule MyApp.Application do
   use Application
 
-
   def start(_type, _args) do
+    # Start the service which maintains the
+    # :ets table that holds the private use currencies
     children = [
       {Cldr.Currency, [callback: fn pid, table ->
         "#{inspect pid}: Starting private use currency store for #{inspect table}" end]}
@@ -71,10 +71,10 @@ end
 defmodule MyApp.Application do
   use Application
 
-  # In this example, the `pid` and `table` will be
-  # prepended to the `args`. In this example therefore
-  # the callback will be `MyAppModule.my_function(pid, table)`
   def start(_type, _args) do
+    # In this example, the `pid` and `table` will be
+    # prepended to the `args`. In this example therefore
+    # the callback will be `MyAppModule.my_function(pid, table)`
     children = [
       {Cldr.Currency, [callback: {MyAppModule, :my_function, []}]}
     ]
