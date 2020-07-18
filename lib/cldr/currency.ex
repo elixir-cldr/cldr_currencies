@@ -139,6 +139,9 @@ defmodule Cldr.Currency do
       iex> Cldr.Currency.new(:XBC)
       {:error, {Cldr.CurrencyAlreadyDefined, "Currency :XBC is already defined."}}
 
+      iex> MyApp.Cldr.Currency.new(:XAA, name: "Private Use Name")
+      {:error, "Required options are missing. Required options are [:name, :digits]"}
+
       iex> Cldr.Currency.new(:ZAA, name: "Invalid Private Use Name", digits: 0)
       {:error, {Cldr.UnknownCurrencyError, "The currency :ZAA is invalid"}}
 

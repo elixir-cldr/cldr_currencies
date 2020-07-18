@@ -66,6 +66,9 @@ defmodule Cldr.Currency.Backend do
                to: nil
              }}
 
+           iex> MyApp.Cldr.Currency.new(:XAA, name: "Custom Name")
+           {:error, "Required options are missing. Required options are [:name, :digits]"}
+
            iex> #{inspect(__MODULE__)}.new(:XBC)
            {:error, {Cldr.CurrencyAlreadyDefined, "Currency :XBC is already defined."}}
 
