@@ -47,30 +47,30 @@ defmodule Cldr.Currency.Backend do
 
         ## Example
 
-            iex> #{inspect(__MODULE__)}.new(:XAA, name: "Custom Name", digits: 0)
-            {:ok,
-             %Cldr.Currency{
-               alt_code: :XAA,
-               cash_digits: 0,
-               cash_rounding: nil,
-               code: :XAA,
-               count: %{other: "Custom Name"},
-               digits: 0,
-               from: nil,
-               iso_digits: 0,
-               name: "Custom Name",
-               narrow_symbol: nil,
-               rounding: 0,
-               symbol: "XAA",
-               tender: false,
-               to: nil
-             }}
+              iex> #{inspect(__MODULE__)}.new(:XAA, name: "Custom Name", digits: 0)
+              {:ok,
+               %Cldr.Currency{
+                 alt_code: :XAA,
+                 cash_digits: 0,
+                 cash_rounding: nil,
+                 code: :XAA,
+                 count: %{other: "Custom Name"},
+                 digits: 0,
+                 from: nil,
+                 iso_digits: 0,
+                 name: "Custom Name",
+                 narrow_symbol: nil,
+                 rounding: 0,
+                 symbol: "XAA",
+                 tender: false,
+                 to: nil
+               }}
 
-           iex> MyApp.Cldr.Currency.new(:XAA, name: "Custom Name")
-           {:error, "Required options are missing. Required options are [:name, :digits]"}
+             iex> MyApp.Cldr.Currency.new(:XAA, name: "Custom Name")
+             {:error, "Required options are missing. Required options are [:name, :digits]"}
 
-           iex> #{inspect(__MODULE__)}.new(:XBC)
-           {:error, {Cldr.CurrencyAlreadyDefined, "Currency :XBC is already defined."}}
+             iex> #{inspect(__MODULE__)}.new(:XBC)
+             {:error, {Cldr.CurrencyAlreadyDefined, "Currency :XBC is already defined."}}
 
         """
         @spec new(Cldr.Currency.code(), map() | Keyword.t) ::
