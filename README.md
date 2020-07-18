@@ -15,9 +15,11 @@ def deps do
 end
 ```
 
-## Using private use currencies
+## Defining private use currencies
 
-ISO4217 permits the creation of private use currencies. These are denoted by currencies that start with "X" followed by two characters.  New currencies can be created with `Cldr.Currency.new/2` however in order to do so a supervisor must be started which maintains and `:ets` table that holds the custom currencies.
+[ISO4217](https://en.wikipedia.org/wiki/ISO_4217) permits the creation of private use currencies. These are denoted by currencies that start with "X" followed by two characters.  New currencies can be created with `Cldr.Currency.new/2` however in order to do so a supervisor must be started which maintains an `:ets` table that holds the custom currencies.
+
+Since the currencies are stored in an `:ets` table they are transient and will be lost on application restart. It is the developers responsibility to define the required private use currencies on application restart. One option is to use a callback function as described below.
 
 ### Starting the private use currency supervisor
 
@@ -46,3 +48,40 @@ defmodule MyApp do
 end
 ```
 
+### Loading private use currencies at application start
+If private use currencies are required then defining them when the application starts can be accomplished by providing a callback to the `Cldr.Currency` supervisor as either a `{Module, :function, args}` tuple or as an anonymous function that takes two arguments. Here are some examples:
+```elixir
+# Using an anonymous function
+defmodule MyApp.Application do
+  use Application
+
+
+  def start(_type, _args) do
+    children = [
+      {Cldr.Currency, [callback: fn pid, table ->
+        "#{inspect pid}: Starting private use currency store for #{inspect table}" end]}
+    ]
+
+    opts = [strategy: :one_for_one, name: MyApp.Supervisor]
+    Supervisor.start_link(children, opts)
+  end
+end
+
+# Using an MFA
+defmodule MyApp.Application do
+  use Application
+
+  # In this example, the `pid` and `table` will be
+  # prepended to the `args`. In this example therefore
+  # the callback will be `MyAppModule.my_function(pid, table)`
+  def start(_type, _args) do
+    children = [
+      {Cldr.Currency, [callback: {MyAppModule, :my_function, []}]}
+    ]
+
+    opts = [strategy: :one_for_one, name: MyApp.Supervisor]
+    Supervisor.start_link(children, opts)
+  end
+end
+
+```

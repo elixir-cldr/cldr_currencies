@@ -55,19 +55,23 @@ defmodule Cldr.Currency do
 
   alias Cldr.LanguageTag
 
+  @table_options [ :set, { :read_concurrency, true }]
+  @default_options [quiet: true]
+
   # Starts the supervisor for the private use
   # currencies, delegated to Eternal which
   # keeps :ets tables alive as much as is
   # possible
 
   @doc false
-  def start_link(_init_arg) do
-    start_link()
+  def start_link(options) when is_list(options) do
+    options = Keyword.merge(@default_options, options)
+    Cldr.Eternal.start_link(__MODULE__, @table_options, options)
   end
 
   @doc false
   def start_link do
-    Eternal.start_link(__MODULE__, [ :set, { :read_concurrency, true }], [ quiet: true ])
+    start_link(@default_options)
   end
 
   @doc false
@@ -86,10 +90,12 @@ defmodule Cldr.Currency do
 
   ## Arguments
 
-  * `currency` is a custom currency code of a format defined in ISO4217
+  * `currency` is a private use currency code in a format defined by
+    [ISO4217](https://en.wikipedia.org/wiki/ISO_4217)
+    which is `X` followed by two alphanumeric characters.
 
   * `options` is a map of options representing the optional elements of
-    the `t:Cldr.Currency.t` struct
+    the `Cldr.Currency.t` struct.
 
   ## Options
 
@@ -97,11 +103,9 @@ defmodule Cldr.Currency do
   * `:digits` is the precision of the currency. Required.
   * `:symbol` is the currency symbol. Optional.
   * `:narrow_symbol` is an alternative narrow symbol. Optional.
-  * `:round_nearest` is the rounding precision such as `0.05`.
-    Optional.
+  * `:round_nearest` is the rounding precision such as `0.05`. Optional.
   * `:alt_code` is an alternative currency code for application use.
-  * `:cash_digits` is the precision of the currency when used as cash.
-    Optional.
+  * `:cash_digits` is the precision of the currency when used as cash. Optional.
   * `:cash_round_nearest` is the rounding precision when used as cash
     such as `0.05`. Optional.
 
@@ -135,7 +139,7 @@ defmodule Cldr.Currency do
       iex> Cldr.Currency.new(:XBC)
       {:error, {Cldr.CurrencyAlreadyDefined, "Currency :XBC is already defined."}}
 
-      iex> Cldr.Currency.new(:ZAA, name: "Invalid Custom Name", digits: 0)
+      iex> Cldr.Currency.new(:ZAA, name: "Invalid Private Use Name", digits: 0)
       {:error, {Cldr.UnknownCurrencyError, "The currency :ZAA is invalid"}}
 
   """
@@ -176,7 +180,7 @@ defmodule Cldr.Currency do
     if Enum.all?(keys, &options[&1]) do
       {:ok, options}
     else
-      {:error, "Required option(s) missing. Required options are #{inspect keys}"}
+      {:error, "Required options are missing. Required options are #{inspect keys}"}
     end
   end
   @doc """

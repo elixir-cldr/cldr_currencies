@@ -20,22 +20,22 @@ defmodule Cldr.Currency.Backend do
 
         ## Arguments
 
-        * `currency` is a custom currency code of a format defined in ISO4217
+        * `currency` is a private use currency code in a format defined by
+          [ISO4217](https://en.wikipedia.org/wiki/ISO_4217)
+          which is `X` followed by two alphanumeric characters.
 
         * `options` is a map of options representing the optional elements of
-          the `t:Cldr.Currency.t` struct
+          the `Cldr.Currency.t` struct.
 
         ## Options
 
-        * `:name` is the name of the currenct. Required.
+        * `:name` is the name of the currency. Required.
         * `:digits` is the precision of the currency. Required.
         * `:symbol` is the currency symbol. Optional.
         * `:narrow_symbol` is an alternative narrow symbol. Optional.
-        * `:round_nearest` is the rounding precision such as `0.05`.
-          Optional.
+        * `:round_nearest` is the rounding precision such as `0.05`. Optional.
         * `:alt_code` is an alternative currency code for application use.
-        * `:cash_digits` is the precision of the currency when used as cash.
-          Optional.
+        * `:cash_digits` is the precision of the currency when used as cash. Optional.
         * `:cash_rounding_nearest` is the rounding precision when used as cash
           such as `0.05`. Optional.
 
@@ -65,9 +65,6 @@ defmodule Cldr.Currency.Backend do
                tender: false,
                to: nil
              }}
-
-           iex> MyApp.Cldr.Currency.new(:XAA, name: "Custom Name")
-           {:error, "Required option(s) missing. Required options are [:name, :digits]"}
 
            iex> #{inspect(__MODULE__)}.new(:XBC)
            {:error, {Cldr.CurrencyAlreadyDefined, "Currency :XBC is already defined."}}
