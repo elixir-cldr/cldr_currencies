@@ -55,7 +55,7 @@ defmodule Cldr.Currency do
 
   alias Cldr.LanguageTag
 
-  @table_options [ :set, { :read_concurrency, true }]
+  @table_options [:set, {:read_concurrency, true}]
   @default_options [quiet: true]
 
   # Starts the supervisor for the private use
@@ -64,12 +64,14 @@ defmodule Cldr.Currency do
   # possible
 
   @doc false
+  @spec start_link(Keyword.t) :: Cldr.Eternal.on_start()
   def start_link(options) when is_list(options) do
     options = Keyword.merge(@default_options, options)
     Cldr.Eternal.start_link(__MODULE__, @table_options, options)
   end
 
   @doc false
+  @spec start_link() :: Cldr.Eternal.on_start()
   def start_link do
     start_link(@default_options)
   end

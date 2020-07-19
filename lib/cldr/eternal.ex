@@ -58,10 +58,10 @@ defmodule Cldr.Eternal do
       { :ok, _pid3 }
 
   """
-  @spec start_link(name :: atom, ets_opts :: Keyword.t, opts :: Keyword.t) :: on_start
+  # @spec start_link(name :: atom, ets_opts :: Keyword.t, opts :: Keyword.t) :: on_start
   def start_link(name, ets_opts \\ [], opts \\ []) when is_opts(name, ets_opts, opts) do
     with { :ok, pid, _table } <- create(name, [ :named_table ] ++ ets_opts, opts) do
-      { :ok, pid }
+      {:ok, pid}
     end
   end
 
@@ -81,10 +81,11 @@ defmodule Cldr.Eternal do
       { :ok, _pid3 }
 
   """
-  @spec start(name :: atom, ets_opts :: Keyword.t, opts :: Keyword.t) :: on_start
+  # @spec start(name :: atom, ets_opts :: Keyword.t, opts :: Keyword.t) :: on_start
   def start(name, ets_opts \\ [], opts \\ []) when is_opts(name, ets_opts, opts) do
-    with { :ok, pid } = v <- start_link(name, ets_opts, opts) do
-      :erlang.unlink(pid) && v
+    with {:ok, pid} <- start_link(name, ets_opts, opts) do
+      :erlang.unlink(pid)
+      {:ok, pid}
     end
   end
 
@@ -97,7 +98,7 @@ defmodule Cldr.Eternal do
       #PID<0.134.0>
 
   """
-  @spec heir(table :: Table.t) :: pid | :undefined
+  @spec heir(table :: Table.t) :: any()
   def heir(table) when is_table(table),
     do: :ets.info(table, :heir)
 
@@ -110,7 +111,7 @@ defmodule Cldr.Eternal do
       #PID<0.132.0>
 
   """
-  @spec owner(table :: Table.t) :: pid | :undefined
+  @spec owner(table :: Table.t) :: any()
   def owner(table) when is_table(table),
     do: :ets.info(table, :owner)
 
@@ -141,17 +142,16 @@ defmodule Cldr.Eternal do
   # as owner/heir of the ETS table immediately afterwards. We do this by fetching
   # the children of the supervisor and using the process id to nominate.
   defp create(name, ets_opts, opts) do
-    with { :ok, pid, table } = res <- Sup.start_link(name, ets_opts, opts) do
-      [ proc1, proc2 ] = Supervisor.which_children(pid)
-
-      { _id1, pid1, :worker, [__MODULE__.Server] } = proc1
-      { _id2, pid2, :worker, [__MODULE__.Server] } = proc2
+    with { :ok, pid, table } <- Sup.start_link(name, ets_opts, opts),
+      [proc1, proc2] = Supervisor.which_children(pid),
+      {_id1, pid1, :worker, [__MODULE__.Server]} = proc1,
+      {_id2, pid2, :worker, [__MODULE__.Server]} = proc2 do
 
       Priv.heir(table, pid2)
       Priv.gift(table, pid1)
 
       maybe_process_callback(opts[:callback], pid, table)
-      res
+      {:ok, pid, table}
     end
   end
 

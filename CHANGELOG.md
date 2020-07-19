@@ -1,3 +1,11 @@
+# Changelog for Cldr_Currencies v2.6.1
+
+This is the changelog for Cldr_Currencies v2.6.1 released on July 19th, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
+
+### Bug Fixes
+
+* Make dialyzer happy. The `@spec`s for `Cldr.Eternal.start_link/1` and `Cldr.Eternal.start_link/0` however remain a mystery and are commented out for now - success typing seems happy nevertheless.
+
 # Changelog for Cldr_Currencies v2.6.0
 
 This is the changelog for Cldr_Currencies v2.6.0 released on July 18th, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)

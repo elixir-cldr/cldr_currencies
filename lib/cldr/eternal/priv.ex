@@ -6,6 +6,7 @@ defmodule Cldr.Eternal.Priv do
 
   # we need is_table/1
   import Cldr.Eternal.Table
+  alias Cldr.Eternal.Table
 
   # we also need logging
   require Logger
@@ -17,7 +18,7 @@ defmodule Cldr.Eternal.Priv do
   noted that the table is passed through purely as sugar so we can use inline
   anonymous functions.
   """
-  @spec ets_try(table :: Table.t, fun :: function) :: any | false
+  @spec ets_try(table :: Table.t, fun :: function) :: any
   def ets_try(table, fun) when is_table(table) and is_function(fun, 1) do
     fun.(table)
   rescue

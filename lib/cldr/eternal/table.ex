@@ -5,7 +5,7 @@ defmodule Cldr.Eternal.Table do
   # to convert a table identifier to a valid Supervisor name.
 
   # define a table typespec
-  @opaque t :: number | atom
+  @type t :: number | atom
 
   @doc """
   Converts a table name to a valid Supervisor name.

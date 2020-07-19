@@ -23,9 +23,9 @@ defmodule Cldr.Eternal.Supervisor do
   Supervision tree directly. If you want to use this Supervisor, you should go
   via the main Eternal module.
   """
-  @spec start_link(name :: atom, ets_opts :: Keyword.t, opts :: Keyword.t) ::
-        { :ok, pid, Table.t } | :ignore |
-        { :error, { :already_started, pid } | { :shutdown, term } | term }
+  # @spec start_link(name :: atom, ets_opts :: Keyword.t, opts :: Keyword.t) ::
+  #       { :ok, pid, Table.t } | :ignore |
+  #       { :error, { :already_started, pid } | { :shutdown, term } | term }
   def start_link(name, ets_opts \\ [], opts \\ []) when is_opts(name, ets_opts, opts) do
     detect_clash(name, ets_opts, fn ->
       super_tab  = :ets.new(name, [ :public ] ++ ets_opts)
@@ -44,7 +44,7 @@ defmodule Cldr.Eternal.Supervisor do
   # sets up a child spec containing the two GenServers, passing through arguments
   # as necessary. We also ensure that the Logger application is started at this
   # point, just in case the user has been unable to start it for some reason.
-  @spec init({ table :: Table.t, opts :: Keyword.t }) :: { :ok, tuple }
+  # @spec init({ table :: Table.t, opts :: Keyword.t }) :: { :ok, tuple }
   def init({ table, opts, base }) do
     flags = Keyword.take(opts, [ :monitor, :quiet ])
 
