@@ -26,6 +26,7 @@ defmodule Cldr.Eternal.Supervisor do
   # @spec start_link(name :: atom, ets_opts :: Keyword.t, opts :: Keyword.t) ::
   #       { :ok, pid, Table.t } | :ignore |
   #       { :error, { :already_started, pid } | { :shutdown, term } | term }
+  @dialyzer {:nowarn_function, {:start_link, 3}}
   def start_link(name, ets_opts \\ [], opts \\ []) when is_opts(name, ets_opts, opts) do
     detect_clash(name, ets_opts, fn ->
       super_tab  = :ets.new(name, [ :public ] ++ ets_opts)
@@ -53,8 +54,8 @@ defmodule Cldr.Eternal.Supervisor do
     end)
 
     children = [
-      worker(Cldr.Eternal.Server, [{ table, flags, base }], id: Server.One),
-      worker(Cldr.Eternal.Server, [{ table, flags, base }], id: Server.Two)
+      Supervisor.child_spec({Cldr.Eternal.Server, { table, flags, base }}, id: Server.One),
+      Supervisor.child_spec({Cldr.Eternal.Server, { table, flags, base }}, id: Server.Two)
     ]
 
     Supervisor.init(children, strategy: :one_for_one)

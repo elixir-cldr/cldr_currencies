@@ -48,17 +48,15 @@ defmodule Cldr.Eternal do
 
   ## Examples
 
-      iex> Eternal.start_link(:table1)
-      { :ok, _pid1 }
+      iex> Cldr.Eternal.start_link(:table1, [ ], [ quiet: true ])
 
-      iex> Eternal.start_link(:table2, [ :compressed ])
-      { :ok, _pid2 }
+      iex> Cldr.Eternal.start_link(:table2, [ :compressed ], [ quiet: true ])
 
-      iex> Eternal.start_link(:table3, [ ], [ quiet: true ])
-      { :ok, _pid3 }
+      iex> Cldr.Eternal.start_link(:table3, [ ], [ quiet: true ])
 
   """
   # @spec start_link(name :: atom, ets_opts :: Keyword.t, opts :: Keyword.t) :: on_start
+  @dialyzer {:nowarn_function, {:start_link, 3}}
   def start_link(name, ets_opts \\ [], opts \\ []) when is_opts(name, ets_opts, opts) do
     with { :ok, pid, _table } <- create(name, [ :named_table ] ++ ets_opts, opts) do
       {:ok, pid}
@@ -71,17 +69,15 @@ defmodule Cldr.Eternal do
 
   ## Examples
 
-      iex> Eternal.start(:table1)
-      { :ok, _pid1 }
+      iex> Cldr.Eternal.start(:table1, [ ], [ quiet: true ])
 
-      iex> Eternal.start(:table2, [ :compressed ])
-      { :ok, _pid2 }
+      iex> Cldr.Eternal.start(:table2, [ :compressed ], [ quiet: true ])
 
-      iex> Eternal.start(:table3, [ ], [ quiet: true ])
-      { :ok, _pid3 }
+      iex> Cldr.Eternal.start(:table3, [ ], [ quiet: true ])
 
   """
   # @spec start(name :: atom, ets_opts :: Keyword.t, opts :: Keyword.t) :: on_start
+  @dialyzer {:nowarn_function, {:start, 3}}
   def start(name, ets_opts \\ [], opts \\ []) when is_opts(name, ets_opts, opts) do
     with {:ok, pid} <- start_link(name, ets_opts, opts) do
       :erlang.unlink(pid)
@@ -94,8 +90,7 @@ defmodule Cldr.Eternal do
 
   ## Examples
 
-      iex> Eternal.heir(:my_table)
-      #PID<0.134.0>
+      iex> Cldr.Eternal.heir(:my_table)
 
   """
   @spec heir(table :: Table.t) :: any()
@@ -107,8 +102,7 @@ defmodule Cldr.Eternal do
 
   ## Examples
 
-      iex> Eternal.owner(:my_table)
-      #PID<0.132.0>
+      iex> Cldr.Eternal.owner(:my_table)
 
   """
   @spec owner(table :: Table.t) :: any()
@@ -122,7 +116,7 @@ defmodule Cldr.Eternal do
 
   ## Examples
 
-      iex> Eternal.stop(:my_table)
+      iex> Cldr.Eternal.stop(:my_table)
       :ok
 
   """
@@ -141,6 +135,7 @@ defmodule Cldr.Eternal do
   # Creates a table supervisor with the provided options and nominates the children
   # as owner/heir of the ETS table immediately afterwards. We do this by fetching
   # the children of the supervisor and using the process id to nominate.
+  @dialyzer {:nowarn_function, {:create, 3}}
   defp create(name, ets_opts, opts) do
     with { :ok, pid, table } <- Sup.start_link(name, ets_opts, opts),
       [proc1, proc2] = Supervisor.which_children(pid),
@@ -158,6 +153,7 @@ defmodule Cldr.Eternal do
   # Callback function when the :ets table
   # is created and the supervisor process
   # is up and running.
+  @dialyzer {:nowarn_function, {:maybe_process_callback, 3}}
   defp maybe_process_callback(nil, _pid, _table) do
     nil
   end

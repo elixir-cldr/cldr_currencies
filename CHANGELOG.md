@@ -1,3 +1,11 @@
+# Changelog for Cldr_Currencies v2.6.2
+
+This is the changelog for Cldr_Currencies v2.6.2 released on August 31st, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
+
+### Bug Fixes
+
+* Uses `Supervisor.child_spec/2` for `eternal` workers to remove deprecation warning on Elixir 1.11
+
 # Changelog for Cldr_Currencies v2.6.1
 
 This is the changelog for Cldr_Currencies v2.6.1 released on July 19th, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)

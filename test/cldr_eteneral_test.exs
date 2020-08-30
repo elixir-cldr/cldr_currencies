@@ -3,6 +3,8 @@ defmodule Cldr.Cldr.EternalTest do
 
   import ExUnit.CaptureLog
 
+  doctest Cldr.Eternal
+
   test "starting a table successfully" do
     assert(match?({ :ok, _pid }, Cldr.Eternal.start_link(:table_no_options, [], [ quiet: true ])))
   end

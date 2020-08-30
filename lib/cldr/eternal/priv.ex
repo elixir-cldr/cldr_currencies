@@ -51,7 +51,7 @@ defmodule Cldr.Eternal.Priv do
   @spec log(msg :: any, opts :: Keyword.t) :: :ok
   def log(msg, opts) when is_list(opts) do
     noisy(opts, fn ->
-      Logger.debug("[eternal] #{msg}")
+      Logger.debug(fn -> "[eternal] #{msg}" end)
     end)
   end
 
