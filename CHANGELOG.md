@@ -1,6 +1,6 @@
 # Changelog for Cldr_Currencies v2.6.2
 
-This is the changelog for Cldr_Currencies v2.6.2 released on August 31st, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
+This is the changelog for Cldr_Currencies v2.6.2 released on August 31st, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
 
 ### Bug Fixes
 
@@ -8,7 +8,7 @@ This is the changelog for Cldr_Currencies v2.6.2 released on August 31st, 2020. 
 
 # Changelog for Cldr_Currencies v2.6.1
 
-This is the changelog for Cldr_Currencies v2.6.1 released on July 19th, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
+This is the changelog for Cldr_Currencies v2.6.1 released on July 19th, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
 
 ### Bug Fixes
 
@@ -16,7 +16,7 @@ This is the changelog for Cldr_Currencies v2.6.1 released on July 19th, 2020.  F
 
 # Changelog for Cldr_Currencies v2.6.0
 
-This is the changelog for Cldr_Currencies v2.6.0 released on July 18th, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
+This is the changelog for Cldr_Currencies v2.6.0 released on July 18th, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
 
 ### Breaking change
 
@@ -36,7 +36,7 @@ This is the changelog for Cldr_Currencies v2.6.0 released on July 18th, 2020.  F
 
 # Changelog for Cldr_Currencies v2.5.0
 
-This is the changelog for Cldr_Currencies v2.5.0 released on May 2nd, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/kipcole9/cldr_currencies/tags)
+This is the changelog for Cldr_Currencies v2.5.0 released on May 2nd, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
 
 ### Enhancements
 
