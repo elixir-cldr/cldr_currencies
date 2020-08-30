@@ -30,7 +30,7 @@ This is the changelog for Cldr_Currencies v2.6.0 released on July 18th, 2020.  F
 
 ### Enhancements
 
-* Support the creation of private use currencies with `Cldr.Currency.new/2`. Newly created private use currencies are stored in an `:ets` table which means that currencies will need to be recreated on each application restart. Creating the currencies is a developer responsibility although this may change in the future.  In order to create currencies a supervisor and `:ets` table owner must be started.  See the [README](README) for further details on adding the private use currency store to your application supervision tree.
+* Support the creation of private use currencies with `Cldr.Currency.new/2`. Newly created private use currencies are stored in an `:ets` table which means that currencies will need to be recreated on each application restart. Creating the currencies is a developer responsibility although this may change in the future.  In order to create currencies a supervisor and `:ets` table owner must be started.  See the [README](README.md) for further details on adding the private use currency store to your application supervision tree.
 
 * Add `:alt_code` to the `Cldr.Currency` struct. When creating a new currency, the currency code must conform to ISO4217 meaning that any new code must be in the "private use" range. This in turn means that the currency code must start with "X" and be three characters long. Many crypto currencies have either conflicting currency codes (do not comply with ISO4217 private use) or are invalid codes (longer than three characters).  The `:alt_code` can be used to store an arbitrary alternative currency code than can be used to identify cryptocurrencies by a more familiar code.
 
