@@ -1,10 +1,10 @@
 # Changelog for Cldr_Currencies v2.7.0
 
-This is the changelog for Cldr_Currencies v2.7.0 released on ______, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
+This is the changelog for Cldr_Currencies v2.7.0 released on September 25th, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
 
 ### Enhancements
 
-* Use `Cldr.default_backend!/0` when available
+* Use `Cldr.default_backend!/0` when available since `Cldr.default_backend/0` is deprecated as of `ex_cldr` version `2.18.0`
 
 # Changelog for Cldr_Currencies v2.6.2
 
