@@ -452,7 +452,7 @@ defmodule Cldr.Currency do
       :INR
 
   """
-  def currency_from_locale(locale, backend \\ Cldr.default_backend()) when is_binary(locale) do
+  def currency_from_locale(locale, backend \\ default_backend()) when is_binary(locale) do
     with {:ok, locale} <- Cldr.validate_locale(locale, backend) do
       currency_from_locale(locale)
     end
@@ -1207,4 +1207,16 @@ defmodule Cldr.Currency do
     defined as a child in your application supervisor tree.
     """
   end
+
+  # TODO remove for CLDR 3.0
+  if Code.ensure_loaded?(Cldr) && function_exported?(Cldr, :default_locale!, 0) do
+    defp default_backend() do
+      Cldr.default_backend!()
+    end
+  else
+    defp default_backend() do
+      Cldr.default_backend()
+    end
+  end
+
 end
