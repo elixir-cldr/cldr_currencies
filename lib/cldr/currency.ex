@@ -1209,7 +1209,7 @@ defmodule Cldr.Currency do
   end
 
   # TODO remove for CLDR 3.0
-  if Code.ensure_loaded?(Cldr) && function_exported?(Cldr, :default_locale!, 0) do
+  if Code.ensure_loaded?(Cldr) && function_exported?(Cldr, :default_backend!, 0) do
     defp default_backend() do
       Cldr.default_backend!()
     end
