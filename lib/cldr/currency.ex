@@ -155,7 +155,7 @@ defmodule Cldr.Currency do
     with {:ok, currency_code} <- Cldr.validate_currency(currency),
          {:ok, currency_code} <- validate_new_currency(currency_code),
          {:ok, options} <- validate_options(currency_code, options) do
-      currency = struct(@struct, [{:code, currency_code} | options])
+      currency = struct(__MODULE__, [{:code, currency_code} | options])
       store_currency(currency)
     end
   end
