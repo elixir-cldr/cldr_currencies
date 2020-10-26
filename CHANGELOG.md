@@ -1,3 +1,11 @@
+# Changelog for Cldr_Currencies v2.8.0
+
+This is the changelog for Cldr_Currencies v2.8.0 released on October 27th, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
+
+### Enhancements
+
+* Add support for [CLDR 38](http://cldr.unicode.org/index/downloads/cldr-38)
+
 # Changelog for Cldr_Currencies v2.7.0
 
 This is the changelog for Cldr_Currencies v2.7.0 released on September 25th, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
