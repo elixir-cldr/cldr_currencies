@@ -1,3 +1,11 @@
+# Changelog for Cldr_Currencies v2.9.0-rc.0
+
+This is the changelog for Cldr_Currencies v2.9.0-rc.0 released on March 19th, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
+
+### Enhancements
+
+* Depends upon `ex_cldr` version 2.20 which embodies CLDR39 data.
+
 # Changelog for Cldr_Currencies v2.8.0
 
 This is the changelog for Cldr_Currencies v2.8.0 released on November 1st, 2020.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
