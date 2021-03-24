@@ -53,7 +53,17 @@ defmodule Cldr.Currency.Test do
     assert {:docs_v1, _, :elixir, _, :hidden, %{}, _} = Code.fetch_docs(NoDoc.Cldr.Currency)
   end
 
-  assert "that module docs are generated for a backend" do
+  test "that module docs are generated for a backend" do
     {:docs_v1, 3, :elixir, "text/markdown", _, %{}, _} = Code.fetch_docs(MyApp.Cldr.Currency)
+  end
+
+  test "Cldr.Chars protocol" do
+    {:ok, currency} = Cldr.Currency.currency_for_code(:AUD, MyApp.Cldr)
+    assert Cldr.to_string(currency) == "Australian Dollar"
+  end
+
+  test "String.Chars protocol" do
+    {:ok, currency} = Cldr.Currency.currency_for_code(:AUD, MyApp.Cldr)
+    assert to_string(currency) == "Australian Dollar"
   end
 end

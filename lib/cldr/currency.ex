@@ -188,6 +188,7 @@ defmodule Cldr.Currency do
       {:error, "Required options are missing. Required options are #{inspect keys}"}
     end
   end
+
   @doc """
   Determines is a new currency is already
   defined.
@@ -215,6 +216,122 @@ defmodule Cldr.Currency do
     {:ok, currency}
   rescue ArgumentError ->
     {:error, {Cldr.CurrencyNotSavedError, currency_not_saved_error(code)}}
+  end
+
+  @doc """
+  Return the display name for a currency.
+
+  The display name is useful for UI
+  uses, for example in menus. The display name
+  is typically capitalized for stand-alone use
+  where as the display name returned by
+  `Cldr.Currency.pluralize/4` is typically
+  lower-cased for use within sentences.
+
+  ## Arguments
+
+  * `currency` is any currency code returned by `Cldr.Currency.known_currencies/0` or
+    a `t:Cldr.Currency` struct returned by `Cldr.Currency.currency_for_code/3`
+
+  ## Options
+
+  * `:locale` is any locale returned by `Cldr.Locale.new!/2`. The
+    default is `Cldr.get_locale/0`
+
+  * `:backend` is any module that includes `use Cldr` and therefore
+    is a `Cldr` backend module. The default is `Cldr.default_backend!/0`
+
+  ## Returns
+
+  * `{:ok, display_name}`
+
+  * or `{:error, {exception, reason}}`
+
+  ## Examples
+
+      iex> Cldr.Currency.display_name :AUD, backend: MyApp.Cldr
+      {:ok, "Australian Dollar"}
+
+      iex> Cldr.Currency.display_name "AUD", backend: MyApp.Cldr, locale: "fr"
+      {:ok, "dollar australien"}
+
+      iex> Cldr.Currency.display_name "EUR", backend: MyApp.Cldr, locale: "de"
+      {:ok, "Euro"}
+
+      iex> Cldr.Currency.display_name "ZZZ", backend: MyApp.Cldr
+      {:error, {Cldr.UnknownCurrencyError, "The currency \\"ZZZ\\" is invalid"}}
+
+  """
+  @spec display_name(t() | code(), Keyword.t()) ::
+          {:ok, String.t()} | {:error, {module(), String.t()}}
+
+  def display_name(currency, options \\ [])
+
+  def display_name(%__MODULE__{} = currency, _options) do
+    {:ok, currency.name}
+  end
+
+  def display_name(currency_code, options) do
+    with {:ok, currency_code} <- Cldr.validate_currency(currency_code),
+         {_locale, backend} = Cldr.locale_and_backend_from(options),
+         {:ok, currency_data} <- currency_for_code(currency_code, backend, options) do
+      display_name(currency_data, options)
+    end
+  end
+
+  @doc """
+  Return the display name for a currency or
+  raises and exception on error.
+
+  The display name is useful for UI
+  uses, for example in menus. The display name
+  is typically capitalized for stand-alone use
+  where as the display name returned by
+  `Cldr.Currency.pluralize/4` is typically
+  lower-cased for use within sentences.
+
+  ## Arguments
+
+  * `currency` is any currency code returned by `Cldr.Currency.known_currencies/0` or
+    a `t:Cldr.Currency` struct returned by `Cldr.Currency.currency_for_code/3`
+
+  ## Options
+
+  * `:locale` is any locale returned by `Cldr.Locale.new!/2`. The
+    default is `Cldr.get_locale/0`
+
+  * `:backend` is any module that includes `use Cldr` and therefore
+    is a `Cldr` backend module. The default is `Cldr.default_backend!/0`
+
+  ## Returns
+
+  * `display_name`
+
+  * or raises an exception
+
+  ## Examples
+
+      iex> Cldr.Currency.display_name! :AUD, backend: MyApp.Cldr
+      "Australian Dollar"
+
+      iex> Cldr.Currency.display_name! "AUD", backend: MyApp.Cldr, locale: "fr"
+      "dollar australien"
+
+      iex> Cldr.Currency.display_name! "EUR", backend: MyApp.Cldr, locale: "de"
+      "Euro"
+
+      #=> Cldr.Currency.display_name! "ZZZ", backend: MyApp.Cldr
+      ** (Cldr.UnknownCurrencyError) The currency "ZZZ" is invalid
+
+  """
+  @spec display_name!(t() | code(), Keyword.t()) ::
+          String.t() | no_return
+
+  def display_name!(currency, options \\ []) do
+    case display_name(currency, options) do
+      {:ok, display_name} -> display_name
+      {:error, {exception, reason}} -> raise exception, reason
+    end
   end
 
   @doc """
