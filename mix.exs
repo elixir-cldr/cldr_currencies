@@ -40,7 +40,7 @@ defmodule Cldr.Currencies.MixProject do
     [
       {:ex_cldr, "~> 2.20"},
       {:jason, "~> 1.0", optional: true},
-      {:ex_doc, "~> 0.18", only: [:dev, :release, :test], optional: true},
+      {:ex_doc, "~> 0.18", runtime: false},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false}
     ]
   end
