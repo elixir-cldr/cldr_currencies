@@ -1,3 +1,15 @@
+# Changelog for Cldr_Currencies v2.9.0
+
+This is the changelog for Cldr_Currencies v2.9.0 released on April 8th, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
+
+### Enhancements
+
+* Depends upon `ex_cldr` version 2.20 which embodies CLDR39 data.
+
+* Add `Cldr.Currency.display_name/2` that returns a localized display name suitable for use in UI applications.
+
+* Add implementation of `String.Chars` and `Cldr.Chars` protocols for `t:Cldr.Currency` structs.
+
 # Changelog for Cldr_Currencies v2.9.0-rc.1
 
 This is the changelog for Cldr_Currencies v2.9.0-rc.1 released on March 24th, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
