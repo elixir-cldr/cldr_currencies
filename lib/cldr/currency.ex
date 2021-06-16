@@ -771,8 +771,8 @@ defmodule Cldr.Currency do
 
   ## Arguments
 
-  * `currency_code` is a `binary` or `atom` representation of an
-    ISO 4217 currency code.
+  * `currency_or_currency_code` is a `binary` or `atom` representation
+      of an ISO 4217 currency code, or a `%Cldr.Currency{}` struct.
 
   * `backend` is any module that includes `use Cldr` and therefore
     is a `Cldr` backend module
@@ -820,16 +820,18 @@ defmodule Cldr.Currency do
 
   """
 
-  @spec currency_for_code(code, Cldr.backend(), Keyword.t()) ::
-          {:ok, t} | {:error, {module(), String.t()}}
+  @spec currency_for_code(code() | t(), Cldr.backend(), Keyword.t()) ::
+          {:ok, t()} | {:error, {module(), String.t()}}
 
-  def currency_for_code(currency_code, backend, options \\ []) do
+  def currency_for_code(currency_or_currency_code, backend, options \\ [])
+  def currency_for_code(%__MODULE__{} = currency, _backend, _options), do: {:ok, currency}
+
+  def currency_for_code(currency_code, backend, options) do
     {locale, backend} = Cldr.locale_and_backend_from(options[:locale], backend)
 
     with {:ok, code} <- known_currency_code(currency_code),
          {:ok, locale} <- Cldr.validate_locale(locale, backend),
          {:ok, currencies} <- currencies_for_locale(locale, backend) do
-
       {:ok, Map.get_lazy(currencies, code, fn -> Map.get(private_currencies(), code) end)}
     end
   end
