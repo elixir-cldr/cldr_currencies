@@ -250,8 +250,8 @@ defmodule Cldr.Currency.Backend do
 
         ## Arguments
 
-        * `currency_code` is a `binary` or `atom` representation of an
-          ISO 4217 currency code.
+        * `currency_or_currency_code` is a `binary` or `atom` representation 
+           of an ISO 4217 currency code, or a `%Cldr.Currency{}` struct.
 
         ## Examples
 
@@ -288,14 +288,14 @@ defmodule Cldr.Currency.Backend do
             }}
 
         """
-        @spec currency_for_code(Cldr.Currency.code, Keyword.t()) ::
-                {:ok, Cldr.Currency.t} | {:error, {module(), String.t()}}
+        @spec currency_for_code(Cldr.Currency.code() | Cldr.Currency.t(), Keyword.t()) ::
+                {:ok, Cldr.Currency.t()} | {:error, {module(), String.t()}}
 
         def currency_for_code(
-              currency_code,
+              currency_or_currency_code,
               options \\ [locale: unquote(backend).default_locale()]
             ) do
-          Cldr.Currency.currency_for_code(currency_code, unquote(backend), options)
+          Cldr.Currency.currency_for_code(currency_or_currency_code, unquote(backend), options)
         end
 
         defp get_currency_metadata(code, nil) do
