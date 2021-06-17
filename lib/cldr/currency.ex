@@ -64,7 +64,7 @@ defmodule Cldr.Currency do
   # possible
 
   @doc false
-  @spec start_link(Keyword.t) :: Cldr.Eternal.on_start()
+  @spec start_link(Keyword.t()) :: Cldr.Eternal.on_start()
   def start_link(options) when is_list(options) do
     options = Keyword.merge(@default_options, options)
     Cldr.Eternal.start_link(__MODULE__, @table_options, options)
@@ -119,36 +119,33 @@ defmodule Cldr.Currency do
 
   ## Example
 
-      iex> Cldr.Currency.new(:XAA, name: "XAA currency", digits: 0)
+      iex> Cldr.Currency.new(:XAC, name: "XAC currency", digits: 0)
       {:ok,
        %Cldr.Currency{
-         alt_code: :XAA,
+         alt_code: :XAC,
          cash_digits: 0,
          cash_rounding: nil,
-         code: :XAA,
-         count: %{other: "XAA currency"},
+         code: :XAC,
+         count: %{other: "XAC currency"},
          digits: 0,
          from: nil,
          iso_digits: 0,
-         name: "XAA currency",
+         name: "XAC currency",
          narrow_symbol: nil,
          rounding: 0,
-         symbol: "XAA",
+         symbol: "XAC",
          tender: false,
          to: nil
        }}
-
       iex> Cldr.Currency.new(:XBC)
       {:error, {Cldr.CurrencyAlreadyDefined, "Currency :XBC is already defined."}}
-
-      iex> MyApp.Cldr.Currency.new(:XAA, name: "Private Use Name")
+      iex> MyApp.Cldr.Currency.new(:XAB, name: "Private Use Name")
       {:error, "Required options are missing. Required options are [:name, :digits]"}
-
       iex> Cldr.Currency.new(:ZAA, name: "Invalid Private Use Name", digits: 0)
       {:error, {Cldr.UnknownCurrencyError, "The currency :ZAA is invalid"}}
 
   """
-  @spec new(binary | atom, map | list) :: {:ok, t} | {:error, {module(), String.t}}
+  @spec new(binary | atom, map | list) :: {:ok, t} | {:error, {module(), String.t()}}
   def new(currency, options \\ [])
 
   def new(currency, options) when is_list(options) do
@@ -185,7 +182,7 @@ defmodule Cldr.Currency do
     if Enum.all?(keys, &options[&1]) do
       {:ok, options}
     else
-      {:error, "Required options are missing. Required options are #{inspect keys}"}
+      {:error, "Required options are missing. Required options are #{inspect(keys)}"}
     end
   end
 
@@ -195,14 +192,14 @@ defmodule Cldr.Currency do
 
   ## Example
 
-      iex> Cldr.Currency.validate_new_currency :XAC
-      {:ok, :XAC}
+      iex> Cldr.Currency.validate_new_currency :XAD
+      {:ok, :XAD}
 
       iex> Cldr.Currency.validate_new_currency :USD
       {:error, {Cldr.CurrencyAlreadyDefined, "Currency :USD is already defined."}}
 
   """
-  @spec validate_new_currency(code) :: {:ok, code} | {:error, {module, String.t}}
+  @spec validate_new_currency(code) :: {:ok, code} | {:error, {module, String.t()}}
   def validate_new_currency(code) do
     if code in known_currency_codes() do
       {:error, {Cldr.CurrencyAlreadyDefined, currency_already_defined_error(code)}}
@@ -211,11 +208,12 @@ defmodule Cldr.Currency do
     end
   end
 
-  def store_currency(%Cldr.Currency{code: code} = currency) do
+  defp store_currency(%Cldr.Currency{code: code} = currency) do
     :ets.insert_new(__MODULE__, {code, currency})
     {:ok, currency}
-  rescue ArgumentError ->
-    {:error, {Cldr.CurrencyNotSavedError, currency_not_saved_error(code)}}
+  rescue
+    ArgumentError ->
+      {:error, {Cldr.CurrencyNotSavedError, currency_not_saved_error(code)}}
   end
 
   @doc """
@@ -401,8 +399,7 @@ defmodule Cldr.Currency do
 
   ## Example
 
-      iex> Cldr.Currency.known_currency_codes |> Enum.count
-      303
+      iex> Cldr.Currency.known_currency_codes
 
   """
   @spec known_currency_codes() :: list(atom)
@@ -472,7 +469,7 @@ defmodule Cldr.Currency do
       {:error, {Cldr.UnknownCurrencyError, "The currency \\"GGG\\" is invalid"}}
 
   """
-  @spec known_currency_code(code()) :: {:ok, code} | {:error, {module, String.t}}
+  @spec known_currency_code(code()) :: {:ok, code} | {:error, {module, String.t()}}
   def known_currency_code(currency_code) do
     with {:ok, currency_code} <- Cldr.validate_currency(currency_code) do
       if currency_code in known_currency_codes() do
@@ -502,10 +499,11 @@ defmodule Cldr.Currency do
   @spec private_currencies :: %{code => t}
   def private_currencies do
     __MODULE__
-    |> :ets.tab2list
-    |> Map.new
-  rescue ArgumentError ->
-    %{}
+    |> :ets.tab2list()
+    |> Map.new()
+  rescue
+    ArgumentError ->
+      %{}
   end
 
   @doc """
@@ -639,9 +637,12 @@ defmodule Cldr.Currency do
          {:ok, currencies} <- Map.fetch(territory_currencies(), territory) do
       {:ok, currencies}
     else
-      :error -> {:error, {Cldr.UnknownCurrencyError,
-        "No currencies for #{inspect territory} were found"}}
-      other -> other
+      :error ->
+        {:error,
+         {Cldr.UnknownCurrencyError, "No currencies for #{inspect(territory)} were found"}}
+
+      other ->
+        other
     end
   end
 
@@ -676,8 +677,8 @@ defmodule Cldr.Currency do
       }
 
   """
-  @spec currency_history_for_locale(LanguageTag.t) ::
-    {:ok, map()} | {:error, {atom, binary}}
+  @spec currency_history_for_locale(LanguageTag.t()) ::
+          {:ok, map()} | {:error, {atom, binary}}
 
   def currency_history_for_locale(%LanguageTag{} = locale) do
     locale
@@ -685,8 +686,8 @@ defmodule Cldr.Currency do
     |> territory_currencies()
   end
 
-  @spec currency_history_for_locale(Locale.locale_name, Cldr.backend) ::
-    {:ok, map()} | {:error, {module(), String.t}}
+  @spec currency_history_for_locale(Locale.locale_name(), Cldr.backend()) ::
+          {:ok, map()} | {:error, {module(), String.t()}}
 
   def currency_history_for_locale(locale_name, backend) when is_binary(locale_name) do
     with {:ok, locale} <- Cldr.validate_locale(locale_name, backend) do
@@ -728,7 +729,7 @@ defmodule Cldr.Currency do
   end
 
   @spec current_currency_from_locale(Cldr.Locale.locale_name(), Cldr.backend()) ::
-    code() | nil | {:error, {module(), String.t()}}
+          code() | nil | {:error, {module(), String.t()}}
 
   def current_currency_from_locale(locale_name, backend) when is_binary(locale_name) do
     with {:ok, locale} <- Cldr.validate_locale(locale_name, backend) do
@@ -754,12 +755,11 @@ defmodule Cldr.Currency do
 
   """
   @spec current_currency_for_territory(Cldr.territory()) ::
-    code() | nil | {:error, {module(), String.t()}}
+          code() | nil | {:error, {module(), String.t()}}
 
   def current_currency_for_territory(territory) do
     with {:ok, territory} <- Cldr.validate_territory(territory),
          {:ok, history} <- territory_currencies(territory) do
-
       history
       |> Enum.find(fn {_currency, dates} -> Map.has_key?(dates, :to) && is_nil(dates.to) end)
       |> elem(0)
@@ -824,12 +824,15 @@ defmodule Cldr.Currency do
           {:ok, t()} | {:error, {module(), String.t()}}
 
   def currency_for_code(currency_or_currency_code, backend, options \\ [])
-  def currency_for_code(%__MODULE__{} = currency, _backend, _options), do: {:ok, currency}
+
+  def currency_for_code(%__MODULE__{} = currency, _backend, _options) do
+    {:ok, currency}
+  end
 
   def currency_for_code(currency_code, backend, options) do
     {locale, backend} = Cldr.locale_and_backend_from(options[:locale], backend)
 
-    with {:ok, code} <- known_currency_code(currency_code),
+    with {:ok, code} <- Cldr.validate_currency(currency_code),
          {:ok, locale} <- Cldr.validate_locale(locale, backend),
          {:ok, currencies} <- currencies_for_locale(locale, backend) do
       {:ok, Map.get_lazy(currencies, code, fn -> Map.get(private_currencies(), code) end)}
@@ -897,8 +900,12 @@ defmodule Cldr.Currency do
       }}
 
   """
-  @spec currencies_for_locale(Locale.locale_name() | LanguageTag.t(), Cldr.backend(),
-          only :: filter(), except :: filter()) ::
+  @spec currencies_for_locale(
+          Locale.locale_name() | LanguageTag.t(),
+          Cldr.backend(),
+          only :: filter(),
+          except :: filter()
+        ) ::
           {:ok, map()} | {:error, {module(), String.t()}}
 
   def currencies_for_locale(locale, backend, only \\ :all, except \\ nil) do
@@ -965,10 +972,12 @@ defmodule Cldr.Currency do
      }
 
   """
-  @spec currencies_for_locale!(Locale.locale_name() | LanguageTag.t(),
+  @spec currencies_for_locale!(
+          Locale.locale_name() | LanguageTag.t(),
           Cldr.backend(),
           only :: filter(),
-          except :: filter()) ::
+          except :: filter()
+        ) ::
           map() | no_return()
 
   def currencies_for_locale!(locale, backend, only \\ :all, except \\ nil) do
@@ -1029,8 +1038,11 @@ defmodule Cldr.Currency do
       }}
 
   """
-  @spec currency_strings(Cldr.LanguageTag.t() | Cldr.Locale.locale_name(),
-          only :: filter(), except :: filter()) ::
+  @spec currency_strings(
+          Cldr.LanguageTag.t() | Cldr.Locale.locale_name(),
+          only :: filter(),
+          except :: filter()
+        ) ::
           {:ok, map()} | {:error, {module(), String.t()}}
 
   def currency_strings(locale, backend, only \\ :all, except \\ nil) do
@@ -1075,8 +1087,11 @@ defmodule Cldr.Currency do
       }
 
   """
-  @spec currency_strings!(Cldr.LanguageTag.t() | Cldr.Locale.locale_name(),
-          only :: filter(), except :: filter()) ::
+  @spec currency_strings!(
+          Cldr.LanguageTag.t() | Cldr.Locale.locale_name(),
+          only :: filter(),
+          except :: filter()
+        ) ::
           map() | no_return
 
   def currency_strings!(locale, backend, only \\ :all, except \\ nil) do
@@ -1108,14 +1123,14 @@ defmodule Cldr.Currency do
 
   ## Example
 
-      iex> Cldr.Currency.strings_for_currency :AUD, "en", MyApp.Cldr
-      ["a$", "australian dollars", "aud", "australian dollar"]
+      iex> Cldr.Currency.strings_for_currency(:AUD, "en", MyApp.Cldr) |> Enum.sort
+      ["a$", "aud", "australian dollar", "australian dollars"]
 
-      iex> Cldr.Currency.strings_for_currency :AUD, "de", MyApp.Cldr
-      ["australische dollar", "australischer dollar", "au$", "aud"]
+      iex> Cldr.Currency.strings_for_currency(:AUD, "de", MyApp.Cldr) |> Enum.sort
+      ["au$", "aud", "australische dollar", "australischer dollar"]
 
-      iex> Cldr.Currency.strings_for_currency :AUD, "zh", MyApp.Cldr
-      ["澳大利亚元", "au$", "aud"]
+      iex> Cldr.Currency.strings_for_currency(:AUD, "zh", MyApp.Cldr) |> Enum.sort
+      ["au$", "aud", "澳大利亚元"]
 
   """
   def strings_for_currency(currency, locale, backend) do
@@ -1169,9 +1184,13 @@ defmodule Cldr.Currency do
   @spec currency_filter(
           Cldr.Currency.t() | [Cldr.Currency.t()] | map(),
           Cldr.Currency.currency_status()
-        ) :: list(Cldr.Currency.t)
+        ) :: list(Cldr.Currency.t())
 
   def currency_filter(currencies, only \\ :all, except \\ nil)
+
+  def currency_filter(currencies, :all, nil) do
+    currencies
+  end
 
   def currency_filter(currencies, only, except) when not is_list(only) do
     currency_filter(currencies, [only], except)
@@ -1181,22 +1200,18 @@ defmodule Cldr.Currency do
     currency_filter(currencies, only, [except])
   end
 
-  def currency_filter(%Cldr.Currency{} = currency, only, except)  do
+  def currency_filter(%Cldr.Currency{} = currency, only, except) do
     currency_filter([currency], only, except)
   end
 
   def currency_filter(currencies, only, except) when is_map(currencies) do
     currencies
-    |> Map.values
+    |> Map.values()
     |> currency_filter(only, except)
     |> Map.new(fn currency -> {String.to_atom(currency.code), currency} end)
   end
 
-  def currency_filter(currencies, [:all], [nil])  do
-    currencies
-  end
-
-  def currency_filter(currencies, only, except)  do
+  def currency_filter(currencies, only, except) do
     expand_filter(currencies, :only, only) -- expand_filter(currencies, :except, except)
   end
 
@@ -1213,33 +1228,41 @@ defmodule Cldr.Currency do
       case filter do
         :historic ->
           Enum.filter(currencies, &historic?/1)
+
         :tender ->
           Enum.filter(currencies, &tender?/1)
+
         :current ->
           Enum.filter(currencies, &current?/1)
+
         :annotated ->
           Enum.filter(currencies, &annotated?/1)
+
         :unannotated ->
           Enum.filter(currencies, &unannotated?/1)
+
         :private ->
           private_currencies()
+
         code when is_binary(code) ->
           Enum.filter(currencies, fn currency ->
             currency.code == code
           end)
+
         code when is_atom(code) ->
           code = to_string(code)
+
           Enum.filter(currencies, fn currency ->
             currency.code == code
           end)
       end
     end)
-    |> Enum.uniq
+    |> Enum.uniq()
   end
 
   def historic?(%Cldr.Currency{} = currency) do
     is_nil(currency.iso_digits) ||
-    (is_integer(currency.to) && currency.to < Date.utc_today().year)
+      (is_integer(currency.to) && currency.to < Date.utc_today().year)
   end
 
   def tender?(%Cldr.Currency{} = currency) do
@@ -1263,10 +1286,15 @@ defmodule Cldr.Currency do
   @doc false
   def string_comparator({k, v1}, {k, v2}, currencies) do
     cond do
-      historic?(currencies[v1]) -> false
-      historic?(currencies[v2]) -> true
-      true -> raise "String #{inspect k} has two current currencies of #{inspect v1} and " <>
-        "#{inspect v2}."
+      historic?(currencies[v1]) ->
+        false
+
+      historic?(currencies[v2]) ->
+        true
+
+      true ->
+        raise "String #{inspect(k)} has two current currencies of #{inspect(v1)} and " <>
+                "#{inspect(v2)}."
     end
   end
 
@@ -1308,7 +1336,7 @@ defmodule Cldr.Currency do
     Enum.reduce(currency_strings, [], fn {code, strings}, acc ->
       [Enum.map(strings, fn string -> {string, code} end) | acc]
     end)
-    |> List.flatten
+    |> List.flatten()
   end
 
   defp currency_already_defined_error(code) do
@@ -1317,7 +1345,7 @@ defmodule Cldr.Currency do
 
   defp currency_not_saved_error(code) do
     """
-    The currency #{inspect code} could not be defined.
+    The currency #{inspect(code)} could not be defined.
 
     This is probably because the table is not defined
     in which the new currency information is saved.
@@ -1337,5 +1365,4 @@ defmodule Cldr.Currency do
       Cldr.default_backend()
     end
   end
-
 end

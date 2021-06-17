@@ -10,5 +10,4 @@ end
 
 defmodule NoDoc.Cldr do
   use Cldr, generate_docs: false, providers: [Cldr.Currency]
-
 end

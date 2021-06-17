@@ -27,8 +27,8 @@ defmodule Cldr.Eternal do
   alias Cldr.Eternal.Supervisor, as: Sup
 
   # Return values of `start_link` functions
-  @type on_start :: { :ok, pid } | :ignore |
-                    { :error, { :already_started, pid } | { :shutdown, term } | term }
+  @type on_start ::
+          {:ok, pid} | :ignore | {:error, {:already_started, pid} | {:shutdown, term} | term}
 
   @doc """
   Creates a new ETS table using the provided `ets_opts`.
@@ -48,17 +48,17 @@ defmodule Cldr.Eternal do
 
   ## Examples
 
-      iex> Cldr.Eternal.start_link(:table1, [ ], [ quiet: true ])
+      iex> Cldr.Eternal.start_link(:table1, [], [quiet: true])
 
-      iex> Cldr.Eternal.start_link(:table2, [ :compressed ], [ quiet: true ])
+      iex> Cldr.Eternal.start_link(:table2, [:compressed], [quiet: true])
 
-      iex> Cldr.Eternal.start_link(:table3, [ ], [ quiet: true ])
+      iex> Cldr.Eternal.start_link(:table3, [], [quiet: true])
 
   """
   # @spec start_link(name :: atom, ets_opts :: Keyword.t, opts :: Keyword.t) :: on_start
   @dialyzer {:nowarn_function, {:start_link, 3}}
   def start_link(name, ets_opts \\ [], opts \\ []) when is_opts(name, ets_opts, opts) do
-    with { :ok, pid, _table } <- create(name, [ :named_table ] ++ ets_opts, opts) do
+    with {:ok, pid, _table} <- create(name, [:named_table] ++ ets_opts, opts) do
       {:ok, pid}
     end
   end
@@ -69,11 +69,11 @@ defmodule Cldr.Eternal do
 
   ## Examples
 
-      iex> Cldr.Eternal.start(:table1, [ ], [ quiet: true ])
+      iex> Cldr.Eternal.start(:table1, [], [quiet: true])
 
-      iex> Cldr.Eternal.start(:table2, [ :compressed ], [ quiet: true ])
+      iex> Cldr.Eternal.start(:table2, [:compressed], [quiet: true])
 
-      iex> Cldr.Eternal.start(:table3, [ ], [ quiet: true ])
+      iex> Cldr.Eternal.start(:table3, [], [quiet: true])
 
   """
   # @spec start(name :: atom, ets_opts :: Keyword.t, opts :: Keyword.t) :: on_start
@@ -93,7 +93,7 @@ defmodule Cldr.Eternal do
       iex> Cldr.Eternal.heir(:my_table)
 
   """
-  @spec heir(table :: Table.t) :: any()
+  @spec heir(table :: Table.t()) :: any()
   def heir(table) when is_table(table),
     do: :ets.info(table, :heir)
 
@@ -105,7 +105,7 @@ defmodule Cldr.Eternal do
       iex> Cldr.Eternal.owner(:my_table)
 
   """
-  @spec owner(table :: Table.t) :: any()
+  @spec owner(table :: Table.t()) :: any()
   def owner(table) when is_table(table),
     do: :ets.info(table, :owner)
 
@@ -120,7 +120,7 @@ defmodule Cldr.Eternal do
       :ok
 
   """
-  @spec stop(table :: Table.t) :: :ok
+  @spec stop(table :: Table.t()) :: :ok
   def stop(table) when is_table(table) do
     name = Table.to_name(table)
     proc = GenServer.whereis(name)
@@ -137,11 +137,10 @@ defmodule Cldr.Eternal do
   # the children of the supervisor and using the process id to nominate.
   @dialyzer {:nowarn_function, {:create, 3}}
   defp create(name, ets_opts, opts) do
-    with { :ok, pid, table } <- Sup.start_link(name, ets_opts, opts),
-      [proc1, proc2] = Supervisor.which_children(pid),
-      {_id1, pid1, :worker, [__MODULE__.Server]} = proc1,
-      {_id2, pid2, :worker, [__MODULE__.Server]} = proc2 do
-
+    with {:ok, pid, table} <- Sup.start_link(name, ets_opts, opts),
+         [proc1, proc2] = Supervisor.which_children(pid),
+         {_id1, pid1, :worker, [__MODULE__.Server]} = proc1,
+         {_id2, pid2, :worker, [__MODULE__.Server]} = proc2 do
       Priv.heir(table, pid2)
       Priv.gift(table, pid1)
 
@@ -163,7 +162,7 @@ defmodule Cldr.Eternal do
   end
 
   defp maybe_process_callback({module, function, args}, pid, table)
-      when is_mfa(module, function, args) do
+       when is_mfa(module, function, args) do
     :erlang.apply(module, function, [pid, table | args])
   end
 end

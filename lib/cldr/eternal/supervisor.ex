@@ -18,7 +18,7 @@ defmodule Cldr.Eternal.Supervisor do
 
   @doc """
   Starts an Eternal Supervision tree which manages the two internal servers.
-
+  
   This returns a Tuple containing the table name, so it cannot be used inside a
   Supervision tree directly. If you want to use this Supervisor, you should go
   via the main Eternal module.
@@ -29,13 +29,13 @@ defmodule Cldr.Eternal.Supervisor do
   @dialyzer {:nowarn_function, {:start_link, 3}}
   def start_link(name, ets_opts \\ [], opts \\ []) when is_opts(name, ets_opts, opts) do
     detect_clash(name, ets_opts, fn ->
-      super_tab  = :ets.new(name, [ :public ] ++ ets_opts)
-      super_args = { super_tab, opts, self() }
-      super_opts = [ name: gen_name(opts, super_tab) ]
+      super_tab = :ets.new(name, [:public] ++ ets_opts)
+      super_args = {super_tab, opts, self()}
+      super_opts = [name: gen_name(opts, super_tab)]
       super_proc = Supervisor.start_link(__MODULE__, super_args, super_opts)
 
-      with { :ok, pid } <- super_proc do
-        { :ok, pid, super_tab }
+      with {:ok, pid} <- super_proc do
+        {:ok, pid, super_tab}
       end
     end)
   end
@@ -46,16 +46,16 @@ defmodule Cldr.Eternal.Supervisor do
   # as necessary. We also ensure that the Logger application is started at this
   # point, just in case the user has been unable to start it for some reason.
   # @spec init({ table :: Table.t, opts :: Keyword.t }) :: { :ok, tuple }
-  def init({ table, opts, base }) do
-    flags = Keyword.take(opts, [ :monitor, :quiet ])
+  def init({table, opts, base}) do
+    flags = Keyword.take(opts, [:monitor, :quiet])
 
     Priv.noisy(flags, fn ->
       App.ensure_all_started(:logger)
     end)
 
     children = [
-      Supervisor.child_spec({Cldr.Eternal.Server, { table, flags, base }}, id: Server.One),
-      Supervisor.child_spec({Cldr.Eternal.Server, { table, flags, base }}, id: Server.Two)
+      Supervisor.child_spec({Cldr.Eternal.Server, {table, flags, base}}, id: Server.One),
+      Supervisor.child_spec({Cldr.Eternal.Server, {table, flags, base}}, id: Server.Two)
     ]
 
     Supervisor.init(children, strategy: :one_for_one)
@@ -67,7 +67,7 @@ defmodule Cldr.Eternal.Supervisor do
   # table twice. Otherwise, we execute the callback which will create the table.
   defp detect_clash(name, ets_opts, fun) do
     if exists?(name, ets_opts) do
-      { :error, { :already_started, Process.whereis(name) } }
+      {:error, {:already_started, Process.whereis(name)}}
     else
       fun.()
     end
@@ -79,7 +79,7 @@ defmodule Cldr.Eternal.Supervisor do
   # won't be a table clash when starting a new table, so we're safe to continue.
   defp exists?(name, ets_opts) do
     Enum.member?(ets_opts, :named_table) and
-    Enum.member?(:ets.all(), name)
+      Enum.member?(:ets.all(), name)
   end
 
   # Generates the name to use for the Supervisor. If the name is provided, we use

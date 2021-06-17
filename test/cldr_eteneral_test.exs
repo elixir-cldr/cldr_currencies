@@ -6,24 +6,34 @@ defmodule Cldr.Cldr.EternalTest do
   doctest Cldr.Eternal
 
   test "starting a table successfully" do
-    assert(match?({ :ok, _pid }, Cldr.Eternal.start_link(:table_no_options, [], [ quiet: true ])))
+    assert(match?({:ok, _pid}, Cldr.Eternal.start_link(:table_no_options, [], quiet: true)))
   end
 
   test "starting a table with options" do
-    assert(match?({ :ok, _pid }, Cldr.Eternal.start_link(:table_with_options, [ :compressed ], [ quiet: true ])))
+    assert(
+      match?(
+        {:ok, _pid},
+        Cldr.Eternal.start_link(:table_with_options, [:compressed], quiet: true)
+      )
+    )
+
     assert(:ets.info(:table_with_options, :compressed) == true)
   end
 
   def callback_fun(_pid, table) do
     require Logger
 
-    Logger.debug to_string(table)
+    Logger.debug(to_string(table))
   end
 
   test "starting with an MFA callback" do
-    msg = capture_log(fn ->
-      Cldr.Eternal.start_link Cldr.Eternal, [], callback: {__MODULE__, :callback_fun, []}, quiet: true
-    end)
+    msg =
+      capture_log(fn ->
+        Cldr.Eternal.start_link(Cldr.Eternal, [],
+          callback: {__MODULE__, :callback_fun, []},
+          quiet: true
+        )
+      end)
 
     assert msg =~ "Cldr.Eternal"
   end
@@ -31,16 +41,20 @@ defmodule Cldr.Cldr.EternalTest do
   test "starting with a function capture callback" do
     require Logger
 
-    msg = capture_log(fn ->
-      Cldr.Eternal.start_link Cldr.Eternal, [], callback: fn pid, table -> callback_fun(pid, table) end, quiet: true
-    end)
+    msg =
+      capture_log(fn ->
+        Cldr.Eternal.start_link(Cldr.Eternal, [],
+          callback: fn pid, table -> callback_fun(pid, table) end,
+          quiet: true
+        )
+      end)
 
     assert msg =~ "Cldr.Eternal"
   end
 
   test "starting a table with no link" do
     spawn(fn ->
-      Cldr.Eternal.start(:unlinked, [], [ quiet: true ])
+      Cldr.Eternal.start(:unlinked, [], quiet: true)
     end)
 
     :timer.sleep(25)
@@ -98,23 +112,29 @@ defmodule Cldr.Cldr.EternalTest do
   end
 
   test "logging output when creating a table" do
-    msg = capture_log(fn ->
-      Cldr.Eternal.start_link(:logging_output)
-      :timer.sleep(25)
-      Cldr.Eternal.stop(:logging_output)
-    end)
+    msg =
+      capture_log(fn ->
+        Cldr.Eternal.start_link(:logging_output)
+        :timer.sleep(25)
+        Cldr.Eternal.stop(:logging_output)
+      end)
 
-    assert(Regex.match?(~r/\[debug\] \[eternal\] Table 'logging_output' gifted to #PID<\d\.\d+\.\d> via #PID<\d\.\d+\.\d>/, msg))
+    assert(
+      Regex.match?(
+        ~r/\[debug\] \[eternal\] Table 'logging_output' gifted to #PID<\d\.\d+\.\d> via #PID<\d\.\d+\.\d>/,
+        msg
+      )
+    )
   end
 
   test "starting a table twice finds the previous owner" do
-    { :ok, pid } = Cldr.Eternal.start_link(:existing_table, [], [ quiet: true ])
-    result2 = Cldr.Eternal.start_link(:existing_table, [], [ quiet: true ])
-    assert(result2 == { :error, { :already_started, pid } })
+    {:ok, pid} = Cldr.Eternal.start_link(:existing_table, [], quiet: true)
+    result2 = Cldr.Eternal.start_link(:existing_table, [], quiet: true)
+    assert(result2 == {:error, {:already_started, pid}})
   end
 
   defp create(name, tab_opts \\ [], opts \\ []) do
-    { :ok, _pid } = Cldr.Eternal.start_link(name, tab_opts, opts ++ [ quiet: true ])
+    {:ok, _pid} = Cldr.Eternal.start_link(name, tab_opts, opts ++ [quiet: true])
     name
   end
 end

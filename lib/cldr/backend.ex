@@ -47,34 +47,32 @@ defmodule Cldr.Currency.Backend do
 
         ## Example
 
-              iex> #{inspect(__MODULE__)}.new(:XAA, name: "Custom Name", digits: 0)
-              {:ok,
-               %Cldr.Currency{
-                 alt_code: :XAA,
-                 cash_digits: 0,
-                 cash_rounding: nil,
-                 code: :XAA,
-                 count: %{other: "Custom Name"},
-                 digits: 0,
-                 from: nil,
-                 iso_digits: 0,
-                 name: "Custom Name",
-                 narrow_symbol: nil,
-                 rounding: 0,
-                 symbol: "XAA",
-                 tender: false,
-                 to: nil
-               }}
-
-             iex> MyApp.Cldr.Currency.new(:XAA, name: "Custom Name")
-             {:error, "Required options are missing. Required options are [:name, :digits]"}
-
-             iex> #{inspect(__MODULE__)}.new(:XBC)
-             {:error, {Cldr.CurrencyAlreadyDefined, "Currency :XBC is already defined."}}
+            iex> #{inspect(__MODULE__)}.new(:XAE, name: "Custom Name", digits: 0)
+            {:ok,
+             %Cldr.Currency{
+               alt_code: :XAE,
+               cash_digits: 0,
+               cash_rounding: nil,
+               code: :XAE,
+               count: %{other: "Custom Name"},
+               digits: 0,
+               from: nil,
+               iso_digits: 0,
+               name: "Custom Name",
+               narrow_symbol: nil,
+               rounding: 0,
+               symbol: "XAE",
+               tender: false,
+               to: nil
+             }}
+            iex> MyApp.Cldr.Currency.new(:XAH, name: "Custom Name")
+            {:error, "Required options are missing. Required options are [:name, :digits]"}
+            iex> #{inspect(__MODULE__)}.new(:XAE, name: "XAE", digits: 0)
+            {:error, {Cldr.CurrencyAlreadyDefined, "Currency :XAE is already defined."}}
 
         """
-        @spec new(Cldr.Currency.code(), map() | Keyword.t) ::
-          {:ok, Cldr.Currency.t} | {:error, {module(), String.t}}
+        @spec new(Cldr.Currency.code(), map() | Keyword.t()) ::
+                {:ok, Cldr.Currency.t()} | {:error, {module(), String.t()}}
 
         def new(currency, options \\ [])
 
@@ -98,7 +96,7 @@ defmodule Cldr.Currency.Backend do
 
         * `locale` is any valid locale name returned by `MyApp.Cldr.known_locale_names/0`
           or a `Cldr.LanguageTag` struct returned by `MyApp.Cldr.Locale.new!/1`. The
-          default is `#{inspect backend}.get_locale/0`
+          default is `#{inspect(backend)}.get_locale/0`
 
         ## Returns
 
@@ -136,8 +134,7 @@ defmodule Cldr.Currency.Backend do
 
         ## Example
 
-            iex> #{inspect(__MODULE__)}.known_currency_codes |> Enum.count
-            303
+            iex> #{inspect(__MODULE__)}.known_currency_codes
 
         """
         @spec known_currency_codes() :: list(atom)
@@ -201,7 +198,7 @@ defmodule Cldr.Currency.Backend do
 
         """
         @spec known_currency_code(Cldr.Currency.code()) ::
-          {:ok, Cldr.Currency.code} | {:error, {module, String.t}}
+                {:ok, Cldr.Currency.code()} | {:error, {module, String.t()}}
 
         def known_currency_code(currency_code) do
           Cldr.Currency.known_currency_code(currency_code)
@@ -224,15 +221,15 @@ defmodule Cldr.Currency.Backend do
 
         ## Examples
 
-            iex> {:ok, locale} = #{inspect backend}.validate_locale "en"
-            iex> #{inspect __MODULE__}.currency_from_locale locale
+            iex> {:ok, locale} = #{inspect(backend)}.validate_locale "en"
+            iex> #{inspect(__MODULE__)}.currency_from_locale locale
             :USD
 
-            iex> {:ok, locale} = #{inspect backend}.validate_locale "en-AU"
-            iex> #{inspect __MODULE__}.currency_from_locale locale
+            iex> {:ok, locale} = #{inspect(backend)}.validate_locale "en-AU"
+            iex> #{inspect(__MODULE__)}.currency_from_locale locale
             :AUD
 
-            iex> #{inspect __MODULE__}.currency_from_locale "en-GB"
+            iex> #{inspect(__MODULE__)}.currency_from_locale "en-GB"
             :GBP
 
         """
@@ -250,8 +247,13 @@ defmodule Cldr.Currency.Backend do
 
         ## Arguments
 
-        * `currency_or_currency_code` is a `binary` or `atom` representation 
+        * `currency_or_currency_code` is a `binary` or `atom` representation
            of an ISO 4217 currency code, or a `%Cldr.Currency{}` struct.
+
+        ## Options
+
+        * `:locale` is any valid locale name returned by `Cldr.known_locale_names/1`
+          or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
 
         ## Examples
 
@@ -424,9 +426,11 @@ defmodule Cldr.Currency.Backend do
               }}
 
         """
-        @spec currency_strings(Cldr.LanguageTag.t() | Cldr.Locale.locale_name(),
+        @spec currency_strings(
+                Cldr.LanguageTag.t() | Cldr.Locale.locale_name(),
                 only :: Cldr.Currency.filter(),
-                except :: Cldr.Currency.filter()) ::
+                except :: Cldr.Currency.filter()
+              ) ::
                 {:ok, map()} | {:error, {module(), String.t()}}
 
         @dialyzer {:nowarn_function, currency_strings: 3}
@@ -455,11 +459,12 @@ defmodule Cldr.Currency.Backend do
           inverted_currency_strings =
             Cldr.Currency.invert_currency_strings(currency_strings)
             |> Cldr.Currency.remove_duplicate_strings(currencies)
-            |> Map.new
+            |> Map.new()
 
           def currencies_for_locale(
                 %LanguageTag{cldr_locale_name: unquote(locale_name)},
-                only, except
+                only,
+                except
               ) do
             filtered_currencies =
               unquote(Macro.escape(currencies))
@@ -571,9 +576,12 @@ defmodule Cldr.Currency.Backend do
            }
 
         """
-        @spec currencies_for_locale(Cldr.Locale.locale_name() | LanguageTag.t(),
-          only :: Cldr.Currency.filter(), except :: Cldr.Currency.filter()) ::
-          map() | no_return()
+        @spec currencies_for_locale(
+                Cldr.Locale.locale_name() | LanguageTag.t(),
+                only :: Cldr.Currency.filter(),
+                except :: Cldr.Currency.filter()
+              ) ::
+                map() | no_return()
 
         def currencies_for_locale!(locale, only \\ :all, except \\ nil) do
           case currencies_for_locale(locale, only, except) do
@@ -620,8 +628,11 @@ defmodule Cldr.Currency.Backend do
              }
 
         """
-        @spec currency_strings!(Cldr.LanguageTag.t() | Cldr.Locale.locale_name(),
-                only :: Cldr.Currency.filter(), except :: Cldr.Currency.filter()) ::
+        @spec currency_strings!(
+                Cldr.LanguageTag.t() | Cldr.Locale.locale_name(),
+                only :: Cldr.Currency.filter(),
+                except :: Cldr.Currency.filter()
+              ) ::
                 map() | no_return()
 
         def currency_strings!(locale_name, only \\ :all, except \\ nil) do
@@ -679,8 +690,8 @@ defmodule Cldr.Currency.Backend do
             }
 
         """
-        @spec currency_history_for_locale(LanguageTag.t | Cldr.Locale.locale_name) ::
-          map() | {:error, {module(), String.t}}
+        @spec currency_history_for_locale(LanguageTag.t() | Cldr.Locale.locale_name()) ::
+                map() | {:error, {module(), String.t()}}
 
         def currency_history_for_locale(%LanguageTag{} = language_tag) do
           Cldr.Currency.currency_history_for_locale(language_tag)
