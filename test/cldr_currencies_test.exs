@@ -40,8 +40,8 @@ defmodule Cldr.Currency.Test do
   end
 
   test "names with annotations are intact" do
-    assert Cldr.Currency.strings_for_currency(:USN, "en", MyApp.Cldr) ==
-             ["us dollars (next day)", "us dollar (next day)", "usn"]
+    assert Cldr.Currency.strings_for_currency(:USN, "en", MyApp.Cldr) |> Enum.sort ==
+      ["us dollar (next day)", "us dollars (next day)", "usn"]
   end
 
   test "currency strings is a map" do
