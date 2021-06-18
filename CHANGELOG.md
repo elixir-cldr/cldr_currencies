@@ -1,5 +1,13 @@
 # Changelog
 
+## Cldr_Currencies v2.10.1
+
+This is the changelog for Cldr_Currencies v2.10.0 released on June 17th, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
+
+### Bug fixes
+
+* Constrain `ex_doc` to `:dev` and `:release` environments only, and `:optional` to make sure.
+
 ## Cldr_Currencies v2.10.0
 
 This is the changelog for Cldr_Currencies v2.10.0 released on June 17th, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
