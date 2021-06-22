@@ -599,11 +599,11 @@ defmodule Cldr.Currency do
       :accounting
 
   """
-  def currency_format_from_locale(%LanguageTag{locale: %{currency_format: nil}}) do
+  def currency_format_from_locale(%LanguageTag{locale: %{cf: nil}}) do
     :currency
   end
 
-  def currency_format_from_locale(%LanguageTag{locale: %{currency_format: currency_format}}) do
+  def currency_format_from_locale(%LanguageTag{locale: %{cf: currency_format}}) do
     currency_format
   end
 
