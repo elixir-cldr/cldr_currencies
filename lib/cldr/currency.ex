@@ -603,8 +603,12 @@ defmodule Cldr.Currency do
     :currency
   end
 
-  def currency_format_from_locale(%LanguageTag{locale: %{cf: currency_format}}) do
-    currency_format
+  def currency_format_from_locale(%LanguageTag{locale: %{cf: :standard}}) do
+    :currency
+  end
+
+  def currency_format_from_locale(%LanguageTag{locale: %{cf: :account}}) do
+    :accounting
   end
 
   def currency_format_from_locale(%LanguageTag{}) do
