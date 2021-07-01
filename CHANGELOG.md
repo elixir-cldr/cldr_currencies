@@ -2,9 +2,11 @@
 
 ## Cldr_Currencies v2.11.0
 
-This is the changelog for Cldr_Currencies v2.11.0 released on ______, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
+This is the changelog for Cldr_Currencies v2.11.0 released on July 1st, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
 
 ### Enhancments
+
+* Adds support for the `Cldr.DisplayName` protocol for `t:Cldr.Currency` structs.
 
 * Updated to [ex_cldr version 2.23.0](https://hex.pm/packages/ex_cldr/2.23.0) which changes the names of some of the field in the "-u-" extension to match the CLDR canonical name. In particular the field name `currency_format` changes to `cf`.
 
