@@ -21,6 +21,8 @@ defmodule Cldr.Currency do
 
   @type filter :: list(currency_status | code) | currency_status | code
 
+  @type territory :: atom() | String.t()
+
   @type t :: %__MODULE__{
           code: code,
           alt_code: code,
@@ -52,8 +54,6 @@ defmodule Cldr.Currency do
             count: nil,
             from: nil,
             to: nil
-
-  alias Cldr.LanguageTag
 
   @table_options [:set, {:read_concurrency, true}]
   @default_options [quiet: true]
@@ -636,6 +636,37 @@ defmodule Cldr.Currency do
     @territory_currencies
   end
 
+  @doc """
+  Returns a list of currencies associated with
+  a given territory.
+
+  ## Arguments
+
+  * `territory` is any valid ISO 3166 Alpha-2 territory code.
+     See `Cldr.validate_territory/1`.
+
+  ## Returns
+
+  * `{:ok, map}` where `map` has as its key a `t:Cldr.Currency`
+    struct and the value is a map of validity dates for that
+    currency; or
+
+  * `{:error, {exception, reason}}`
+
+  ## Example
+
+      iex> Cldr.Currency.territory_currencies(:LT)
+      {:ok, %{
+        EUR: %{from: ~D[2015-01-01], to: nil},
+        LTL: %{from: nil, to: ~D[2014-12-31]},
+        LTT: %{from: nil, to: ~D[1993-06-25]},
+        SUR: %{from: nil, to: ~D[1992-10-01]}
+      }}
+
+  """
+  @spec territory_currencies(territory()) ::
+    {:ok, map()} | {:error, {module(), String.t()}}
+
   def territory_currencies(territory) do
     with {:ok, territory} <- Cldr.validate_territory(territory),
          {:ok, currencies} <- Map.fetch(territory_currencies(), territory) do
@@ -649,6 +680,36 @@ defmodule Cldr.Currency do
         other
     end
   end
+
+  @doc """
+  Returns a list of currencies associated with
+  a given territory.
+
+  ## Arguments
+
+  * `territory` is any valid ISO 3166 Alpha-2 territory code.
+     See `Cldr.validate_territory/1`.
+
+  ## Returns
+
+  * `map` where `map` has as its key a `t:Cldr.Currency`
+    struct and the value is a map of validity dates for that
+    currency; or
+
+  * raises an exception
+
+  ## Example
+
+      iex> Cldr.Currency.territory_currencies!(:LT)
+      %{
+        EUR: %{from: ~D[2015-01-01], to: nil},
+        LTL: %{from: nil, to: ~D[2014-12-31]},
+        LTT: %{from: nil, to: ~D[1993-06-25]},
+        SUR: %{from: nil, to: ~D[1992-10-01]}
+      }
+
+  """
+  @spec territory_currencies!(territory()) :: map() | no_return()
 
   def territory_currencies!(territory) do
     case territory_currencies(territory) do
@@ -776,7 +837,7 @@ defmodule Cldr.Currency do
   ## Arguments
 
   * `currency_or_currency_code` is a `binary` or `atom` representation
-      of an ISO 4217 currency code, or a `%Cldr.Currency{}` struct.
+      of an ISO 4217 currency code, or a `t:Cldr.Currency` struct.
 
   * `backend` is any module that includes `use Cldr` and therefore
     is a `Cldr` backend module
@@ -1092,7 +1153,7 @@ defmodule Cldr.Currency do
 
   """
   @spec currency_strings!(
-          Cldr.LanguageTag.t() | Cldr.Locale.locale_name(),
+          LanguageTag.t() | Locale.locale_name(),
           only :: filter(),
           except :: filter()
         ) ::
@@ -1137,6 +1198,9 @@ defmodule Cldr.Currency do
       ["au$", "aud", "澳大利亚元"]
 
   """
+  @spec strings_for_currency(t(), LanguageTag.t | Locale.locale_name, Cldr.backend) ::
+    [String.t()]
+
   def strings_for_currency(currency, locale, backend) do
     module = Module.concat(backend, Currency)
 
@@ -1153,7 +1217,7 @@ defmodule Cldr.Currency do
 
   ## Arguments
 
-  * `currency` is a `Cldr.Currency.t`, a list of `Cldr.Currency.t` or a
+  * `currency` is a `t:Cldr.Currency`, a list of `t:Cldr.Currency` or a
     map where the values of each item is a `Cldr.Currency.t`
 
   * `only` is `:all`, `:current`, `:historic`, `:tender`
@@ -1166,7 +1230,7 @@ defmodule Cldr.Currency do
 
   ## Currency Status
 
-  A currency may be in current use, of historic interest only. It
+  A currency may be in current use or of historic interest only. It
   may or may not be legal tender. And it may mostly be used as a financial
   instrument.  To help return the most useful currencies the
   currency status code acts as follows:
@@ -1185,11 +1249,7 @@ defmodule Cldr.Currency do
     financial instruments.
 
   """
-  @spec currency_filter(
-          Cldr.Currency.t() | [Cldr.Currency.t()] | map(),
-          Cldr.Currency.currency_status()
-        ) :: list(Cldr.Currency.t())
-
+  @spec currency_filter(t() | [t()] | map(), currency_status()) :: list(t())
   def currency_filter(currencies, only \\ :all, except \\ nil)
 
   def currency_filter(currencies, :all, nil) do
@@ -1219,15 +1279,15 @@ defmodule Cldr.Currency do
     expand_filter(currencies, :only, only) -- expand_filter(currencies, :except, except)
   end
 
-  def expand_filter(currencies, :only, [:all]) do
+  defp expand_filter(currencies, :only, [:all]) do
     currencies
   end
 
-  def expand_filter(_currencies, :except, [nil]) do
+  defp expand_filter(_currencies, :except, [nil]) do
     []
   end
 
-  def expand_filter(currencies, _, filter_list) do
+  defp expand_filter(currencies, _, filter_list) do
     Enum.flat_map(filter_list, fn filter ->
       case filter do
         :historic ->
@@ -1264,29 +1324,120 @@ defmodule Cldr.Currency do
     |> Enum.uniq()
   end
 
+  @doc """
+  Returns a boolean indicating if a given
+  currency is historic.
+
+  Historic means that the currency is no longer
+  in use.
+
+  ## Arguments
+
+  * `currency` is a `t:Cldr.Currency`
+
+  ## Returns
+
+  * `true` or `false`
+
+  """
+  @spec historic?(currency :: t()) :: boolean()
   def historic?(%Cldr.Currency{} = currency) do
     is_nil(currency.iso_digits) ||
       (is_integer(currency.to) && currency.to < Date.utc_today().year)
   end
 
+  @doc """
+  Returns a boolean indicating if a given
+  currency is legal tender.
+
+  Legal tender is anything recognized by law
+  as a means to settle a public or private debt or
+  meet a financial obligation.
+
+  ## Arguments
+
+  * `currency` is a `t:Cldr.Currency`
+
+  ## Returns
+
+  * `true` or `false`
+
+  """
+  @spec tender?(currency :: t()) :: boolean()
   def tender?(%Cldr.Currency{} = currency) do
     !!currency.tender
   end
 
+  @doc """
+  Returns a boolean indicating if a given
+  currency is current.
+
+  Current means that the currency is in current
+  use.
+
+  ## Arguments
+
+  * `currency` is a `t:Cldr.Currency`
+
+  ## Returns
+
+  * `true` or `false`
+
+  """
+  @spec current?(currency :: t()) :: boolean()
   def current?(%Cldr.Currency{} = currency) do
     !is_nil(currency.iso_digits) && is_nil(currency.to)
   end
 
+  @doc """
+  Returns a boolean indicating if a given
+  currency is annotated.
+
+  Annotated means that the currency description
+  has annotations (comments inside parenthesis).
+  This is mostly found in currency codes used as
+  financial instruments (not legal tender).
+
+  ## Arguments
+
+  * `currency` is a `t:Cldr.Currency`
+
+  ## Returns
+
+  * `true` or `false`
+
+  """
+  @spec annotated?(currency :: t()) :: boolean()
   def annotated?(%Cldr.Currency{} = currency) do
     String.contains?(currency.name, "(")
   end
 
+  @doc """
+  Returns a boolean indicating if a given
+  currency is unannotated.
+
+  Annotated means that the currency description
+  has annotations (comments inside parenthesis).
+  This is mostly found in currency codes used as
+  financial instruments (not legal tender).
+
+  ## Arguments
+
+  * `currency` is a `t:Cldr.Currency`
+
+  ## Returns
+
+  * `true` or `false`
+
+  """
+  @spec unannotated?(currency :: t()) :: boolean()
   def unannotated?(%Cldr.Currency{} = currency) do
-    !String.contains?(currency.name, "(")
+    !annotated?(currency)
   end
 
   # Sort the list by string. If the string is the same
   # then sort historic currencies after the current one
+
   @doc false
   def string_comparator({k, v1}, {k, v2}, currencies) do
     cond do
@@ -1313,6 +1464,7 @@ defmodule Cldr.Currency do
 
   # The strategy is to remove the duplicate string from the
   # currency that is historic.
+
   @doc false
   def remove_duplicate_strings(strings, currencies) do
     strings

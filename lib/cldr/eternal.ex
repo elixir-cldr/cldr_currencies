@@ -26,6 +26,8 @@ defmodule Cldr.Eternal do
   alias Cldr.Eternal.Table
   alias Cldr.Eternal.Supervisor, as: Sup
 
+  @type table :: number | atom
+
   # Return values of `start_link` functions
   @type on_start ::
           {:ok, pid} | :ignore | {:error, {:already_started, pid} | {:shutdown, term} | term}
@@ -93,7 +95,7 @@ defmodule Cldr.Eternal do
       iex> Cldr.Eternal.heir(:my_table)
 
   """
-  @spec heir(table :: Table.t()) :: any()
+  @spec heir(table :: table()) :: any()
   def heir(table) when is_table(table),
     do: :ets.info(table, :heir)
 
@@ -105,7 +107,7 @@ defmodule Cldr.Eternal do
       iex> Cldr.Eternal.owner(:my_table)
 
   """
-  @spec owner(table :: Table.t()) :: any()
+  @spec owner(table :: table()) :: any()
   def owner(table) when is_table(table),
     do: :ets.info(table, :owner)
 
@@ -120,7 +122,7 @@ defmodule Cldr.Eternal do
       :ok
 
   """
-  @spec stop(table :: Table.t()) :: :ok
+  @spec stop(table :: table()) :: :ok
   def stop(table) when is_table(table) do
     name = Table.to_name(table)
     proc = GenServer.whereis(name)

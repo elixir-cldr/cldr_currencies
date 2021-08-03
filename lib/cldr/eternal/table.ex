@@ -9,7 +9,7 @@ defmodule Cldr.Eternal.Table do
 
   @doc """
   Converts a table name to a valid Supervisor name.
-  
+
   Because tables can be integer references, we convert this to an atom only if
   the `create` flag is set to true. Otherwise, we attempt to convert to an existing
   name (as it should have already been created).
