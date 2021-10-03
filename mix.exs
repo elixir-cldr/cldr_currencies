@@ -1,13 +1,13 @@
 defmodule Cldr.Currencies.MixProject do
   use Mix.Project
 
-  @version "2.11.1"
+  @version "2.12.0-rc.0"
 
   def project do
     [
       app: :ex_cldr_currencies,
       version: @version,
-      elixir: "~> 1.5",
+      elixir: "~> 1.10",
       name: "Cldr Currencies",
       description: description(),
       source_url: "https://github.com/elixir-cldr/cldr_currencies",
@@ -38,7 +38,7 @@ defmodule Cldr.Currencies.MixProject do
 
   defp deps do
     [
-      {:ex_cldr, "~> 2.23"},
+      {:ex_cldr, "~> 2.24-rc"},
       {:jason, "~> 1.0", optional: true},
       {:ex_doc, "~> 0.18", onley: [:dev, :release], runtime: false, optional: true},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
