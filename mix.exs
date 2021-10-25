@@ -40,7 +40,8 @@ defmodule Cldr.Currencies.MixProject do
     [
       {:ex_cldr, "~> 2.24-rc"},
       {:jason, "~> 1.0", optional: true},
-      {:ex_doc, "~> 0.18", onley: [:dev, :release], runtime: false, optional: true},
+      {:ex_doc, "~> 0.18", only: [:dev, :release], runtime: false, optional: true},
+      {:earmark, "1.4.14", only: [:dev, :release], runtime: false, optional: true},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:benchee, "~> 1.0", only: :dev, optional: true}
     ]
