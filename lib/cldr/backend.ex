@@ -437,7 +437,7 @@ defmodule Cldr.Currency.Backend do
 
         def currency_strings(locale, only \\ :all, except \\ nil)
 
-        for locale_name <- Cldr.Config.known_locale_names(config) do
+        for locale_name <- Cldr.Locale.Loader.known_locale_names(config) do
           currencies =
             locale_name
             |> Cldr.Config.currencies_for!(config)
