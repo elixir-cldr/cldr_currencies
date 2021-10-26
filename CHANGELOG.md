@@ -1,5 +1,17 @@
 # Changelog
 
+## Cldr_Currencies v2.12.0
+
+This is the changelog for Cldr_Currencies v2.12.0 released on October 27th, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
+
+### Enhancements
+
+* Updates to support [CLDR release 40](https://cldr.unicode.org/index/downloads/cldr-40) via [ex_cldr version 2.24](https://hex.pm/packages/ex_cldr/2.24.0)
+
+### Deprecations
+
+* Don't call deprecated `Cldr.Config.known_locale_names/1`, call `Cldr.Locale.Loader.known_locale_names/1` instead.
+
 ## Cldr_Currencies v2.12.0-rc.1
 
 This is the changelog for Cldr_Currencies v2.12.0-rc.1 released on October 25th, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
