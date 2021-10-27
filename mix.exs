@@ -41,7 +41,6 @@ defmodule Cldr.Currencies.MixProject do
       {:ex_cldr, "~> 2.24"},
       {:jason, "~> 1.0", optional: true},
       {:ex_doc, "~> 0.18", only: [:dev, :release], runtime: false, optional: true},
-      {:earmark, "1.4.14", only: [:dev, :release], runtime: false, optional: true},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:benchee, "~> 1.0", only: :dev, optional: true}
     ]
@@ -50,7 +49,7 @@ defmodule Cldr.Currencies.MixProject do
   defp package do
     [
       maintainers: ["Kip Cole"],
-      licenses: ["Apache 2.0"],
+      licenses: ["Apache-2.0"],
       links: links(),
       files: [
         "lib",
@@ -69,6 +68,7 @@ defmodule Cldr.Currencies.MixProject do
       main: "readme",
       extras: ["README.md", "CHANGELOG.md", "LICENSE.md"],
       logo: "logo.png",
+      formatters: ["html"],
       skip_undefined_reference_warnings_on: ["changelog", "CHANGELOG.md"]
     ]
   end

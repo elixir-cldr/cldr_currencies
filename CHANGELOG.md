@@ -8,6 +8,8 @@ This is the changelog for Cldr_Currencies v2.12.0 released on October 27th, 2021
 
 * Updates to support [CLDR release 40](https://cldr.unicode.org/index/downloads/cldr-40) via [ex_cldr version 2.24](https://hex.pm/packages/ex_cldr/2.24.0)
 
+* Fix licence name
+
 ### Deprecations
 
 * Don't call deprecated `Cldr.Config.known_locale_names/1`, call `Cldr.Locale.Loader.known_locale_names/1` instead.
