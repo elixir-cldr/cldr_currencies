@@ -552,7 +552,7 @@ defmodule Cldr.Currency do
     `Cldr.known_locale_names/1`
 
   * `backend` is any module that includes `use Cldr` and therefore
-    is a `Cldr` backend module. The default is `Cldr.default_backend/0`
+    is a `Cldr` backend module. The default is `Cldr.default_backend!/0`
 
   ## Returns
 
@@ -613,6 +613,38 @@ defmodule Cldr.Currency do
 
   def currency_format_from_locale(%LanguageTag{}) do
     :currency
+  end
+
+  @doc """
+  Returns the effective currency format for a given locale
+
+  ## Arguments
+
+  * `locale` a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
+
+  * `backend` is any module that includes `use Cldr` and therefore
+    is a `Cldr` backend module. The default is `Cldr.default_backend!/0`
+
+  ## Returns
+
+  * Either `:accounting` or `:currency`
+
+  ## Examples
+
+      iex> Cldr.Currency.currency_format_from_locale "en", MyApp.Cldr
+      :currency
+
+      iex> Cldr.Currency.currency_format_from_locale "en-AU-u-cu-eur", MyApp.Cldr
+      :currency
+
+      iex> Cldr.Currency.currency_format_from_locale "en-AU-u-cu-eur-cf-account", MyApp.Cldr
+      :accounting
+
+  """
+  def currency_format_from_locale(locale, backend \\ default_backend()) when is_binary(locale) do
+    with {:ok, locale} <- Cldr.validate_locale(locale, backend) do
+      currency_format_from_locale(locale)
+    end
   end
 
   @doc """

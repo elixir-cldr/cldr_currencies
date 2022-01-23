@@ -1,5 +1,17 @@
 # Changelog
 
+## Cldr_Currencies v2.12.1
+
+This is the changelog for Cldr_Currencies v2.12.1 released on ______.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
+
+### Bug Fixes
+
+* Fix deprecated `use Mix.Config` and replace with `import Config` in configuration files.
+
+### Enhancements
+
+* Add `Cldr.Currency.currency_format_from_locale/2` support a binary language tag and optional backend
+
 ## Cldr_Currencies v2.12.0
 
 This is the changelog for Cldr_Currencies v2.12.0 released on October 27th, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
