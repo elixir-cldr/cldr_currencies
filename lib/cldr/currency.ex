@@ -783,10 +783,10 @@ defmodule Cldr.Currency do
     |> territory_currencies()
   end
 
-  @spec currency_history_for_locale(Locale.locale_name(), Cldr.backend()) ::
+  @spec currency_history_for_locale(Locale.locale_name() | String.t(), Cldr.backend()) ::
           {:ok, map()} | {:error, {module(), String.t()}}
 
-  def currency_history_for_locale(locale_name, backend) when is_binary(locale_name) do
+  def currency_history_for_locale(locale_name, backend) do
     with {:ok, locale} <- Cldr.validate_locale(locale_name, backend) do
       currency_history_for_locale(locale)
     end
@@ -825,10 +825,10 @@ defmodule Cldr.Currency do
     |> current_currency_for_territory()
   end
 
-  @spec current_currency_from_locale(Cldr.Locale.locale_name(), Cldr.backend()) ::
+  @spec current_currency_from_locale(Locale.locale_name() | String.t(), Cldr.backend()) ::
           code() | nil | {:error, {module(), String.t()}}
 
-  def current_currency_from_locale(locale_name, backend) when is_binary(locale_name) do
+  def current_currency_from_locale(locale_name, backend) do
     with {:ok, locale} <- Cldr.validate_locale(locale_name, backend) do
       current_currency_from_locale(locale)
     end
