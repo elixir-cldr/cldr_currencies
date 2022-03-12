@@ -54,7 +54,7 @@ This is the changelog for Cldr_Currencies v2.11.1 released on August 4th, 2021. 
 
 This is the changelog for Cldr_Currencies v2.11.0 released on July 1st, 2021.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
 
-### Enhancments
+### Enhancements
 
 * Adds support for the `Cldr.DisplayName` protocol for `t:Cldr.Currency` structs.
 
@@ -190,7 +190,7 @@ This is the changelog for Cldr_Currencies v2.4.0 released on November 6th, 2019.
 
 ### Enhancements
 
-* Adds the options `:only` and `:except` to `Cldr.Currency.filter_currencies/3`. These options are exercised in [ex_money](https://hex.pm/pacakges/ex_money) in the `Money.parse/2` function to limited parsed user input to a particular set of currencies.
+* Adds the options `:only` and `:except` to `Cldr.Currency.filter_currencies/3`. These options are exercised in [ex_money](https://hex.pm/packages/ex_money) in the `Money.parse/2` function to limited parsed user input to a particular set of currencies.
 
 ## Cldr_Currencies v2.3.0
 

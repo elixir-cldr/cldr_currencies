@@ -251,7 +251,7 @@ defmodule Cldr.Currency do
       {:ok, "Australian Dollar"}
 
       iex> Cldr.Currency.display_name "AUD", backend: MyApp.Cldr, locale: "fr"
-      {:ok, "dollar australien"}
+      {:ok, "dollar australian"}
 
       iex> Cldr.Currency.display_name "EUR", backend: MyApp.Cldr, locale: "de"
       {:ok, "Euro"}
@@ -313,7 +313,7 @@ defmodule Cldr.Currency do
       "Australian Dollar"
 
       iex> Cldr.Currency.display_name! "AUD", backend: MyApp.Cldr, locale: "fr"
-      "dollar australien"
+      "dollar australian"
 
       iex> Cldr.Currency.display_name! "EUR", backend: MyApp.Cldr, locale: "de"
       "Euro"
