@@ -216,7 +216,7 @@ This is the changelog for Cldr_Currencies v2.2.4 released on March 15th, 2019.  
 
 * Makes generation of documentation for backend modules optional.  This is implemented by the `:generate_docs` option to the backend configuration.  The default is `true`. For example:
 
-```
+```elixir
 defmodule MyApp.Cldr do
   use Cldr,
     default_locale: "en-001",
@@ -224,6 +224,7 @@ defmodule MyApp.Cldr do
     gettext: MyApp.Gettext,
     generate_docs: false
 end
+```
 
 ## Cldr_Currencies v2.2.3
 

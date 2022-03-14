@@ -851,7 +851,7 @@ defmodule Cldr.Currency do
       :AUD
 
   """
-  @spec current_currency_for_territory(Cldr.Locale.territory()) ::
+  @spec current_currency_for_territory(Cldr.Locale.territory_code()) ::
           code() | nil | {:error, {module(), String.t()}}
 
   def current_currency_for_territory(territory) do
