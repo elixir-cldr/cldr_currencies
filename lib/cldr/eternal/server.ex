@@ -22,7 +22,7 @@ defmodule Cldr.Eternal.Server do
 
   @doc """
   Initialization phase of an Eternal server.
-  
+
   If the server process is intended to be a new heir, we message the owner in order
   to let it know we need adding as an heir. We don't do this is there is no owner
   or the owner is the base process creating the Eternal table, as this would result
