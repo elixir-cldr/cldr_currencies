@@ -18,10 +18,10 @@ defmodule Cldr.Eternal.Supervisor do
 
   @doc """
   Starts an Eternal Supervision tree which manages the two internal servers.
-  
+
   This returns a Tuple containing the table name, so it cannot be used inside a
   Supervision tree directly. If you want to use this Supervisor, you should go
-  via the main Eternal module.
+  via the main Cldr.Eternal module.
   """
   # @spec start_link(name :: atom, ets_opts :: Keyword.t, opts :: Keyword.t) ::
   #       { :ok, pid, Table.t } | :ignore |
