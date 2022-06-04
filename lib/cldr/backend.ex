@@ -255,6 +255,12 @@ defmodule Cldr.Currency.Backend do
         * `:locale` is any valid locale name returned by `Cldr.known_locale_names/1`
           or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
 
+        ## Returns
+
+        * A `{:ok, currency}` or
+
+        * `{:error, {exception, reason}}`
+
         ## Examples
 
             iex> #{inspect(__MODULE__)}.currency_for_code("AUD")
@@ -298,6 +304,70 @@ defmodule Cldr.Currency.Backend do
               options \\ [locale: unquote(backend).default_locale()]
             ) do
           Cldr.Currency.currency_for_code(currency_or_currency_code, unquote(backend), options)
+        end
+
+        @doc """
+        Returns the currency metadata for the requested currency code.
+
+        ## Arguments
+
+        * `currency_or_currency_code` is a `binary` or `atom` representation
+           of an ISO 4217 currency code, or a `%Cldr.Currency{}` struct.
+
+        ## Options
+
+        * `:locale` is any valid locale name returned by `Cldr.known_locale_names/1`
+          or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
+
+        ## Returns
+
+        * A `t:Cldr.Current.t/0` or
+
+        * raises an exception
+
+        ## Examples
+
+            iex> #{inspect(__MODULE__)}.currency_for_code!("AUD")
+            %Cldr.Currency{
+              cash_digits: 2,
+              cash_rounding: 0,
+              code: "AUD",
+              count: %{one: "Australian dollar", other: "Australian dollars"},
+              digits: 2,
+              iso_digits: 2,
+              name: "Australian Dollar",
+              narrow_symbol: "$",
+              rounding: 0,
+              symbol: "A$",
+              tender: true
+            }
+
+            iex> #{inspect(__MODULE__)}.currency_for_code!("THB")
+            %Cldr.Currency{
+              cash_digits: 2,
+              cash_rounding: 0,
+              code: "THB",
+              count: %{one: "Thai baht", other: "Thai baht"},
+              digits: 2,
+              iso_digits: 2,
+              name: "Thai Baht",
+              narrow_symbol: "฿",
+              rounding: 0,
+              symbol: "THB",
+              tender: true
+            }
+
+        """
+        @doc since: "2.14.0"
+
+        @spec currency_for_code!(Cldr.Currency.code() | Cldr.Currency.t(), Keyword.t()) ::
+                Cldr.Currency.t() | no_return()
+
+        def currency_for_code!(
+              currency_or_currency_code,
+              options \\ [locale: unquote(backend).default_locale()]
+            ) do
+          Cldr.Currency.currency_for_code!(currency_or_currency_code, unquote(backend), options)
         end
 
         defp get_currency_metadata(code, nil) do

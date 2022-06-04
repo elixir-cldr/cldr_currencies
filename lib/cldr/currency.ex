@@ -881,6 +881,12 @@ defmodule Cldr.Currency do
   * `:locale` is any valid locale name returned by `Cldr.known_locale_names/1`
     or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
 
+  ## Returns
+
+  * A `{:ok, currency}` or
+
+  * `{:error, {exception, reason}}`
+
   ## Examples
 
       iex> Cldr.Currency.currency_for_code("AUD", MyApp.Cldr)
@@ -933,6 +939,75 @@ defmodule Cldr.Currency do
          {:ok, locale} <- Cldr.validate_locale(locale, backend),
          {:ok, currencies} <- currencies_for_locale(locale, backend) do
       {:ok, Map.get_lazy(currencies, code, fn -> Map.get(private_currencies(), code) end)}
+    end
+  end
+
+  @doc """
+  Returns the currency metadata for the requested currency code.
+
+  ## Arguments
+
+  * `currency_or_currency_code` is a `binary` or `atom` representation
+      of an ISO 4217 currency code, or a `t:Cldr.Currency` struct.
+
+  * `backend` is any module that includes `use Cldr` and therefore
+    is a `Cldr` backend module
+
+  * `options` is a `Keyword` list of options.
+
+  ## Options
+
+  * `:locale` is any valid locale name returned by `Cldr.known_locale_names/1`
+    or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
+
+  ## Returns
+
+  * A `t:Cldr.Current.t/0` or
+
+  * raises an exception
+
+  ## Examples
+
+      iex> Cldr.Currency.currency_for_code!("AUD", MyApp.Cldr)
+      %Cldr.Currency{
+        cash_digits: 2,
+        cash_rounding: 0,
+        code: "AUD",
+        count: %{one: "Australian dollar", other: "Australian dollars"},
+        digits: 2,
+        iso_digits: 2,
+        name: "Australian Dollar",
+        narrow_symbol: "$",
+        rounding: 0,
+        symbol: "A$",
+        tender: true
+      }
+
+      iex> Cldr.Currency.currency_for_code!("THB", MyApp.Cldr)
+      %Cldr.Currency{
+        cash_digits: 2,
+        cash_rounding: 0,
+        code: "THB",
+        count: %{one: "Thai baht", other: "Thai baht"},
+        digits: 2,
+        iso_digits: 2,
+        name: "Thai Baht",
+        narrow_symbol: "฿",
+        rounding: 0,
+        symbol: "THB",
+        tender: true
+      }
+
+  """
+  @doc since: "2.14.0"
+
+  @spec currency_for_code!(code() | t(), Cldr.backend(), Keyword.t()) ::
+          t() | no_return()
+
+  def currency_for_code!(currency_or_currency_code, backend, options \\ []) do
+    case currency_for_code(currency_or_currency_code, backend, options) do
+      {:ok, currency} -> currency
+      {:error, {exception, reason}} -> raise exception, reason
     end
   end
 
