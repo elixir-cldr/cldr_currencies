@@ -66,4 +66,13 @@ defmodule Cldr.Currency.Test do
     {:ok, currency} = Cldr.Currency.currency_for_code(:AUD, MyApp.Cldr)
     assert to_string(currency) == "Australian Dollar"
   end
+
+  test "Currency from locale" do
+    {:ok, locale} = Cldr.validate_locale("fr", MyApp.Cldr)
+    assert _currency = Cldr.Currency.currency_from_locale(locale, MyApp.Cldr)
+  end
+
+  test "Currency from binary locale" do
+    assert _currency = Cldr.Currency.currency_from_locale("fr")
+  end
 end

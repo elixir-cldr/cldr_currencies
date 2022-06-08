@@ -1,5 +1,13 @@
 # Changelog
 
+## Cldr_Currencies v2.14.1
+
+This is the changelog for Cldr_Currencies v2.14.1 released on June 8th, 2022.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
+
+### Bug Fixes
+
+* Fix `Cldr.Currency.currency_from_locale/2` when the first argument is a `t:Cldr.LanguageTag.t/0`
+
 ## Cldr_Currencies v2.14.0
 
 This is the changelog for Cldr_Currencies v2.14.0 released on June 4th, 2022.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)

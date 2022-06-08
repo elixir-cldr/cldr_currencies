@@ -567,10 +567,17 @@ defmodule Cldr.Currency do
       :INR
 
   """
-  def currency_from_locale(locale, backend \\ default_backend()) when is_binary(locale) do
-    with {:ok, locale} <- Cldr.validate_locale(locale, backend) do
+  def currency_from_locale(locale, backend \\ nil)
+
+  def currency_from_locale(locale, backend) when is_binary(locale) do
+    with {locale, backend} <- Cldr.locale_and_backend_from(locale, backend),
+         {:ok, locale} <- Cldr.validate_locale(locale, backend) do
       currency_from_locale(locale)
     end
+  end
+
+  def currency_from_locale(%LanguageTag{} = locale, _backend) do
+    currency_from_locale(locale)
   end
 
   @doc """
