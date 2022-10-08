@@ -515,9 +515,10 @@ defmodule Cldr.Currency.Backend do
             |> Map.new()
 
           currency_strings =
-            for {currency_code, currency} <- Cldr.Config.currencies_for!(locale_name, config) do
+            for {currency_code, currency} <- currencies do
               strings =
-                ([currency.name, currency.symbol, currency.code] ++ Map.values(currency.count))
+                [currency.name, currency.symbol, currency.code]
+                |> Kernel.++(Map.values(currency.count))
                 |> Enum.reject(&is_nil/1)
                 |> Enum.map(&String.downcase/1)
                 |> Enum.map(&String.trim_trailing(&1, "."))
@@ -530,6 +531,7 @@ defmodule Cldr.Currency.Backend do
             Cldr.Currency.invert_currency_strings(currency_strings)
             |> Cldr.Currency.remove_duplicate_strings(currencies)
             |> Map.new()
+            |> Cldr.Currency.add_unique_narrow_symbols(currencies)
 
           def currencies_for_locale(
                 %LanguageTag{cldr_locale_name: unquote(locale_name)},

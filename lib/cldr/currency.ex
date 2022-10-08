@@ -1248,7 +1248,7 @@ defmodule Cldr.Currency do
 
   * `{:ok, currency_string_map}` or
 
-  * raises an exception
+  * raises an exception.
 
   ## Example
 
@@ -1549,31 +1549,9 @@ defmodule Cldr.Currency do
     !annotated?(currency)
   end
 
-  # Sort the list by string. If the string is the same
-  # then sort historic currencies after the current one
-
-  @doc false
-  def string_comparator({k, v1}, {k, v2}, currencies) do
-    cond do
-      historic?(currencies[v1]) ->
-        false
-
-      historic?(currencies[v2]) ->
-        true
-
-      true ->
-        raise "String #{inspect(k)} has two current currencies of #{inspect(v1)} and " <>
-                "#{inspect(v2)}."
-    end
-  end
-
-  def string_comparator({k1, _v1}, {k2, _v2}, _currencies) do
-    k1 < k2
-  end
-
   # Its possible that more than one currency will have a string
   # in common with another currency. One example is `:AFA` and
-  # `:AFN`.  As in this csae, its most common when a country
+  # `:AFN`.  As in this case, its most common when a country
   # changes to a new currency with the same name.
 
   # The strategy is to remove the duplicate string from the
@@ -1582,18 +1560,37 @@ defmodule Cldr.Currency do
   @doc false
   def remove_duplicate_strings(strings, currencies) do
     strings
-    |> Enum.sort(fn a, b -> string_comparator(a, b, currencies) end)
+    |> Enum.sort(fn a, b -> string_comparator(a, b) end)
     |> remove_duplicates(currencies)
+  end
+
+  def string_comparator({k1, _v1}, {k2, _v2}) do
+    k1 < k2
+  end
+
+  # If the same code and one is historic and the other is current then
+  # keep the current one.  If they are both current, then omit the string
+  # because it is ambiguous.
+
+  defp remove_duplicates([], _currencies) do
+    []
   end
 
   defp remove_duplicates([{_, _}] = currency, _currencies) do
     currency
   end
 
-  # Same string, different code -> omit the 2nd one since
-  # we sort historic currencies after the current ones
-  defp remove_duplicates([{c1, code1} | [{c1, _code2} | rest]], currencies) do
-    remove_duplicates([{c1, code1} | rest], currencies)
+  defp remove_duplicates([{c1, code1} | [{c1, code2} | rest]], currencies) do
+    cond do
+      historic?(currencies[code1]) && current?(currencies[code2]) ->
+        remove_duplicates([{c1, code2} | rest], currencies)
+
+      current?(currencies[code1]) && historic?(currencies[code2]) ->
+        remove_duplicates([{c1, code1} | rest], currencies)
+
+      true ->
+        remove_duplicates(rest, currencies)
+    end
   end
 
   # Not a duplicate, process the rest of the list
@@ -1607,6 +1604,25 @@ defmodule Cldr.Currency do
       [Enum.map(strings, fn string -> {string, code} end) | acc]
     end)
     |> List.flatten()
+  end
+
+  # Add the narrow currency symbols iff they don't duplicate an
+  # existing string
+
+  @doc false
+  def add_unique_narrow_symbols(currency_strings, currencies) do
+    Enum.reduce(currencies, currency_strings, fn {currency_code, currency}, strings ->
+      cond do
+        is_nil(currency.narrow_symbol) ->
+          strings
+
+        Map.has_key?(strings, currency.narrow_symbol) ->
+          strings
+
+        true ->
+          Map.put(strings, String.downcase(currency.narrow_symbol), currency_code)
+      end
+    end)
   end
 
   defp currency_already_defined_error(code) do

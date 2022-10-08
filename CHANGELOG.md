@@ -1,5 +1,13 @@
 # Changelog
 
+## Cldr_Currencies v2.14.2
+
+This is the changelog for Cldr_Currencies v2.14.2 released on October 8th, 2022.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
+
+### Bug Fixes
+
+* Fix `Cldr.Currency.currency_strings/2` to include narrow symbols. Note that where duplicate symbols exist (same symbol for more than one currency) they are are omitted from the list of strings since they are ambiguous (unless one of them is a historic currency in which case the current currency is kept and the historic removed).
+
 ## Cldr_Currencies v2.14.1
 
 This is the changelog for Cldr_Currencies v2.14.1 released on June 8th, 2022.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)

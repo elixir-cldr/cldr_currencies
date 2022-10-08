@@ -75,4 +75,12 @@ defmodule Cldr.Currency.Test do
   test "Currency from binary locale" do
     assert _currency = Cldr.Currency.currency_from_locale("fr")
   end
+
+  test "Narrow symbols are included in currency strings if they are not ambiguous" do
+    assert Cldr.Currency.currency_strings!("en", MyApp.Cldr)
+           |> Enum.filter(fn {_k, v} -> v == :ZAR end) ==
+      [{"south african rand", :ZAR}, {"r", :ZAR}, {"zar", :ZAR}]
+
+    assert Cldr.Currency.currency_strings!("en", MyApp.Cldr) |> Map.get("$") == :USD
+  end
 end
