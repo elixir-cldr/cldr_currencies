@@ -758,6 +758,47 @@ defmodule Cldr.Currency do
   end
 
   @doc """
+  Returns a mapping from a territory code to its
+  current currency code.
+
+  If a territory has no current currency (like
+  Antartica, territory code `:AQ`) then no
+  mapping is returned for that territory.
+
+  ## Arguments
+
+  * `backend` is any module that includes `use Cldr` and therefore
+    is a `Cldr` backend module. The default is `Cldr.default_backend!/0`
+
+  ## Returns
+
+  * A map of `{territory_code => Cldr.Currency.t}`
+
+  """
+  @doc since: "2.15.0"
+
+  @spec current_territory_currencies() :: %{Cldr.Locale.territory_code() => t()}
+  def current_territory_currencies(backend \\ Cldr.default_backend!()) do
+    territory_currencies()
+    |> Enum.map(fn
+      {:ZZ, _currencies} ->
+        nil
+
+      {territory, _currencies} ->
+        case current_currency_for_territory(territory) do
+          nil -> {territory, nil}
+          currency -> {territory, currency_for_code!(currency, backend)}
+        end
+    end)
+    |> Enum.reject(fn
+      {_territory, nil} -> true
+      nil -> true
+      _other -> false
+    end)
+    |> Map.new()
+  end
+
+  @doc """
   Returns a list of historic and the current
   currency for a given locale.
 
@@ -882,9 +923,10 @@ defmodule Cldr.Currency do
       of an ISO 4217 currency code, or a `t:Cldr.Currency` struct.
 
   * `backend` is any module that includes `use Cldr` and therefore
-    is a `Cldr` backend module
+    is a `Cldr` backend module. The default is `Cldr.default_backend!/0`.
 
-  * `options` is a `Keyword` list of options.
+  * `options` is a `Keyword` list of options. The default is
+    `[]`.
 
   ## Options
 
@@ -936,13 +978,13 @@ defmodule Cldr.Currency do
   @spec currency_for_code(code() | t(), Cldr.backend(), Keyword.t()) ::
           {:ok, t()} | {:error, {module(), String.t()}}
 
-  def currency_for_code(currency_or_currency_code, backend, options \\ [])
+  def currency_for_code(currency_or_currency_code, backend \\ Cldr.default_backend!(), options \\ [])
 
   def currency_for_code(%__MODULE__{} = currency, _backend, _options) do
     {:ok, currency}
   end
 
-  def currency_for_code(currency_code, backend, options) do
+  def currency_for_code(currency_code, backend, options) when is_atom(backend) and is_list(options) do
     {locale, backend} = Cldr.locale_and_backend_from(options[:locale], backend)
 
     with {:ok, code} <- Cldr.validate_currency(currency_code),
@@ -950,6 +992,10 @@ defmodule Cldr.Currency do
          {:ok, currencies} <- currencies_for_locale(locale, backend) do
       {:ok, Map.get_lazy(currencies, code, fn -> Map.get(private_currencies(), code) end)}
     end
+  end
+
+  def currency_for_code(currency_code, nil, [] = options) when is_list(options) do
+    currency_for_code(currency_code, nil, options)
   end
 
   @doc """
@@ -1014,7 +1060,7 @@ defmodule Cldr.Currency do
   @spec currency_for_code!(code() | t(), Cldr.backend(), Keyword.t()) ::
           t() | no_return()
 
-  def currency_for_code!(currency_or_currency_code, backend, options \\ []) do
+  def currency_for_code!(currency_or_currency_code, backend \\ nil, options \\ []) do
     case currency_for_code(currency_or_currency_code, backend, options) do
       {:ok, currency} -> currency
       {:error, {exception, reason}} -> raise exception, reason

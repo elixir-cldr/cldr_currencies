@@ -1,5 +1,13 @@
 # Changelog
 
+## Cldr_Currencies v2.15.0
+
+This is the changelog for Cldr_Currencies v2.15.0 released on January 28th, 2023.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
+
+### Enhancements
+
+* Add `Cldr.Currency.current_territory_currencies/1` and `MyApp.Cldr.Currency.current_territory_currencies/0` that returns a mapping from territory code from currency type for all territories that have a current currency.  Thanks for @lawik for the inspiration.
+
 ## Cldr_Currencies v2.14.3
 
 This is the changelog for Cldr_Currencies v2.14.3 released on January 27th, 2023.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)

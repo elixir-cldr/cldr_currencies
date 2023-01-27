@@ -592,6 +592,30 @@ defmodule Cldr.Currency.Backend do
         end
 
         @doc """
+        Returns a mapping from a territory code to its
+        current currency code.
+
+        If a territory has no current currency (like
+        Antartica, territory code `:AQ`) then no
+        mapping is returned for that territory.
+
+        ## Returns
+
+        * A map of `{territory_code => Cldr.Currency.t}`
+
+        ## Example
+
+            iex> #{inspect __MODULE__}.current_territory_currencies()
+
+        """
+        @doc since: "2.15.0"
+
+        @spec current_territory_currencies() :: %{Cldr.Locale.territory_code() => Cldr.Currency.t()}
+        def current_territory_currencies do
+          Cldr.Currency.current_territory_currencies(unquote(backend))
+        end
+
+        @doc """
         Returns a map of the metadata for all currencies for
         a given locale and raises on error.
 
