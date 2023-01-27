@@ -610,9 +610,9 @@ defmodule Cldr.Currency.Backend do
         """
         @doc since: "2.15.0"
 
-        @spec current_territory_currencies() :: %{Cldr.Locale.territory_code() => Cldr.Currency.t()}
+        @spec current_territory_currencies() :: %{Cldr.Locale.territory_code() => Cldr.Currency.code()}
         def current_territory_currencies do
-          Cldr.Currency.current_territory_currencies(unquote(backend))
+          Cldr.Currency.current_territory_currencies()
         end
 
         @doc """

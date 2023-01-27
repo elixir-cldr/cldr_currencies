@@ -765,20 +765,15 @@ defmodule Cldr.Currency do
   Antartica, territory code `:AQ`) then no
   mapping is returned for that territory.
 
-  ## Arguments
-
-  * `backend` is any module that includes `use Cldr` and therefore
-    is a `Cldr` backend module. The default is `Cldr.default_backend!/0`
-
   ## Returns
 
-  * A map of `{territory_code => Cldr.Currency.t}`
+  * A map of `{territory_code => currency.code}`
 
   """
   @doc since: "2.15.0"
 
-  @spec current_territory_currencies() :: %{Cldr.Locale.territory_code() => t()}
-  def current_territory_currencies(backend \\ Cldr.default_backend!()) do
+  @spec current_territory_currencies() :: %{Cldr.Locale.territory_code() => code()}
+  def current_territory_currencies do
     territory_currencies()
     |> Enum.map(fn
       {:ZZ, _currencies} ->
@@ -787,7 +782,7 @@ defmodule Cldr.Currency do
       {territory, _currencies} ->
         case current_currency_for_territory(territory) do
           nil -> {territory, nil}
-          currency -> {territory, currency_for_code!(currency, backend)}
+          currency -> {territory, currency}
         end
     end)
     |> Enum.reject(fn
@@ -1703,8 +1698,7 @@ defmodule Cldr.Currency do
 
   defimpl Cldr.DisplayName do
     def display_name(currency, options) do
-      {:ok, display_name} = Cldr.Currency.display_name(currency, options)
-      display_name
+      Cldr.Currency.display_name!(currency, options)
     end
   end
 end
