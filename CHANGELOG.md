@@ -1,5 +1,13 @@
 # Changelog
 
+## Cldr_Currencies v2.14.3
+
+This is the changelog for Cldr_Currencies v2.14.3 released on January 27th, 2023.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
+
+### Bug Fixes
+
+* `Cldr.Currency.current_currency_for_territory/1` returns `nil` if the territory, like `:AQ` has no currency. Thanks to @lawik for the report. Closes #8.
+
 ## Cldr_Currencies v2.14.2
 
 This is the changelog for Cldr_Currencies v2.14.2 released on October 8th, 2022.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)

@@ -133,6 +133,10 @@ defmodule Cldr.Cldr.EternalTest do
     assert(result2 == {:error, {:already_started, pid}})
   end
 
+  test "territories with no currency, like :AQ return nil" do
+    assert nil == Cldr.Currency.current_currency_for_territory(:AQ)
+  end
+
   defp create(name, tab_opts \\ [], opts \\ []) do
     {:ok, _pid} = Cldr.Eternal.start_link(name, tab_opts, opts ++ [quiet: true])
     name

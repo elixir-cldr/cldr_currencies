@@ -866,9 +866,12 @@ defmodule Cldr.Currency do
          {:ok, history} <- territory_currencies(territory) do
       history
       |> Enum.find(fn {_currency, dates} -> Map.has_key?(dates, :to) && is_nil(dates.to) end)
-      |> elem(0)
+      |> return_currency_or_nil
     end
   end
+
+  defp return_currency_or_nil(nil), do: nil
+  defp return_currency_or_nil({currency, _dates}), do: currency
 
   @doc """
   Returns the currency metadata for the requested currency code.
