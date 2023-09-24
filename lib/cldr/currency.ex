@@ -35,6 +35,8 @@ defmodule Cldr.Currency do
           cash_digits: non_neg_integer,
           cash_rounding: non_neg_integer,
           iso_digits: non_neg_integer,
+          decimal_separator: String.t() | nil,
+          grouping_separator: String.t() | nil,
           count: %{},
           from: Calendar.year(),
           to: Calendar.year()
@@ -50,6 +52,8 @@ defmodule Cldr.Currency do
             cash_digits: 0,
             cash_rounding: 0,
             iso_digits: 0,
+            decimal_separator: nil,
+            grouping_separator: nil,
             tender: false,
             count: nil,
             from: nil,
@@ -117,7 +121,7 @@ defmodule Cldr.Currency do
 
   * `{:error, {exception, message}}`
 
-  ## Example
+  ## Examples
 
       iex> Cldr.Currency.new(:XAC, name: "XAC currency", digits: 0)
       {:ok,
@@ -390,6 +394,14 @@ defmodule Cldr.Currency do
          {:ok, locale} <- Cldr.validate_locale(locale, backend),
          {:ok, currency_data} <- currency_for_code(currency_code, backend, options) do
       counts = Map.get(currency_data, :count)
+
+      counts =
+        if counts == %{} do
+          %{other: currency_data.name}
+        else
+          counts
+        end
+
       {:ok, Module.concat(backend, Number.Cardinal).pluralize(number, locale, counts)}
     end
   end
