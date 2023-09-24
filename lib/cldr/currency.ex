@@ -393,14 +393,10 @@ defmodule Cldr.Currency do
     with {:ok, currency_code} <- Cldr.validate_currency(currency),
          {:ok, locale} <- Cldr.validate_locale(locale, backend),
          {:ok, currency_data} <- currency_for_code(currency_code, backend, options) do
-      counts = Map.get(currency_data, :count)
-
       counts =
-        if counts == %{} do
-          %{other: currency_data.name}
-        else
-          counts
-        end
+        currency_data
+        |> Map.get(:count)
+        |> Map.put_new(:other, currency_data.name)
 
       {:ok, Module.concat(backend, Number.Cardinal).pluralize(number, locale, counts)}
     end
