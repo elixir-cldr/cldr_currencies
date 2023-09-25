@@ -367,19 +367,19 @@ defmodule Cldr.Currency do
 
   ## Examples
 
-      iex> Cldr.Currency.pluralize 1, :USD, MyApp.Cldr
+      iex> Cldr.Currency.pluralize(1, :USD, MyApp.Cldr)
       {:ok, "US dollar"}
 
-      iex> Cldr.Currency.pluralize 3, :USD, MyApp.Cldr
+      iex> Cldr.Currency.pluralize(3, :USD, MyApp.Cldr)
       {:ok, "US dollars"}
 
-      iex> Cldr.Currency.pluralize 12, :USD, MyApp.Cldr, locale: "zh"
+      iex> Cldr.Currency.pluralize(12, :USD, MyApp.Cldr, locale: :zh)
       {:ok, "美元"}
 
-      iex> Cldr.Currency.pluralize 12, :USD, MyApp.Cldr, locale: "fr"
+      iex> Cldr.Currency.pluralize(12, :USD, MyApp.Cldr, locale: :fr)
       {:ok, "dollars des États-Unis"}
 
-      iex> Cldr.Currency.pluralize 1, :USD, MyApp.Cldr, locale: "fr"
+      iex> Cldr.Currency.pluralize(1, :USD, MyApp.Cldr, locale: :fr)
       {:ok, "dollar des États-Unis"}
 
   """
