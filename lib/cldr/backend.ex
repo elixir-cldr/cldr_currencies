@@ -787,7 +787,7 @@ defmodule Cldr.Currency.Backend do
 
         """
         @spec currency_history_for_locale(LanguageTag.t() | Cldr.Locale.locale_name()) ::
-                map() | {:error, {module(), String.t()}}
+                {:ok, map()} | {:error, {module(), String.t()}}
 
         def currency_history_for_locale(%LanguageTag{} = language_tag) do
           Cldr.Currency.currency_history_for_locale(language_tag)
