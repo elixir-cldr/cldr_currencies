@@ -101,7 +101,7 @@ defmodule Cldr.Currency do
 
   ## Options
 
-  * `:name` is the name of the currenct. Required.
+  * `:name` is the name of the currency. Required.
   * `:digits` is the precision of the currency. Required.
   * `:symbol` is the currency symbol. Optional.
   * `:narrow_symbol` is an alternative narrow symbol. Optional.
