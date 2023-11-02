@@ -399,7 +399,7 @@ defmodule Cldr.Currency do
 
   ## Example
 
-      iex> Cldr.Currency.known_currency_codes
+      iex> Cldr.Currency.known_currency_codes()
 
   """
   @spec known_currency_codes() :: list(atom)
@@ -661,7 +661,7 @@ defmodule Cldr.Currency do
 
   ## Example
 
-      iex> Cldr.Currency.territory_currencies |> Map.get(:LT)
+      iex> Cldr.Currency.territory_currencies() |> Map.get(:LT)
       %{
         EUR: %{from: ~D[2015-01-01], to: nil},
         LTL: %{from: nil, to: ~D[2014-12-31]},

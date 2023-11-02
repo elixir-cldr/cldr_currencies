@@ -1,5 +1,15 @@
 # Changelog
 
+## Cldr_Currencies v2.15.1
+
+This is the changelog for Cldr_Currencies v2.15.1 released on November 3rd, 2023.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
+
+### Bug Fixes
+
+* Fix compilation warnings on Elixir 1.16.
+
+* Fixes typespec for `Cldr.Currency.currency_history_for_locale/1`. Thanks to @Munksgaard for the report and PR. Closes #11, Closes #12.
+
 ## Cldr_Currencies v2.15.0
 
 This is the changelog for Cldr_Currencies v2.15.0 released on January 28th, 2023.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
