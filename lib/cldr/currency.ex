@@ -407,7 +407,7 @@ defmodule Cldr.Currency do
 
   ## Example
 
-      iex> Cldr.Currency.known_currency_codes
+      iex> Cldr.Currency.known_currency_codes()
 
   """
   @spec known_currency_codes() :: list(atom)
@@ -432,13 +432,13 @@ defmodule Cldr.Currency do
 
   ## Examples
 
-      iex> Cldr.Currency.known_currency_code? "AUD"
+      iex> Cldr.Currency.known_currency_code?("AUD")
       true
 
-      iex> Cldr.Currency.known_currency_code? "GGG"
+      iex> Cldr.Currency.known_currency_code?("GGG")
       false
 
-      iex> Cldr.Currency.known_currency_code? :XCV
+      iex> Cldr.Currency.known_currency_code?(:XCV)
       false
 
   """
@@ -470,10 +470,10 @@ defmodule Cldr.Currency do
 
   ## Examples
 
-      iex> Cldr.Currency.known_currency_code "AUD"
+      iex> Cldr.Currency.known_currency_code("AUD")
       {:ok, :AUD}
 
-      iex> Cldr.Currency.known_currency_code "GGG"
+      iex> Cldr.Currency.known_currency_code("GGG")
       {:error, {Cldr.UnknownCurrencyError, "The currency \\"GGG\\" is invalid"}}
 
   """
@@ -527,15 +527,15 @@ defmodule Cldr.Currency do
 
   ## Examples
 
-      iex> {:ok, locale} = Cldr.validate_locale "en", MyApp.Cldr
+      iex> {:ok, locale} = Cldr.validate_locale("en", MyApp.Cldr)
       iex> Cldr.Currency.currency_from_locale locale
       :USD
 
-      iex> {:ok, locale} = Cldr.validate_locale "en-AU", MyApp.Cldr
+      iex> {:ok, locale} = Cldr.validate_locale("en-AU", MyApp.Cldr)
       iex> Cldr.Currency.currency_from_locale locale
       :AUD
 
-      iex> Cldr.Currency.currency_from_locale "en-GB"
+      iex> Cldr.Currency.currency_from_locale("en-GB")
       :GBP
 
   """
@@ -568,10 +568,10 @@ defmodule Cldr.Currency do
 
   ## Examples
 
-      iex> Cldr.Currency.currency_from_locale "fr-CH", MyApp.Cldr
+      iex> Cldr.Currency.currency_from_locale("fr-CH", MyApp.Cldr)
       :CHF
 
-      iex> Cldr.Currency.currency_from_locale "fr-CH-u-cu-INR", MyApp.Cldr
+      iex> Cldr.Currency.currency_from_locale("fr-CH-u-cu-INR", MyApp.Cldr)
       :INR
 
   """
@@ -601,15 +601,15 @@ defmodule Cldr.Currency do
 
   ## Examples
 
-      iex> {:ok, locale} = Cldr.validate_locale "en", MyApp.Cldr
+      iex> {:ok, locale} = Cldr.validate_locale("en", MyApp.Cldr)
       iex> Cldr.Currency.currency_format_from_locale locale
       :currency
 
-      iex> {:ok, locale} = Cldr.validate_locale "en-AU-u-cu-eur", MyApp.Cldr
+      iex> {:ok, locale} = Cldr.validate_locale("en-AU-u-cu-eur", MyApp.Cldr)
       iex> Cldr.Currency.currency_format_from_locale locale
       :currency
 
-      iex> {:ok, locale} = Cldr.validate_locale "en-AU-u-cu-eur-cf-account", MyApp.Cldr
+      iex> {:ok, locale} = Cldr.validate_locale("en-AU-u-cu-eur-cf-account", MyApp.Cldr)
       iex> Cldr.Currency.currency_format_from_locale locale
       :accounting
 
@@ -646,13 +646,13 @@ defmodule Cldr.Currency do
 
   ## Examples
 
-      iex> Cldr.Currency.currency_format_from_locale "en", MyApp.Cldr
+      iex> Cldr.Currency.currency_format_from_locale("en", MyApp.Cldr)
       :currency
 
-      iex> Cldr.Currency.currency_format_from_locale "en-AU-u-cu-eur", MyApp.Cldr
+      iex> Cldr.Currency.currency_format_from_locale("en-AU-u-cu-eur", MyApp.Cldr)
       :currency
 
-      iex> Cldr.Currency.currency_format_from_locale "en-AU-u-cu-eur-cf-account", MyApp.Cldr
+      iex> Cldr.Currency.currency_format_from_locale("en-AU-u-cu-eur-cf-account", MyApp.Cldr)
       :accounting
 
   """
@@ -669,7 +669,7 @@ defmodule Cldr.Currency do
 
   ## Example
 
-      iex> Cldr.Currency.territory_currencies |> Map.get(:LT)
+      iex> Cldr.Currency.territory_currencies() |> Map.get(:LT)
       %{
         EUR: %{from: ~D[2015-01-01], to: nil},
         LTL: %{from: nil, to: ~D[2014-12-31]},
@@ -815,7 +815,7 @@ defmodule Cldr.Currency do
 
   ## Example
 
-      iex> Cldr.Currency.currency_history_for_locale "en", MyApp.Cldr
+      iex> Cldr.Currency.currency_history_for_locale("en", MyApp.Cldr)
       {:ok,
         %{
           USD: %{from: ~D[1792-01-01], to: nil},
@@ -861,10 +861,10 @@ defmodule Cldr.Currency do
 
   ## Examples
 
-      iex> Cldr.Currency.current_currency_from_locale "en", MyApp.Cldr
+      iex> Cldr.Currency.current_currency_from_locale("en", MyApp.Cldr)
       :USD
 
-      iex> Cldr.Currency.current_currency_from_locale "en-AU", MyApp.Cldr
+      iex> Cldr.Currency.current_currency_from_locale("en-AU", MyApp.Cldr)
       :AUD
 
   """
@@ -895,10 +895,10 @@ defmodule Cldr.Currency do
 
   ## Examples
 
-      iex> Cldr.Currency.current_currency_for_territory :US
+      iex> Cldr.Currency.current_currency_for_territory(:US)
       :USD
 
-      iex> Cldr.Currency.current_currency_for_territory :AU
+      iex> Cldr.Currency.current_currency_for_territory(:AU)
       :AUD
 
   """
@@ -1094,7 +1094,7 @@ defmodule Cldr.Currency do
 
   ## Example
 
-    => Cldr.Currency.currencies_for_locale "en", MyApp.Cldr
+    => Cldr.Currency.currencies_for_locale("en", MyApp.Cldr)
     {:ok,
      %{
        FJD: %Cldr.Currency{
@@ -1167,7 +1167,7 @@ defmodule Cldr.Currency do
 
   ## Example
 
-    #=> MyApp.Cldr.Currency.currencies_for_locale! "en"
+    #=> MyApp.Cldr.Currency.currencies_for_locale!("en")
     %{
       FJD: %Cldr.Currency{
         cash_digits: 2,
@@ -1239,7 +1239,7 @@ defmodule Cldr.Currency do
 
   ## Example
 
-      => Cldr.Currency.currency_strings "en", MyApp.Cldr
+      => Cldr.Currency.currency_strings("en", MyApp.Cldr)
       {:ok,
        %{
          "mexican silver pesos" => :MXP,
@@ -1304,7 +1304,7 @@ defmodule Cldr.Currency do
 
   ## Example
 
-      => Cldr.Currency.currency_strings! "en", MyApp.Cldr
+      => Cldr.Currency.currency_strings!("en", MyApp.Cldr)
       %{
         "mexican silver pesos" => :MXP,
         "sudanese dinar" => :SDD,

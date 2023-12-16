@@ -7,7 +7,7 @@ defmodule Cldr.Currencies.MixProject do
     [
       app: :ex_cldr_currencies,
       version: @version,
-      elixir: "~> 1.10",
+      elixir: "~> 1.11",
       name: "Cldr Currencies",
       description: description(),
       source_url: "https://github.com/elixir-cldr/cldr_currencies",
