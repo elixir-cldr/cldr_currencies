@@ -233,15 +233,15 @@ defmodule Cldr.Currency do
   ## Arguments
 
   * `currency` is any currency code returned by `Cldr.Currency.known_currencies/0` or
-    a `t:Cldr.Currency` struct returned by `Cldr.Currency.currency_for_code/3`
+    a `t:Cldr.Currency` struct returned by `Cldr.Currency.currency_for_code/3`.
 
   ## Options
 
   * `:locale` is any locale returned by `Cldr.Locale.new!/2`. The
-    default is `Cldr.get_locale/0`
+    default is `Cldr.get_locale/0`.
 
   * `:backend` is any module that includes `use Cldr` and therefore
-    is a `Cldr` backend module. The default is `Cldr.default_backend!/0`
+    is a `Cldr` backend module. The default is `Cldr.default_backend!/0`.
 
   ## Returns
 
@@ -295,15 +295,15 @@ defmodule Cldr.Currency do
   ## Arguments
 
   * `currency` is any currency code returned by `Cldr.Currency.known_currencies/0` or
-    a `t:Cldr.Currency` struct returned by `Cldr.Currency.currency_for_code/3`
+    a `t:Cldr.Currency` struct returned by `Cldr.Currency.currency_for_code/3`.
 
   ## Options
 
   * `:locale` is any locale returned by `Cldr.Locale.new!/2`. The
-    default is `Cldr.get_locale/0`
+    default is `Cldr.get_locale/0`.
 
   * `:backend` is any module that includes `use Cldr` and therefore
-    is a `Cldr` backend module. The default is `Cldr.default_backend!/0`
+    is a `Cldr` backend module. The default is `Cldr.default_backend!/0`.
 
   ## Returns
 
@@ -342,22 +342,22 @@ defmodule Cldr.Currency do
 
   ## Arguments
 
-  * `number` is an integer, float or `Decimal`
+  * `number` is an integer, float or `Decimal`.
 
-  * `currency` is any currency returned by `Cldr.Currency.known_currencies/0`
+  * `currency` is any currency returned by `Cldr.Currency.known_currencies/0`.
 
   * `locale` is any valid locale name returned by `Cldr.known_locale_names/1`
-    or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
+    or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`.
 
   * `backend` is any module that includes `use Cldr` and therefore
-    is a `Cldr` backend module
+    is a `Cldr` backend module.
 
-  * `options` is a keyword list of options
+  * `options` is a keyword list of options.
 
   ## Options
 
   * `:locale` is any locale returned by `Cldr.Locale.new!/2`. The
-    default is `<backend>.get_locale/1`
+    default is `<backend>.get_locale/1`.
 
   ## Returns
 
@@ -424,7 +424,7 @@ defmodule Cldr.Currency do
   ## Arguments
 
   * `currency_code` is a `binary` or `atom` representing an ISO4217
-    currency code
+    currency code.
 
   ## Returns
 
@@ -460,7 +460,7 @@ defmodule Cldr.Currency do
   ## Arguments
 
   * `currency_code` is a `binary` or `atom` representing an ISO4217
-    currency code
+    currency code.
 
   ## Returns
 
@@ -515,15 +515,15 @@ defmodule Cldr.Currency do
   end
 
   @doc """
-  Returns the effective currency for a given locale
+  Returns the effective currency for a given locale.
 
   ## Arguments
 
-  * `locale` is a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
+  * `locale` is a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`.
 
   ## Returns
 
-  * A ISO 4217 currency code as an upcased atom
+  * A ISO 4217 currency code as an upcased atom.
 
   ## Examples
 
@@ -552,19 +552,19 @@ defmodule Cldr.Currency do
   end
 
   @doc """
-  Returns the effective currency for a given locale
+  Returns the effective currency for a given locale.
 
   ## Arguments
 
   * `locale` is any valid locale name returned by
-    `Cldr.known_locale_names/1`
+    `Cldr.known_locale_names/1`.
 
   * `backend` is any module that includes `use Cldr` and therefore
-    is a `Cldr` backend module. The default is `Cldr.default_backend!/0`
+    is a `Cldr` backend module. The default is `Cldr.default_backend!/0`.
 
   ## Returns
 
-  * A ISO 4217 currency code as an upcased atom
+  * A ISO 4217 currency code as an upcased atom.
 
   ## Examples
 
@@ -589,15 +589,15 @@ defmodule Cldr.Currency do
   end
 
   @doc """
-  Returns the effective currency format for a given locale
+  Returns the effective currency format for a given locale.
 
   ## Arguments
 
-  * `locale` a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
+  * `locale` a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`.
 
   ## Returns
 
-  * Either `:accounting` or `:currency`
+  * Either `:accounting` or `:currency`.
 
   ## Examples
 
@@ -631,18 +631,18 @@ defmodule Cldr.Currency do
   end
 
   @doc """
-  Returns the effective currency format for a given locale
+  Returns the effective currency format for a given locale.
 
   ## Arguments
 
-  * `locale` a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
+  * `locale` a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`.
 
   * `backend` is any module that includes `use Cldr` and therefore
-    is a `Cldr` backend module. The default is `Cldr.default_backend!/0`
+    is a `Cldr` backend module. The default is `Cldr.default_backend!/0`.
 
   ## Returns
 
-  * Either `:accounting` or `:currency`
+  * Either `:accounting` or `:currency`.
 
   ## Examples
 
@@ -743,7 +743,7 @@ defmodule Cldr.Currency do
     struct and the value is a map of validity dates for that
     currency; or
 
-  * raises an exception
+  * raises an exception.
 
   ## Example
 
@@ -808,10 +808,10 @@ defmodule Cldr.Currency do
   ## Arguments
 
   * `locale` is any valid locale name returned by `Cldr.known_locale_names/1`
-    or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
+    or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`.
 
   * `backend` is any module that includes `use Cldr` and therefore
-    is a `Cldr` backend module
+    is a `Cldr` backend module.
 
   ## Example
 
@@ -854,10 +854,10 @@ defmodule Cldr.Currency do
   ## Arguments
 
   * `locale` is any valid locale name returned by `Cldr.known_locale_names/1`
-    or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
+    or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`.
 
   * `backend` is any module that includes `use Cldr` and therefore
-    is a `Cldr` backend module
+    is a `Cldr` backend module.
 
   ## Examples
 
