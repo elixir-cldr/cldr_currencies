@@ -19,7 +19,8 @@ defmodule Cldr.Currencies.MixProject do
       package: package(),
       dialyzer: [
         ignore_warnings: ".dialyzer_ignore_warnings",
-        plt_add_apps: ~w(inets jason mix)a
+        plt_add_apps: ~w(inets jason mix)a,
+        flags: [:underspecs]
       ]
     ]
   end

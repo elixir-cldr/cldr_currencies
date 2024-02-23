@@ -410,7 +410,7 @@ defmodule Cldr.Currency do
       iex> Cldr.Currency.known_currency_codes()
 
   """
-  @spec known_currency_codes() :: list(atom)
+  @spec known_currency_codes() :: [code(), ...]
   def known_currency_codes do
     Cldr.known_currencies() ++ private_currency_codes()
   end
@@ -826,7 +826,7 @@ defmodule Cldr.Currency do
 
   """
   @spec currency_history_for_locale(LanguageTag.t()) ::
-          {:ok, map()} | {:error, {atom, binary}}
+          {:ok, %{currency :: code() => map()}} | {:error, {module(), String.t()}}
 
   def currency_history_for_locale(%LanguageTag{} = locale) do
     locale
@@ -834,7 +834,7 @@ defmodule Cldr.Currency do
     |> territory_currencies()
   end
 
-  @spec currency_history_for_locale(Locale.locale_name() | String.t(), Cldr.backend()) ::
+  @spec currency_history_for_locale(Locale.locale_reference(), Cldr.backend()) ::
           {:ok, map()} | {:error, {module(), String.t()}}
 
   def currency_history_for_locale(locale_name, backend) do
@@ -868,7 +868,8 @@ defmodule Cldr.Currency do
       :AUD
 
   """
-  @spec current_currency_from_locale(LanguageTag.t()) :: any()
+  @spec current_currency_from_locale(LanguageTag.t()) ::
+    code() | {:error, {module(), String.t()}}
 
   def current_currency_from_locale(%LanguageTag{} = locale) do
     locale

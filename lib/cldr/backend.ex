@@ -137,7 +137,7 @@ defmodule Cldr.Currency.Backend do
             iex> #{inspect(__MODULE__)}.known_currency_codes()
 
         """
-        @spec known_currency_codes() :: list(atom)
+        @spec known_currency_codes() :: [Cldr.Currency.code(), ...]
         def known_currency_codes do
           Cldr.Currency.known_currency_codes()
         end

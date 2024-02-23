@@ -6,19 +6,19 @@ defmodule Cldr.Eternal.Priv do
 
   # we need is_table/1
   import Cldr.Eternal.Table
-  alias Cldr.Eternal.Table
+  alias Cldr.Eternal
 
   # we also need logging
   require Logger
 
   @doc """
   Provides a safe execution environment for ETS actions.
-  
+
   If any errors occur inside ETS, we simply return a false value. It should be
   noted that the table is passed through purely as sugar so we can use inline
   anonymous functions.
   """
-  @spec ets_try(table :: Table.t(), fun :: function) :: any
+  @spec ets_try(table :: Eternal.table(), fun :: function) :: any
   def ets_try(table, fun) when is_table(table) and is_function(fun, 1) do
     fun.(table)
   rescue
@@ -27,25 +27,25 @@ defmodule Cldr.Eternal.Priv do
 
   @doc """
   Gifts away an ETS table to another process.
-  
+
   This must be called from within the owning process.
   """
-  @spec gift(table :: Table.t(), pid :: pid) :: any | false
+  @spec gift(table :: Eternal.table(), pid :: pid) :: any | false
   def gift(table, pid) when is_table(table) and is_pid(pid),
     do: ets_try(table, &:ets.give_away(&1, pid, :gift))
 
   @doc """
   Sets the Heir of an ETS table to a given process.
-  
+
   This must be called from within the owning process.
   """
-  @spec heir(table :: Table.t(), pid :: pid) :: any | false
+  @spec heir(table :: Eternal.table(), pid :: pid) :: any | false
   def heir(table, pid) when is_table(table) and is_pid(pid),
     do: ets_try(table, &:ets.setopts(&1, {:heir, pid, :heir}))
 
   @doc """
   Logs a message inside a noisy environment.
-  
+
   If the options contains a truthy quiet flag, no logging occurs.
   """
   @spec log(msg :: any, opts :: Keyword.t()) :: :ok
@@ -57,10 +57,10 @@ defmodule Cldr.Eternal.Priv do
 
   @doc """
   Executes a function only in a noisy environment.
-  
+
   Noisy environments are determined by the opts having a falsy quiet flag.
   """
-  @spec noisy(opts :: Keyword.t(), fun :: function) :: :ok
+  @spec noisy(opts :: Keyword.t(), fun :: (-> any())) :: :ok
   def noisy(opts, fun) when is_list(opts) and is_function(fun, 0) do
     !Keyword.get(opts, :quiet) && fun.()
     :ok

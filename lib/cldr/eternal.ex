@@ -26,7 +26,7 @@ defmodule Cldr.Eternal do
   alias Cldr.Eternal.Table
   alias Cldr.Eternal.Supervisor, as: Sup
 
-  @type table :: number | atom
+  @type table :: :ets.table()
 
   # Return values of `start_link` functions
   @type on_start ::
