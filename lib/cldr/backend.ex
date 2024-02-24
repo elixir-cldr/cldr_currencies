@@ -447,13 +447,11 @@ defmodule Cldr.Currency.Backend do
 
         """
         @spec currencies_for_locale(
-                Cldr.Locale.locale_name() | LanguageTag.t(),
+                Cldr.Locale.locale_reference(),
                 only :: Cldr.Currency.filter(),
                 except :: Cldr.Currency.filter()
               ) ::
                 {:ok, map()} | {:error, {module(), String.t()}}
-
-        @dialyzer {:nowarn_function, currencies_for_locale: 3}
 
         def currencies_for_locale(locale, only \\ :all, except \\ nil)
 
@@ -497,13 +495,11 @@ defmodule Cldr.Currency.Backend do
 
         """
         @spec currency_strings(
-                Cldr.LanguageTag.t() | Cldr.Locale.locale_name(),
+                Cldr.Locale.locale_reference(),
                 only :: Cldr.Currency.filter(),
                 except :: Cldr.Currency.filter()
               ) ::
                 {:ok, map()} | {:error, {module(), String.t()}}
-
-        @dialyzer {:nowarn_function, currency_strings: 3}
 
         def currency_strings(locale, only \\ :all, except \\ nil)
 

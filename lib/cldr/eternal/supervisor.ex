@@ -23,13 +23,13 @@ defmodule Cldr.Eternal.Supervisor do
   Supervision tree directly. If you want to use this Supervisor, you should go
   via the main Cldr.Eternal module.
   """
-  # @spec start_link(name :: atom, ets_opts :: Keyword.t, opts :: Keyword.t) ::
-  #       { :ok, pid, Table.t } | :ignore |
-  #       { :error, { :already_started, pid } | { :shutdown, term } | term }
-  @dialyzer {:nowarn_function, {:start_link, 3}}
+  @spec start_link(name :: atom, ets_opts :: list(), opts :: Keyword.t()) ::
+        {:ok, pid, Cldr.Eternal.table()} | :ignore |
+        {:error, {:already_started, pid } | {:shutdown, term} | term}
+
   def start_link(name, ets_opts \\ [], opts \\ []) when is_opts(name, ets_opts, opts) do
     detect_clash(name, ets_opts, fn ->
-      super_tab = :ets.new(name, [:public] ++ ets_opts)
+      super_tab = :ets.new(name, [:public | ets_opts])
       super_args = {super_tab, opts, self()}
       super_opts = [name: gen_name(opts, super_tab)]
       super_proc = Supervisor.start_link(__MODULE__, super_args, super_opts)

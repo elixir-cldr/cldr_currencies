@@ -57,10 +57,10 @@ defmodule Cldr.Eternal do
       iex> Cldr.Eternal.start_link(:table3, [], [quiet: true])
 
   """
-  # @spec start_link(name :: atom, ets_opts :: Keyword.t, opts :: Keyword.t) :: on_start
-  @dialyzer {:nowarn_function, {:start_link, 3}}
-  def start_link(name, ets_opts \\ [], opts \\ []) when is_opts(name, ets_opts, opts) do
-    with {:ok, pid, _table} <- create(name, [:named_table] ++ ets_opts, opts) do
+  @spec start_link(name :: atom(), ets_opts :: list(), opts :: Keyword.t()) :: on_start
+
+  def start_link(name, ets_opts \\ [], opts \\ []) do
+    with {:ok, pid, _table} <- create(name, [:named_table | ets_opts], opts) do
       {:ok, pid}
     end
   end
@@ -78,9 +78,9 @@ defmodule Cldr.Eternal do
       iex> Cldr.Eternal.start(:table3, [], [quiet: true])
 
   """
-  # @spec start(name :: atom, ets_opts :: Keyword.t, opts :: Keyword.t) :: on_start
-  @dialyzer {:nowarn_function, {:start, 3}}
-  def start(name, ets_opts \\ [], opts \\ []) when is_opts(name, ets_opts, opts) do
+  @spec start(name :: atom(), ets_opts :: list(), opts :: Keyword.t()) :: on_start
+
+  def start(name, ets_opts \\ [], opts \\ []) do
     with {:ok, pid} <- start_link(name, ets_opts, opts) do
       :erlang.unlink(pid)
       {:ok, pid}
@@ -137,7 +137,10 @@ defmodule Cldr.Eternal do
   # Creates a table supervisor with the provided options and nominates the children
   # as owner/heir of the ETS table immediately afterwards. We do this by fetching
   # the children of the supervisor and using the process id to nominate.
-  @dialyzer {:nowarn_function, {:create, 3}}
+
+  @spec create(name :: atom(), ets_opts :: [any(), ...], opts :: Keyword.t()) ::
+    :ignore | {:error, any()} | {:ok, pid(), atom()}
+
   defp create(name, ets_opts, opts) do
     with {:ok, pid, table} <- Sup.start_link(name, ets_opts, opts),
          [proc1, proc2] = Supervisor.which_children(pid),
@@ -154,7 +157,7 @@ defmodule Cldr.Eternal do
   # Callback function when the :ets table
   # is created and the supervisor process
   # is up and running.
-  @dialyzer {:nowarn_function, {:maybe_process_callback, 3}}
+
   defp maybe_process_callback(nil, _pid, _table) do
     nil
   end
