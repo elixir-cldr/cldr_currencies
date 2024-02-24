@@ -24,8 +24,9 @@ defmodule Cldr.Eternal.Supervisor do
   via the main Cldr.Eternal module.
   """
   @spec start_link(name :: atom, ets_opts :: list(), opts :: Keyword.t()) ::
-        {:ok, pid, Cldr.Eternal.table()} | :ignore |
-        {:error, {:already_started, pid } | {:shutdown, term} | term}
+          {:ok, pid, Cldr.Eternal.table()}
+          | :ignore
+          | {:error, {:already_started, pid} | {:shutdown, term} | term}
 
   def start_link(name, ets_opts \\ [], opts \\ []) when is_opts(name, ets_opts, opts) do
     detect_clash(name, ets_opts, fn ->

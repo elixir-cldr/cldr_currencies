@@ -139,7 +139,7 @@ defmodule Cldr.Eternal do
   # the children of the supervisor and using the process id to nominate.
 
   @spec create(name :: atom(), ets_opts :: [any(), ...], opts :: Keyword.t()) ::
-    :ignore | {:error, any()} | {:ok, pid(), atom()}
+          :ignore | {:error, any()} | {:ok, pid(), atom()}
 
   defp create(name, ets_opts, opts) do
     with {:ok, pid, table} <- Sup.start_link(name, ets_opts, opts),

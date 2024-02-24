@@ -601,12 +601,14 @@ defmodule Cldr.Currency.Backend do
 
         ## Example
 
-            iex> #{inspect __MODULE__}.current_territory_currencies()
+            iex> #{inspect(__MODULE__)}.current_territory_currencies()
 
         """
         @doc since: "2.15.0"
 
-        @spec current_territory_currencies() :: %{Cldr.Locale.territory_code() => Cldr.Currency.code()}
+        @spec current_territory_currencies() :: %{
+                Cldr.Locale.territory_code() => Cldr.Currency.code()
+              }
         def current_territory_currencies do
           Cldr.Currency.current_territory_currencies()
         end

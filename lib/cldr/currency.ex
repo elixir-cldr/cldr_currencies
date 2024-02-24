@@ -712,7 +712,7 @@ defmodule Cldr.Currency do
 
   """
   @spec territory_currencies(territory()) ::
-    {:ok, map()} | {:error, {module(), String.t()}}
+          {:ok, map()} | {:error, {module(), String.t()}}
 
   def territory_currencies(territory) do
     with {:ok, territory} <- Cldr.validate_territory(territory),
@@ -826,7 +826,7 @@ defmodule Cldr.Currency do
 
   """
   @spec currency_history_for_locale(LanguageTag.t()) ::
-          {:ok, %{currency :: code() => map()}} | {:error, {module(), String.t()}}
+          {:ok, %{(currency :: code()) => map()}} | {:error, {module(), String.t()}}
 
   def currency_history_for_locale(%LanguageTag{} = locale) do
     locale
@@ -869,7 +869,7 @@ defmodule Cldr.Currency do
 
   """
   @spec current_currency_from_locale(LanguageTag.t()) ::
-    code() | {:error, {module(), String.t()}}
+          code() | {:error, {module(), String.t()}}
 
   def current_currency_from_locale(%LanguageTag{} = locale) do
     locale
@@ -982,13 +982,18 @@ defmodule Cldr.Currency do
   @spec currency_for_code(code() | t(), Cldr.backend(), Keyword.t()) ::
           {:ok, t()} | {:error, {module(), String.t()}}
 
-  def currency_for_code(currency_or_currency_code, backend \\ Cldr.default_backend!(), options \\ [])
+  def currency_for_code(
+        currency_or_currency_code,
+        backend \\ Cldr.default_backend!(),
+        options \\ []
+      )
 
   def currency_for_code(%__MODULE__{} = currency, _backend, _options) do
     {:ok, currency}
   end
 
-  def currency_for_code(currency_code, backend, options) when is_atom(backend) and is_list(options) do
+  def currency_for_code(currency_code, backend, options)
+      when is_atom(backend) and is_list(options) do
     {locale, backend} = Cldr.locale_and_backend_from(options[:locale], backend)
 
     with {:ok, code} <- Cldr.validate_currency(currency_code),
@@ -1365,8 +1370,8 @@ defmodule Cldr.Currency do
       ["au$", "aud", "澳大利亚元"]
 
   """
-  @spec strings_for_currency(t(), LanguageTag.t | Locale.locale_name, Cldr.backend) ::
-    [String.t()]
+  @spec strings_for_currency(t(), LanguageTag.t() | Locale.locale_name(), Cldr.backend()) ::
+          [String.t()]
 
   def strings_for_currency(currency, locale, backend) do
     module = Module.concat(backend, Currency)

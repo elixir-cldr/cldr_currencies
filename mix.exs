@@ -80,7 +80,8 @@ defmodule Cldr.Currencies.MixProject do
     %{
       "GitHub" => "https://github.com/elixir-cldr/cldr_currencies",
       "Readme" => "https://github.com/elixir-cldr/cldr_currencies/blob/v#{@version}/README.md",
-      "Changelog" => "https://github.com/elixir-cldr/cldr_currencies/blob/v#{@version}/CHANGELOG.md"
+      "Changelog" =>
+        "https://github.com/elixir-cldr/cldr_currencies/blob/v#{@version}/CHANGELOG.md"
     }
   end
 
