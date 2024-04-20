@@ -137,7 +137,7 @@ defmodule Cldr.Currency.Backend do
             iex> #{inspect(__MODULE__)}.known_currency_codes()
 
         """
-        @spec known_currency_codes() :: list(atom)
+        @spec known_currency_codes() :: [Cldr.Currency.code(), ...]
         def known_currency_codes do
           Cldr.Currency.known_currency_codes()
         end
@@ -447,13 +447,11 @@ defmodule Cldr.Currency.Backend do
 
         """
         @spec currencies_for_locale(
-                Cldr.Locale.locale_name() | LanguageTag.t(),
+                Cldr.Locale.locale_reference(),
                 only :: Cldr.Currency.filter(),
                 except :: Cldr.Currency.filter()
               ) ::
                 {:ok, map()} | {:error, {module(), String.t()}}
-
-        @dialyzer {:nowarn_function, currencies_for_locale: 3}
 
         def currencies_for_locale(locale, only \\ :all, except \\ nil)
 
@@ -497,13 +495,11 @@ defmodule Cldr.Currency.Backend do
 
         """
         @spec currency_strings(
-                Cldr.LanguageTag.t() | Cldr.Locale.locale_name(),
+                Cldr.Locale.locale_reference(),
                 only :: Cldr.Currency.filter(),
                 except :: Cldr.Currency.filter()
               ) ::
                 {:ok, map()} | {:error, {module(), String.t()}}
-
-        @dialyzer {:nowarn_function, currency_strings: 3}
 
         def currency_strings(locale, only \\ :all, except \\ nil)
 
@@ -605,12 +601,14 @@ defmodule Cldr.Currency.Backend do
 
         ## Example
 
-            iex> #{inspect __MODULE__}.current_territory_currencies()
+            iex> #{inspect(__MODULE__)}.current_territory_currencies()
 
         """
         @doc since: "2.15.0"
 
-        @spec current_territory_currencies() :: %{Cldr.Locale.territory_code() => Cldr.Currency.code()}
+        @spec current_territory_currencies() :: %{
+                Cldr.Locale.territory_code() => Cldr.Currency.code()
+              }
         def current_territory_currencies do
           Cldr.Currency.current_territory_currencies()
         end
@@ -757,7 +755,7 @@ defmodule Cldr.Currency.Backend do
 
         ## Example
 
-            iex> MyApp.Cldr.Currency.strings_for_currency(:AUD, "en")
+            iex> MyApp.Cldr.Currency.strings_for_currency :AUD,("en")
             ["a$", "australian dollars", "aud", "australian dollar"]
 
         """

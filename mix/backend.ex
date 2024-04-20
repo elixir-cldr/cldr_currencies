@@ -3,7 +3,7 @@ if Mix.env() in [:dev] do
 
   defmodule MyApp.Cldr do
     use Cldr,
-      locales: ["en", "de", "th", "fr", "fr-CH"],
+      locales: ["en", "de", "th", "fr", "fr-CH", "pt-CV"],
       default_locale: "en",
       providers: [Cldr.Currency]
   end

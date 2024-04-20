@@ -35,6 +35,8 @@ defmodule Cldr.Currency do
           cash_digits: non_neg_integer,
           cash_rounding: non_neg_integer,
           iso_digits: non_neg_integer,
+          decimal_separator: String.t() | nil,
+          grouping_separator: String.t() | nil,
           count: %{},
           from: Calendar.year(),
           to: Calendar.year()
@@ -50,6 +52,8 @@ defmodule Cldr.Currency do
             cash_digits: 0,
             cash_rounding: 0,
             iso_digits: 0,
+            decimal_separator: nil,
+            grouping_separator: nil,
             tender: false,
             count: nil,
             from: nil,
@@ -117,7 +121,7 @@ defmodule Cldr.Currency do
 
   * `{:error, {exception, message}}`
 
-  ## Example
+  ## Examples
 
       iex> Cldr.Currency.new(:XAC, name: "XAC currency", digits: 0)
       {:ok,
@@ -229,15 +233,15 @@ defmodule Cldr.Currency do
   ## Arguments
 
   * `currency` is any currency code returned by `Cldr.Currency.known_currencies/0` or
-    a `t:Cldr.Currency` struct returned by `Cldr.Currency.currency_for_code/3`
+    a `t:Cldr.Currency` struct returned by `Cldr.Currency.currency_for_code/3`.
 
   ## Options
 
   * `:locale` is any locale returned by `Cldr.Locale.new!/2`. The
-    default is `Cldr.get_locale/0`
+    default is `Cldr.get_locale/0`.
 
   * `:backend` is any module that includes `use Cldr` and therefore
-    is a `Cldr` backend module. The default is `Cldr.default_backend!/0`
+    is a `Cldr` backend module. The default is `Cldr.default_backend!/0`.
 
   ## Returns
 
@@ -291,15 +295,15 @@ defmodule Cldr.Currency do
   ## Arguments
 
   * `currency` is any currency code returned by `Cldr.Currency.known_currencies/0` or
-    a `t:Cldr.Currency` struct returned by `Cldr.Currency.currency_for_code/3`
+    a `t:Cldr.Currency` struct returned by `Cldr.Currency.currency_for_code/3`.
 
   ## Options
 
   * `:locale` is any locale returned by `Cldr.Locale.new!/2`. The
-    default is `Cldr.get_locale/0`
+    default is `Cldr.get_locale/0`.
 
   * `:backend` is any module that includes `use Cldr` and therefore
-    is a `Cldr` backend module. The default is `Cldr.default_backend!/0`
+    is a `Cldr` backend module. The default is `Cldr.default_backend!/0`.
 
   ## Returns
 
@@ -338,22 +342,22 @@ defmodule Cldr.Currency do
 
   ## Arguments
 
-  * `number` is an integer, float or `Decimal`
+  * `number` is an integer, float or `Decimal`.
 
-  * `currency` is any currency returned by `Cldr.Currency.known_currencies/0`
+  * `currency` is any currency returned by `Cldr.Currency.known_currencies/0`.
 
   * `locale` is any valid locale name returned by `Cldr.known_locale_names/1`
-    or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
+    or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`.
 
   * `backend` is any module that includes `use Cldr` and therefore
-    is a `Cldr` backend module
+    is a `Cldr` backend module.
 
-  * `options` is a keyword list of options
+  * `options` is a keyword list of options.
 
   ## Options
 
   * `:locale` is any locale returned by `Cldr.Locale.new!/2`. The
-    default is `<backend>.get_locale/1`
+    default is `<backend>.get_locale/1`.
 
   ## Returns
 
@@ -363,19 +367,19 @@ defmodule Cldr.Currency do
 
   ## Examples
 
-      iex> Cldr.Currency.pluralize 1, :USD, MyApp.Cldr
+      iex> Cldr.Currency.pluralize(1, :USD, MyApp.Cldr)
       {:ok, "US dollar"}
 
-      iex> Cldr.Currency.pluralize 3, :USD, MyApp.Cldr
+      iex> Cldr.Currency.pluralize(3, :USD, MyApp.Cldr)
       {:ok, "US dollars"}
 
-      iex> Cldr.Currency.pluralize 12, :USD, MyApp.Cldr, locale: "zh"
+      iex> Cldr.Currency.pluralize(12, :USD, MyApp.Cldr, locale: :zh)
       {:ok, "美元"}
 
-      iex> Cldr.Currency.pluralize 12, :USD, MyApp.Cldr, locale: "fr"
+      iex> Cldr.Currency.pluralize(12, :USD, MyApp.Cldr, locale: :fr)
       {:ok, "dollars des États-Unis"}
 
-      iex> Cldr.Currency.pluralize 1, :USD, MyApp.Cldr, locale: "fr"
+      iex> Cldr.Currency.pluralize(1, :USD, MyApp.Cldr, locale: :fr)
       {:ok, "dollar des États-Unis"}
 
   """
@@ -389,7 +393,11 @@ defmodule Cldr.Currency do
     with {:ok, currency_code} <- Cldr.validate_currency(currency),
          {:ok, locale} <- Cldr.validate_locale(locale, backend),
          {:ok, currency_data} <- currency_for_code(currency_code, backend, options) do
-      counts = Map.get(currency_data, :count)
+      counts =
+        currency_data
+        |> Map.get(:count)
+        |> Map.put_new(:other, currency_data.name)
+
       {:ok, Module.concat(backend, Number.Cardinal).pluralize(number, locale, counts)}
     end
   end
@@ -402,7 +410,7 @@ defmodule Cldr.Currency do
       iex> Cldr.Currency.known_currency_codes()
 
   """
-  @spec known_currency_codes() :: list(atom)
+  @spec known_currency_codes() :: [code(), ...]
   def known_currency_codes do
     Cldr.known_currencies() ++ private_currency_codes()
   end
@@ -416,7 +424,7 @@ defmodule Cldr.Currency do
   ## Arguments
 
   * `currency_code` is a `binary` or `atom` representing an ISO4217
-    currency code
+    currency code.
 
   ## Returns
 
@@ -424,13 +432,13 @@ defmodule Cldr.Currency do
 
   ## Examples
 
-      iex> Cldr.Currency.known_currency_code? "AUD"
+      iex> Cldr.Currency.known_currency_code?("AUD")
       true
 
-      iex> Cldr.Currency.known_currency_code? "GGG"
+      iex> Cldr.Currency.known_currency_code?("GGG")
       false
 
-      iex> Cldr.Currency.known_currency_code? :XCV
+      iex> Cldr.Currency.known_currency_code?(:XCV)
       false
 
   """
@@ -452,7 +460,7 @@ defmodule Cldr.Currency do
   ## Arguments
 
   * `currency_code` is a `binary` or `atom` representing an ISO4217
-    currency code
+    currency code.
 
   ## Returns
 
@@ -462,10 +470,10 @@ defmodule Cldr.Currency do
 
   ## Examples
 
-      iex> Cldr.Currency.known_currency_code "AUD"
+      iex> Cldr.Currency.known_currency_code("AUD")
       {:ok, :AUD}
 
-      iex> Cldr.Currency.known_currency_code "GGG"
+      iex> Cldr.Currency.known_currency_code("GGG")
       {:error, {Cldr.UnknownCurrencyError, "The currency \\"GGG\\" is invalid"}}
 
   """
@@ -507,27 +515,27 @@ defmodule Cldr.Currency do
   end
 
   @doc """
-  Returns the effective currency for a given locale
+  Returns the effective currency for a given locale.
 
   ## Arguments
 
-  * `locale` is a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
+  * `locale` is a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`.
 
   ## Returns
 
-  * A ISO 4217 currency code as an upcased atom
+  * A ISO 4217 currency code as an upcased atom.
 
   ## Examples
 
-      iex> {:ok, locale} = Cldr.validate_locale "en", MyApp.Cldr
+      iex> {:ok, locale} = Cldr.validate_locale("en", MyApp.Cldr)
       iex> Cldr.Currency.currency_from_locale locale
       :USD
 
-      iex> {:ok, locale} = Cldr.validate_locale "en-AU", MyApp.Cldr
+      iex> {:ok, locale} = Cldr.validate_locale("en-AU", MyApp.Cldr)
       iex> Cldr.Currency.currency_from_locale locale
       :AUD
 
-      iex> Cldr.Currency.currency_from_locale "en-GB"
+      iex> Cldr.Currency.currency_from_locale("en-GB")
       :GBP
 
   """
@@ -544,26 +552,26 @@ defmodule Cldr.Currency do
   end
 
   @doc """
-  Returns the effective currency for a given locale
+  Returns the effective currency for a given locale.
 
   ## Arguments
 
   * `locale` is any valid locale name returned by
-    `Cldr.known_locale_names/1`
+    `Cldr.known_locale_names/1`.
 
   * `backend` is any module that includes `use Cldr` and therefore
-    is a `Cldr` backend module. The default is `Cldr.default_backend!/0`
+    is a `Cldr` backend module. The default is `Cldr.default_backend!/0`.
 
   ## Returns
 
-  * A ISO 4217 currency code as an upcased atom
+  * A ISO 4217 currency code as an upcased atom.
 
   ## Examples
 
-      iex> Cldr.Currency.currency_from_locale "fr-CH", MyApp.Cldr
+      iex> Cldr.Currency.currency_from_locale("fr-CH", MyApp.Cldr)
       :CHF
 
-      iex> Cldr.Currency.currency_from_locale "fr-CH-u-cu-INR", MyApp.Cldr
+      iex> Cldr.Currency.currency_from_locale("fr-CH-u-cu-INR", MyApp.Cldr)
       :INR
 
   """
@@ -581,27 +589,27 @@ defmodule Cldr.Currency do
   end
 
   @doc """
-  Returns the effective currency format for a given locale
+  Returns the effective currency format for a given locale.
 
   ## Arguments
 
-  * `locale` a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
+  * `locale` a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`.
 
   ## Returns
 
-  * Either `:accounting` or `:currency`
+  * Either `:accounting` or `:currency`.
 
   ## Examples
 
-      iex> {:ok, locale} = Cldr.validate_locale "en", MyApp.Cldr
+      iex> {:ok, locale} = Cldr.validate_locale("en", MyApp.Cldr)
       iex> Cldr.Currency.currency_format_from_locale locale
       :currency
 
-      iex> {:ok, locale} = Cldr.validate_locale "en-AU-u-cu-eur", MyApp.Cldr
+      iex> {:ok, locale} = Cldr.validate_locale("en-AU-u-cu-eur", MyApp.Cldr)
       iex> Cldr.Currency.currency_format_from_locale locale
       :currency
 
-      iex> {:ok, locale} = Cldr.validate_locale "en-AU-u-cu-eur-cf-account", MyApp.Cldr
+      iex> {:ok, locale} = Cldr.validate_locale("en-AU-u-cu-eur-cf-account", MyApp.Cldr)
       iex> Cldr.Currency.currency_format_from_locale locale
       :accounting
 
@@ -623,28 +631,28 @@ defmodule Cldr.Currency do
   end
 
   @doc """
-  Returns the effective currency format for a given locale
+  Returns the effective currency format for a given locale.
 
   ## Arguments
 
-  * `locale` a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
+  * `locale` a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`.
 
   * `backend` is any module that includes `use Cldr` and therefore
-    is a `Cldr` backend module. The default is `Cldr.default_backend!/0`
+    is a `Cldr` backend module. The default is `Cldr.default_backend!/0`.
 
   ## Returns
 
-  * Either `:accounting` or `:currency`
+  * Either `:accounting` or `:currency`.
 
   ## Examples
 
-      iex> Cldr.Currency.currency_format_from_locale "en", MyApp.Cldr
+      iex> Cldr.Currency.currency_format_from_locale("en", MyApp.Cldr)
       :currency
 
-      iex> Cldr.Currency.currency_format_from_locale "en-AU-u-cu-eur", MyApp.Cldr
+      iex> Cldr.Currency.currency_format_from_locale("en-AU-u-cu-eur", MyApp.Cldr)
       :currency
 
-      iex> Cldr.Currency.currency_format_from_locale "en-AU-u-cu-eur-cf-account", MyApp.Cldr
+      iex> Cldr.Currency.currency_format_from_locale("en-AU-u-cu-eur-cf-account", MyApp.Cldr)
       :accounting
 
   """
@@ -704,7 +712,7 @@ defmodule Cldr.Currency do
 
   """
   @spec territory_currencies(territory()) ::
-    {:ok, map()} | {:error, {module(), String.t()}}
+          {:ok, map()} | {:error, {module(), String.t()}}
 
   def territory_currencies(territory) do
     with {:ok, territory} <- Cldr.validate_territory(territory),
@@ -735,7 +743,7 @@ defmodule Cldr.Currency do
     struct and the value is a map of validity dates for that
     currency; or
 
-  * raises an exception
+  * raises an exception.
 
   ## Example
 
@@ -800,14 +808,14 @@ defmodule Cldr.Currency do
   ## Arguments
 
   * `locale` is any valid locale name returned by `Cldr.known_locale_names/1`
-    or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
+    or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`.
 
   * `backend` is any module that includes `use Cldr` and therefore
-    is a `Cldr` backend module
+    is a `Cldr` backend module.
 
   ## Example
 
-      iex> Cldr.Currency.currency_history_for_locale "en", MyApp.Cldr
+      iex> Cldr.Currency.currency_history_for_locale("en", MyApp.Cldr)
       {:ok,
         %{
           USD: %{from: ~D[1792-01-01], to: nil},
@@ -818,7 +826,7 @@ defmodule Cldr.Currency do
 
   """
   @spec currency_history_for_locale(LanguageTag.t()) ::
-          {:ok, map()} | {:error, {atom, binary}}
+          {:ok, %{(currency :: code()) => map()}} | {:error, {module(), String.t()}}
 
   def currency_history_for_locale(%LanguageTag{} = locale) do
     locale
@@ -826,7 +834,7 @@ defmodule Cldr.Currency do
     |> territory_currencies()
   end
 
-  @spec currency_history_for_locale(Locale.locale_name() | String.t(), Cldr.backend()) ::
+  @spec currency_history_for_locale(Locale.locale_reference(), Cldr.backend()) ::
           {:ok, map()} | {:error, {module(), String.t()}}
 
   def currency_history_for_locale(locale_name, backend) do
@@ -846,21 +854,22 @@ defmodule Cldr.Currency do
   ## Arguments
 
   * `locale` is any valid locale name returned by `Cldr.known_locale_names/1`
-    or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
+    or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`.
 
   * `backend` is any module that includes `use Cldr` and therefore
-    is a `Cldr` backend module
+    is a `Cldr` backend module.
 
   ## Examples
 
-      iex> Cldr.Currency.current_currency_from_locale "en", MyApp.Cldr
+      iex> Cldr.Currency.current_currency_from_locale("en", MyApp.Cldr)
       :USD
 
-      iex> Cldr.Currency.current_currency_from_locale "en-AU", MyApp.Cldr
+      iex> Cldr.Currency.current_currency_from_locale("en-AU", MyApp.Cldr)
       :AUD
 
   """
-  @spec current_currency_from_locale(LanguageTag.t()) :: any()
+  @spec current_currency_from_locale(LanguageTag.t()) ::
+          code() | {:error, {module(), String.t()}}
 
   def current_currency_from_locale(%LanguageTag{} = locale) do
     locale
@@ -887,10 +896,10 @@ defmodule Cldr.Currency do
 
   ## Examples
 
-      iex> Cldr.Currency.current_currency_for_territory :US
+      iex> Cldr.Currency.current_currency_for_territory(:US)
       :USD
 
-      iex> Cldr.Currency.current_currency_for_territory :AU
+      iex> Cldr.Currency.current_currency_for_territory(:AU)
       :AUD
 
   """
@@ -973,13 +982,18 @@ defmodule Cldr.Currency do
   @spec currency_for_code(code() | t(), Cldr.backend(), Keyword.t()) ::
           {:ok, t()} | {:error, {module(), String.t()}}
 
-  def currency_for_code(currency_or_currency_code, backend \\ Cldr.default_backend!(), options \\ [])
+  def currency_for_code(
+        currency_or_currency_code,
+        backend \\ Cldr.default_backend!(),
+        options \\ []
+      )
 
   def currency_for_code(%__MODULE__{} = currency, _backend, _options) do
     {:ok, currency}
   end
 
-  def currency_for_code(currency_code, backend, options) when is_atom(backend) and is_list(options) do
+  def currency_for_code(currency_code, backend, options)
+      when is_atom(backend) and is_list(options) do
     {locale, backend} = Cldr.locale_and_backend_from(options[:locale], backend)
 
     with {:ok, code} <- Cldr.validate_currency(currency_code),
@@ -1086,41 +1100,41 @@ defmodule Cldr.Currency do
 
   ## Example
 
-      => Cldr.Currency.currencies_for_locale "en", MyApp.Cldr
-      {:ok,
-       %{
-         FJD: %Cldr.Currency{
-           cash_digits: 2,
-           cash_rounding: 0,
-           code: "FJD",
-           count: %{one: "Fijian dollar", other: "Fijian dollars"},
-           digits: 2,
-           from: nil,
-           iso_digits: 2,
-           name: "Fijian Dollar",
-           narrow_symbol: "$",
-           rounding: 0,
-           symbol: "FJD",
-           tender: true,
-           to: nil
-         },
-         SUR: %Cldr.Currency{
-           cash_digits: 2,
-           cash_rounding: 0,
-           code: "SUR",
-           count: %{one: "Soviet rouble", other: "Soviet roubles"},
-           digits: 2,
-           from: nil,
-           iso_digits: nil,
-           name: "Soviet Rouble",
-           narrow_symbol: nil,
-           rounding: 0,
-           symbol: "SUR",
-           tender: true,
-           to: nil
-         },
-         ...
-        }}
+    => Cldr.Currency.currencies_for_locale("en", MyApp.Cldr)
+    {:ok,
+     %{
+       FJD: %Cldr.Currency{
+         cash_digits: 2,
+         cash_rounding: 0,
+         code: "FJD",
+         count: %{one: "Fijian dollar", other: "Fijian dollars"},
+         digits: 2,
+         from: nil,
+         iso_digits: 2,
+         name: "Fijian Dollar",
+         narrow_symbol: "$",
+         rounding: 0,
+         symbol: "FJD",
+         tender: true,
+         to: nil
+       },
+       SUR: %Cldr.Currency{
+         cash_digits: 2,
+         cash_rounding: 0,
+         code: "SUR",
+         count: %{one: "Soviet rouble", other: "Soviet roubles"},
+         digits: 2,
+         from: nil,
+         iso_digits: nil,
+         name: "Soviet Rouble",
+         narrow_symbol: nil,
+         rounding: 0,
+         symbol: "SUR",
+         tender: true,
+         to: nil
+       },
+       ...
+      }}
 
   """
   @spec currencies_for_locale(
@@ -1159,40 +1173,40 @@ defmodule Cldr.Currency do
 
   ## Example
 
-      => MyApp.Cldr.Currency.currencies_for_locale! "en"
-      %{
-        FJD: %Cldr.Currency{
-          cash_digits: 2,
-          cash_rounding: 0,
-          code: "FJD",
-          count: %{one: "Fijian dollar", other: "Fijian dollars"},
-          digits: 2,
-          from: nil,
-          iso_digits: 2,
-          name: "Fijian Dollar",
-          narrow_symbol: "$",
-          rounding: 0,
-          symbol: "FJD",
-          tender: true,
-          to: nil
-        },
-        SUR: %Cldr.Currency{
-          cash_digits: 2,
-          cash_rounding: 0,
-          code: "SUR",
-          count: %{one: "Soviet rouble", other: "Soviet roubles"},
-          digits: 2,
-          from: nil,
-          iso_digits: nil,
-          name: "Soviet Rouble",
-          narrow_symbol: nil,
-          rounding: 0,
-          symbol: "SUR",
-          tender: true,
-          to: nil
-        },
-        ...
-      }
+    #=> MyApp.Cldr.Currency.currencies_for_locale!("en")
+    %{
+      FJD: %Cldr.Currency{
+        cash_digits: 2,
+        cash_rounding: 0,
+        code: "FJD",
+        count: %{one: "Fijian dollar", other: "Fijian dollars"},
+        digits: 2,
+        from: nil,
+        iso_digits: 2,
+        name: "Fijian Dollar",
+        narrow_symbol: "$",
+        rounding: 0,
+        symbol: "FJD",
+        tender: true,
+        to: nil
+      },
+      SUR: %Cldr.Currency{
+        cash_digits: 2,
+        cash_rounding: 0,
+        code: "SUR",
+        count: %{one: "Soviet rouble", other: "Soviet roubles"},
+        digits: 2,
+        from: nil,
+        iso_digits: nil,
+        name: "Soviet Rouble",
+        narrow_symbol: nil,
+        rounding: 0,
+        symbol: "SUR",
+        tender: true,
+        to: nil
+      },
+      ...
+     }
 
   """
   @spec currencies_for_locale!(
@@ -1231,7 +1245,7 @@ defmodule Cldr.Currency do
 
   ## Example
 
-      => Cldr.Currency.currency_strings "en", MyApp.Cldr
+      => Cldr.Currency.currency_strings("en", MyApp.Cldr)
       {:ok,
        %{
          "mexican silver pesos" => :MXP,
@@ -1296,7 +1310,7 @@ defmodule Cldr.Currency do
 
   ## Example
 
-      => Cldr.Currency.currency_strings! "en", MyApp.Cldr
+      => Cldr.Currency.currency_strings!("en", MyApp.Cldr)
       %{
         "mexican silver pesos" => :MXP,
         "sudanese dinar" => :SDD,
@@ -1356,8 +1370,8 @@ defmodule Cldr.Currency do
       ["au$", "aud", "澳大利亚元"]
 
   """
-  @spec strings_for_currency(t(), LanguageTag.t | Locale.locale_name, Cldr.backend) ::
-    [String.t()]
+  @spec strings_for_currency(t(), LanguageTag.t() | Locale.locale_name(), Cldr.backend()) ::
+          [String.t()]
 
   def strings_for_currency(currency, locale, backend) do
     module = Module.concat(backend, Currency)

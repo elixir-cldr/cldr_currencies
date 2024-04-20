@@ -40,8 +40,8 @@ defmodule Cldr.Currency.Test do
   end
 
   test "names with annotations are intact" do
-    assert Cldr.Currency.strings_for_currency(:USN, "en", MyApp.Cldr) |> Enum.sort ==
-      ["us dollar (next day)", "us dollars (next day)", "usn"]
+    assert Cldr.Currency.strings_for_currency(:USN, "en", MyApp.Cldr) |> Enum.sort() ==
+             ["us dollar (next day)", "us dollars (next day)", "usn"]
   end
 
   test "currency strings is a map" do
@@ -79,7 +79,7 @@ defmodule Cldr.Currency.Test do
   test "Narrow symbols are included in currency strings if they are not ambiguous" do
     assert Cldr.Currency.currency_strings!("en", MyApp.Cldr)
            |> Enum.filter(fn {_k, v} -> v == :ZAR end) ==
-      [{"south african rand", :ZAR}, {"r", :ZAR}, {"zar", :ZAR}]
+             [{"south african rand", :ZAR}, {"r", :ZAR}, {"zar", :ZAR}]
 
     assert Cldr.Currency.currency_strings!("en", MyApp.Cldr) |> Map.get("$") == :USD
   end

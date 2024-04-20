@@ -4,9 +4,6 @@ defmodule Cldr.Eternal.Table do
   # this just consists of guard expressions to determine valid tables, and the ability
   # to convert a table identifier to a valid Supervisor name.
 
-  # define a table typespec
-  @type t :: number | atom
-
   @doc """
   Converts a table name to a valid Supervisor name.
 

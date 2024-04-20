@@ -1,5 +1,15 @@
 # Changelog
 
+## Cldr_Currencies v2.16.0
+
+This is the changelog for Cldr_Currencies v2.16.0 released on April 21st, 2024.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
+
+### Enhancements
+
+* Update to [CLDR 44](https://cldr.unicode.org/index/downloads/cldr-44) data as used in `ex_cldr` version 2.38.0.
+
+* Default the currency display name when there is no other pluralization data. This is required due to some data generation changes in the JSON data used by `ex_cldr`.
+
 ## Cldr_Currencies v2.15.1
 
 This is the changelog for Cldr_Currencies v2.15.1 released on November 3rd, 2023.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)

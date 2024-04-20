@@ -1,13 +1,13 @@
 defmodule Cldr.Currencies.MixProject do
   use Mix.Project
 
-  @version "2.15.1"
+  @version "2.16.0"
 
   def project do
     [
       app: :ex_cldr_currencies,
       version: @version,
-      elixir: "~> 1.10",
+      elixir: "~> 1.11",
       name: "Cldr Currencies",
       description: description(),
       source_url: "https://github.com/elixir-cldr/cldr_currencies",
@@ -19,7 +19,8 @@ defmodule Cldr.Currencies.MixProject do
       package: package(),
       dialyzer: [
         ignore_warnings: ".dialyzer_ignore_warnings",
-        plt_add_apps: ~w(inets jason mix)a
+        plt_add_apps: ~w(inets jason mix)a,
+        flags: [:underspecs]
       ]
     ]
   end
@@ -38,7 +39,8 @@ defmodule Cldr.Currencies.MixProject do
 
   defp deps do
     [
-      {:ex_cldr, "~> 2.34"},
+      # {:ex_cldr, path: "../cldr"},
+      {:ex_cldr, "~> 2.38"},
 
       {:jason, "~> 1.0", optional: true},
       {:ex_doc, "~> 0.18", only: [:dev, :release], runtime: false, optional: true},
@@ -78,7 +80,8 @@ defmodule Cldr.Currencies.MixProject do
     %{
       "GitHub" => "https://github.com/elixir-cldr/cldr_currencies",
       "Readme" => "https://github.com/elixir-cldr/cldr_currencies/blob/v#{@version}/README.md",
-      "Changelog" => "https://github.com/elixir-cldr/cldr_currencies/blob/v#{@version}/CHANGELOG.md"
+      "Changelog" =>
+        "https://github.com/elixir-cldr/cldr_currencies/blob/v#{@version}/CHANGELOG.md"
     }
   end
 
