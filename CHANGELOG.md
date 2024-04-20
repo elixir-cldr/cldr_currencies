@@ -6,7 +6,7 @@ This is the changelog for Cldr_Currencies v2.16.0 released on April 21st, 2024. 
 
 ### Enhancements
 
-* Update to [CLDR 44](https://cldr.unicode.org/index/downloads/cldr-44) data as used in `ex_cldr` version 2.38.0.
+* Update to [CLDR 45](https://cldr.unicode.org/index/downloads/cldr-45) data as used in `ex_cldr` version 2.38.0.
 
 * Default the currency display name when there is no other pluralization data. This is required due to some data generation changes in the JSON data used by `ex_cldr`.
 
