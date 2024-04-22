@@ -1,5 +1,13 @@
 # Changelog
 
+## Cldr_Currencies v2.16.1
+
+This is the changelog for Cldr_Currencies v2.16.1 released on April 23rd, 2024.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
+
+### Bug Fixes
+
+* Add `config/prod.exs` so `MIX_ENV=prod` compilation succeeds. Thanks to @camelpunch for the report. Closes #49.
+
 ## Cldr_Currencies v2.16.0
 
 This is the changelog for Cldr_Currencies v2.16.0 released on April 21st, 2024.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
