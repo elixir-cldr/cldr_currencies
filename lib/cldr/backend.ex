@@ -755,8 +755,9 @@ defmodule Cldr.Currency.Backend do
 
         ## Example
 
-            iex> MyApp.Cldr.Currency.strings_for_currency :AUD,("en")
-            ["a$", "australian dollars", "aud", "australian dollar"]
+            iex> MyApp.Cldr.Currency.strings_for_currency(:AUD, "en")
+            ...> |> Enum.sort()
+            ["a$", "aud", "australian dollar", "australian dollars"]
 
         """
         def strings_for_currency(currency, locale) do
