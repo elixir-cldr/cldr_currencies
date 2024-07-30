@@ -670,7 +670,7 @@ defmodule Cldr.Currency.Backend do
            }
 
         """
-        @spec currencies_for_locale(
+        @spec currencies_for_locale!(
                 Cldr.Locale.locale_name() | LanguageTag.t(),
                 only :: Cldr.Currency.filter(),
                 except :: Cldr.Currency.filter()
