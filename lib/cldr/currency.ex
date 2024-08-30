@@ -979,7 +979,7 @@ defmodule Cldr.Currency do
 
   """
 
-  @spec currency_for_code(code() | t(), Cldr.backend(), Keyword.t()) ::
+  @spec currency_for_code(code() | binary() | t(), Cldr.backend(), Keyword.t()) ::
           {:ok, t()} | {:error, {module(), String.t()}}
 
   def currency_for_code(
