@@ -17,6 +17,8 @@ defmodule Cldr.Currency do
 
   @type code :: atom()
 
+  @type currency_reference :: code() | binary
+
   @type currency_status :: :all | :current | :historic | :tender | :unannotated | :private
 
   @type filter :: list(currency_status | code) | currency_status | code
@@ -945,7 +947,7 @@ defmodule Cldr.Currency do
 
   ## Examples
 
-      iex> Cldr.Currency.currency_for_code("AUD", MyApp.Cldr)
+      iex> Cldr.Currency.currency_for_code(:AUD, MyApp.Cldr)
       {:ok,
         %Cldr.Currency{
           cash_digits: 2,
@@ -979,7 +981,7 @@ defmodule Cldr.Currency do
 
   """
 
-  @spec currency_for_code(code() | t(), Cldr.backend(), Keyword.t()) ::
+  @spec currency_for_code(currency_reference() | t(), Cldr.backend(), Keyword.t()) ::
           {:ok, t()} | {:error, {module(), String.t()}}
 
   def currency_for_code(
