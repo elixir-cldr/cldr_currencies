@@ -8,6 +8,10 @@ This is the changelog for Cldr_Currencies v2.16.3 released on September 6th, 202
 
 * Fix spec for `Cldr.Currency.currency_for_code/1`. Thanks to @Tw33t3r for the PR. Closes #16.
 
+### Enhancements
+
+* Require Elixir 1.12 as a minimum version.
+
 ## Cldr_Currencies v2.16.2
 
 This is the changelog for Cldr_Currencies v2.16.2 released on July 30th, 2024.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
