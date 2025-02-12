@@ -84,4 +84,18 @@ defmodule Cldr.Currency.Test do
 
     assert Cldr.Currency.currency_strings!("en", MyApp.Cldr) |> Map.get("$") == :USD
   end
+
+  test "that trailing RTL markers are removed from currency strings" do
+    assert Cldr.Currency.currency_strings!("ar-MA", MyApp.Cldr)
+           |> Enum.filter(fn {_k, v} -> v == :MAD end)
+           |> Enum.sort() ==
+             [
+               {"mad", :MAD},
+               {"د.م", :MAD},
+               {"دراهم مغربية", :MAD},
+               {"درهم مغربي", :MAD},
+               {"درهمان مغربيان", :MAD},
+               {"درهمًا مغربيًا", :MAD}
+             ]
+  end
 end

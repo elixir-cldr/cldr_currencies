@@ -2,7 +2,7 @@ require Cldr.Currency.Backend
 
 defmodule MyApp.Cldr do
   use Cldr,
-    locales: ["en", "fr", "de", "zh"],
+    locales: ["en", "fr", "de", "zh", "ar-MA"],
     default_locale: "en",
     # data_dir: "../cldr/priv/cldr",
     providers: [Cldr.Currency]

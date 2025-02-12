@@ -501,6 +501,8 @@ defmodule Cldr.Currency.Backend do
               ) ::
                 {:ok, map()} | {:error, {module(), String.t()}}
 
+        @rtl "\u200F"
+
         def currency_strings(locale, only \\ :all, except \\ nil)
 
         for locale_name <- Cldr.Locale.Loader.known_locale_names(config) do
@@ -517,6 +519,7 @@ defmodule Cldr.Currency.Backend do
                 |> Kernel.++(Map.values(currency.count))
                 |> Enum.reject(&is_nil/1)
                 |> Enum.map(&String.downcase/1)
+                |> Enum.map(&String.trim_trailing(&1, @rtl))
                 |> Enum.map(&String.trim_trailing(&1, "."))
                 |> Enum.uniq()
 

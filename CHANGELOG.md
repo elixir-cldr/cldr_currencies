@@ -1,5 +1,13 @@
 # Changelog
 
+## Cldr_Currencies v2.16.4
+
+This is the changelog for Cldr_Currencies v2.16.4 released on February 13th, 2025.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
+
+### Bug Fixes
+
+* Remove trailing RTL (right-to-left) marker in currency strings.
+
 ## Cldr_Currencies v2.16.3
 
 This is the changelog for Cldr_Currencies v2.16.3 released on September 6th, 2024.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)

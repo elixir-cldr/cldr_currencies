@@ -6,5 +6,4 @@ defmodule Cldr.Currency.ForDialyzer do
     b = Cldr.Currency.currency_for_code(:AUD)
     {a, b}
   end
-
 end
