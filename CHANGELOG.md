@@ -1,5 +1,13 @@
 # Changelog
 
+## Cldr_Currencies v2.16.5
+
+This is the changelog for Cldr_Currencies v2.16.5 released on May 20th, 2025.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
+
+### Bug Fixes
+
+* Return an error tuple if there is no display name available to `Cldr.Currency.display_name/2`. Thanks to @tanguilp for the report. Closes #17.
+
 ## Cldr_Currencies v2.16.4
 
 This is the changelog for Cldr_Currencies v2.16.4 released on February 13th, 2025.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)

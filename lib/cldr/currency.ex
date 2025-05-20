@@ -262,6 +262,11 @@ defmodule Cldr.Currency do
       iex> Cldr.Currency.display_name "EUR", backend: MyApp.Cldr, locale: "de"
       {:ok, "Euro"}
 
+      iex> Cldr.Currency.display_name(:XCG, locale: :ru)
+      {:error,
+       {Cldr.CurencyNoDisplayName,
+        "The currency \\"XCG\\" has no display name in locale :ru"}}
+
       iex> Cldr.Currency.display_name "ZZZ", backend: MyApp.Cldr
       {:error, {Cldr.UnknownCurrencyError, "The currency \\"ZZZ\\" is invalid"}}
 
@@ -271,8 +276,13 @@ defmodule Cldr.Currency do
 
   def display_name(currency, options \\ [])
 
-  def display_name(%__MODULE__{} = currency, _options) do
-    {:ok, currency.name}
+  def display_name(%__MODULE__{} = currency, options) do
+    if currency.name do
+      {:ok, currency.name}
+    else
+      {locale, _backend} = Cldr.locale_and_backend_from(options)
+      {:error, {Cldr.CurencyNoDisplayName, "The currency #{inspect currency.code} has no display name in locale #{inspect locale}"}}
+    end
   end
 
   def display_name(currency_code, options) do
