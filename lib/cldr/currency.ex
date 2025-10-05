@@ -262,10 +262,10 @@ defmodule Cldr.Currency do
       iex> Cldr.Currency.display_name "EUR", backend: MyApp.Cldr, locale: "de"
       {:ok, "Euro"}
 
-      iex> Cldr.Currency.display_name(:XCG, locale: :ru)
+      iex> Cldr.Currency.display_name(:XCG, locale: :aa)
       {:error,
        {Cldr.CurencyNoDisplayName,
-        "The currency \\"XCG\\" has no display name in locale :ru"}}
+        "The currency \\"XCG\\" has no display name in locale :aa"}}
 
       iex> Cldr.Currency.display_name "ZZZ", backend: MyApp.Cldr
       {:error, {Cldr.UnknownCurrencyError, "The currency \\"ZZZ\\" is invalid"}}
