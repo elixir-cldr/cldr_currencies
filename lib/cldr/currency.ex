@@ -193,7 +193,28 @@ defmodule Cldr.Currency do
     end
   end
 
-  defp validate_currency(currency_code) do
+  @doc """
+  Validate an ISO4217 or custom currency code and
+  return its canonical code.
+
+  ### Arguments
+
+  * `currency_code` is any ISO4217 currency code or
+    a custom currency code as a string or an atom.
+
+  ### Returns
+
+  * `{:ok, currency_code}` or
+
+  * `{:error, {exception, reason}}`
+
+  ### Example
+
+        iex> Cldr.Currency.validate_currency("AUD")
+        {:ok, :AUD}
+
+  """
+  def validate_currency(currency_code) do
     case Cldr.validate_currency(currency_code) do
       {:ok, currency_code} -> {:ok, currency_code}
       {:error, _} -> validate_new_currency_code(currency_code)
