@@ -64,6 +64,8 @@ defmodule Cldr.Currency do
   @table_options [:set, {:read_concurrency, true}]
   @default_options [quiet: true]
 
+  @valid_custom_currency_code ~r/[A-Z][A-Z0-9]{3,10}/
+
   # Starts the supervisor for the private use
   # currencies, delegated to Eternal which
   # keeps :ets tables alive as much as is
@@ -94,18 +96,23 @@ defmodule Cldr.Currency do
   end
 
   @doc """
-  Returns a `Currency` struct created from the arguments.
+  Returns a `t:Cldr.Currency.t/0` struct created from the arguments.
 
-  ## Arguments
+  ### Arguments
 
   * `currency` is a private use currency code in a format defined by
     [ISO4217](https://en.wikipedia.org/wiki/ISO_4217)
-    which is `X` followed by two alphanumeric characters.
+    which is `X` followed by two alphanumeric characters OR a
+    custom currency code that at least four and less than 11 characters starting with
+    a character in the range `[a-zA-Z]` followed by three or more characters
+    in the range `[a-zA-Z0-9]`. The use of four characters or more
+    makes it easy to differentiate between ISO4217 currency codes and
+    custom currency codes.
 
   * `options` is a map of options representing the optional elements of
-    the `Cldr.Currency.t` struct.
+    the `t:Cldr.Currency.t/0` struct.
 
-  ## Options
+  ### Options
 
   * `:name` is the name of the currency. Required.
   * `:digits` is the precision of the currency. Required.
@@ -117,32 +124,55 @@ defmodule Cldr.Currency do
   * `:cash_round_nearest` is the rounding precision when used as cash
     such as `0.05`. Optional.
 
-  ## Returns
+  ### Returns
 
   * `{:ok, Cldr.Currency.t}` or
 
   * `{:error, {exception, message}}`
 
-  ## Examples
+  ### Examples
 
       iex> Cldr.Currency.new(:XAC, name: "XAC currency", digits: 0)
       {:ok,
        %Cldr.Currency{
-         alt_code: :XAC,
-         cash_digits: 0,
-         cash_rounding: nil,
-         code: :XAC,
-         count: %{other: "XAC currency"},
-         digits: 0,
-         from: nil,
-         iso_digits: 0,
-         name: "XAC currency",
-         narrow_symbol: nil,
-         rounding: 0,
-         symbol: "XAC",
-         tender: false,
-         to: nil
-       }}
+        code: :XAC,
+        count: %{other: "XAC currency"},
+        name: "XAC currency",
+        symbol: "XAC",
+        to: nil,
+        from: nil,
+        digits: 0,
+        tender: false,
+        alt_code: :XAC,
+        rounding: 0,
+        narrow_symbol: nil,
+        cash_digits: 0,
+        cash_rounding: nil,
+        iso_digits: 0,
+        decimal_separator: nil,
+        grouping_separator: nil
+      }}
+
+      iex> Cldr.Currency.new(:QFFP, name: "QANTAS Frequent Flyer Points", digits: 0)
+      {:ok,
+        %Cldr.Currency{
+        code: :QFFP,
+        count: %{other: "QANTAS Frequent Flyer Points"},
+        name: "QANTAS Frequent Flyer Points",
+        symbol: "QFFP",
+        to: nil,
+        from: nil,
+        digits: 0,
+        tender: false,
+        alt_code: :QFFP,
+        rounding: 0,
+        narrow_symbol: nil,
+        cash_digits: 0,
+        cash_rounding: nil,
+        iso_digits: 0,
+        decimal_separator: nil,
+        grouping_separator: nil
+      }}
       iex> Cldr.Currency.new(:XBC)
       {:error, {Cldr.CurrencyAlreadyDefined, "Currency :XBC is already defined."}}
       iex> MyApp.Cldr.Currency.new(:XAB, name: "Private Use Name")
@@ -155,11 +185,36 @@ defmodule Cldr.Currency do
   def new(currency, options \\ [])
 
   def new(currency, options) when is_list(options) do
-    with {:ok, currency_code} <- Cldr.validate_currency(currency),
+    with {:ok, currency_code} <- validate_currency(currency),
          {:ok, currency_code} <- validate_new_currency(currency_code),
          {:ok, options} <- validate_options(currency_code, options) do
       currency = struct(__MODULE__, [{:code, currency_code} | options])
       store_currency(currency)
+    end
+  end
+
+  defp validate_currency(currency_code) do
+    case Cldr.validate_currency(currency_code) do
+      {:ok, currency_code} -> {:ok, currency_code}
+      {:error, _} -> validate_new_currency_code(currency_code)
+    end
+  end
+
+  defp validate_new_currency_code(currency_code) when is_binary(currency_code) do
+    upcase_currency_code = String.upcase(currency_code)
+    if Regex.match?(@valid_custom_currency_code, upcase_currency_code) do
+      {:ok, String.to_atom(upcase_currency_code)}
+    else
+      {:error, Cldr.unknown_currency_error(currency_code)}
+    end
+  end
+
+  defp validate_new_currency_code(currency_code) when is_atom(currency_code) do
+    string_currency_code = to_string(currency_code)
+
+    case validate_new_currency_code(string_currency_code) do
+      {:ok, currency_code} -> {:ok, currency_code}
+      {:error, _} -> {:error, Cldr.unknown_currency_error(currency_code)}
     end
   end
 
@@ -196,12 +251,12 @@ defmodule Cldr.Currency do
   Determines is a new currency is already
   defined.
 
-  ## Example
+  ### Example
 
-      iex> Cldr.Currency.validate_new_currency :XAD
+      iex> Cldr.Currency.validate_new_currency(:XAD)
       {:ok, :XAD}
 
-      iex> Cldr.Currency.validate_new_currency :USD
+      iex> Cldr.Currency.validate_new_currency(:USD)
       {:error, {Cldr.CurrencyAlreadyDefined, "Currency :USD is already defined."}}
 
   """
@@ -232,12 +287,12 @@ defmodule Cldr.Currency do
   `Cldr.Currency.pluralize/4` is typically
   lower-cased for use within sentences.
 
-  ## Arguments
+  ### Arguments
 
   * `currency` is any currency code returned by `Cldr.Currency.known_currencies/0` or
-    a `t:Cldr.Currency` struct returned by `Cldr.Currency.currency_for_code/3`.
+    a `t:Cldr.Currency.t/0` struct returned by `Cldr.Currency.currency_for_code/3`.
 
-  ## Options
+  ### Options
 
   * `:locale` is any locale returned by `Cldr.Locale.new!/2`. The
     default is `Cldr.get_locale/0`.
@@ -245,13 +300,13 @@ defmodule Cldr.Currency do
   * `:backend` is any module that includes `use Cldr` and therefore
     is a `Cldr` backend module. The default is `Cldr.default_backend!/0`.
 
-  ## Returns
+  ### Returns
 
   * `{:ok, display_name}`
 
   * or `{:error, {exception, reason}}`
 
-  ## Examples
+  ### Examples
 
       iex> Cldr.Currency.display_name :AUD, backend: MyApp.Cldr
       {:ok, "Australian Dollar"}
@@ -286,7 +341,7 @@ defmodule Cldr.Currency do
   end
 
   def display_name(currency_code, options) do
-    with {:ok, currency_code} <- Cldr.validate_currency(currency_code),
+    with {:ok, currency_code} <- validate_currency(currency_code),
          {_locale, backend} = Cldr.locale_and_backend_from(options),
          {:ok, currency_data} <- currency_for_code(currency_code, backend, options) do
       display_name(currency_data, options)
@@ -304,12 +359,12 @@ defmodule Cldr.Currency do
   `Cldr.Currency.pluralize/4` is typically
   lower-cased for use within sentences.
 
-  ## Arguments
+  ### Arguments
 
   * `currency` is any currency code returned by `Cldr.Currency.known_currencies/0` or
-    a `t:Cldr.Currency` struct returned by `Cldr.Currency.currency_for_code/3`.
+    a `t:Cldr.Currency.t/0` struct returned by `Cldr.Currency.currency_for_code/3`.
 
-  ## Options
+  ### Options
 
   * `:locale` is any locale returned by `Cldr.Locale.new!/2`. The
     default is `Cldr.get_locale/0`.
@@ -317,13 +372,13 @@ defmodule Cldr.Currency do
   * `:backend` is any module that includes `use Cldr` and therefore
     is a `Cldr` backend module. The default is `Cldr.default_backend!/0`.
 
-  ## Returns
+  ### Returns
 
   * `display_name`
 
   * or raises an exception
 
-  ## Examples
+  ### Examples
 
       iex> Cldr.Currency.display_name! :AUD, backend: MyApp.Cldr
       "Australian Dollar"
@@ -352,7 +407,7 @@ defmodule Cldr.Currency do
   Returns the appropriate currency display name for the `currency`, based
   on the plural rules in effect for the `locale`.
 
-  ## Arguments
+  ### Arguments
 
   * `number` is an integer, float or `Decimal`.
 
@@ -366,18 +421,18 @@ defmodule Cldr.Currency do
 
   * `options` is a keyword list of options.
 
-  ## Options
+  ### Options
 
   * `:locale` is any locale returned by `Cldr.Locale.new!/2`. The
     default is `<backend>.get_locale/1`.
 
-  ## Returns
+  ### Returns
 
   * `{:ok, plural_string}` or
 
   * `{:error, {exception, message}}`
 
-  ## Examples
+  ### Examples
 
       iex> Cldr.Currency.pluralize(1, :USD, MyApp.Cldr)
       {:ok, "US dollar"}
@@ -417,7 +472,7 @@ defmodule Cldr.Currency do
   @doc """
   Returns a list of all known currency codes.
 
-  ## Example
+  ### Example
 
       iex> Cldr.Currency.known_currency_codes()
 
@@ -433,16 +488,16 @@ defmodule Cldr.Currency do
   @doc """
   Returns a boolean indicating if the supplied currency code is known.
 
-  ## Arguments
+  ### Arguments
 
   * `currency_code` is a `binary` or `atom` representing an ISO4217
     currency code.
 
-  ## Returns
+  ### Returns
 
   * `true` or `false`
 
-  ## Examples
+  ### Examples
 
       iex> Cldr.Currency.known_currency_code?("AUD")
       true
@@ -469,18 +524,18 @@ defmodule Cldr.Currency do
   @doc """
   Returns a 2-tuple indicating if the supplied currency code is known.
 
-  ## Arguments
+  ### Arguments
 
   * `currency_code` is a `binary` or `atom` representing an ISO4217
     currency code.
 
-  ## Returns
+  ### Returns
 
   * `{:ok, currency_code}` or
 
   * `{:error, {exception, reason}}`
 
-  ## Examples
+  ### Examples
 
       iex> Cldr.Currency.known_currency_code("AUD")
       {:ok, :AUD}
@@ -529,15 +584,15 @@ defmodule Cldr.Currency do
   @doc """
   Returns the effective currency for a given locale.
 
-  ## Arguments
+  ### Arguments
 
   * `locale` is a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`.
 
-  ## Returns
+  ### Returns
 
   * A ISO 4217 currency code as an upcased atom.
 
-  ## Examples
+  ### Examples
 
       iex> {:ok, locale} = Cldr.validate_locale("en", MyApp.Cldr)
       iex> Cldr.Currency.currency_from_locale locale
@@ -566,7 +621,7 @@ defmodule Cldr.Currency do
   @doc """
   Returns the effective currency for a given locale.
 
-  ## Arguments
+  ### Arguments
 
   * `locale` is any valid locale name returned by
     `Cldr.known_locale_names/1`.
@@ -574,11 +629,11 @@ defmodule Cldr.Currency do
   * `backend` is any module that includes `use Cldr` and therefore
     is a `Cldr` backend module. The default is `Cldr.default_backend!/0`.
 
-  ## Returns
+  ### Returns
 
   * A ISO 4217 currency code as an upcased atom.
 
-  ## Examples
+  ### Examples
 
       iex> Cldr.Currency.currency_from_locale("fr-CH", MyApp.Cldr)
       :CHF
@@ -603,15 +658,15 @@ defmodule Cldr.Currency do
   @doc """
   Returns the effective currency format for a given locale.
 
-  ## Arguments
+  ### Arguments
 
   * `locale` a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`.
 
-  ## Returns
+  ### Returns
 
   * Either `:accounting` or `:currency`.
 
-  ## Examples
+  ### Examples
 
       iex> {:ok, locale} = Cldr.validate_locale("en", MyApp.Cldr)
       iex> Cldr.Currency.currency_format_from_locale locale
@@ -645,18 +700,18 @@ defmodule Cldr.Currency do
   @doc """
   Returns the effective currency format for a given locale.
 
-  ## Arguments
+  ### Arguments
 
   * `locale` a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`.
 
   * `backend` is any module that includes `use Cldr` and therefore
     is a `Cldr` backend module. The default is `Cldr.default_backend!/0`.
 
-  ## Returns
+  ### Returns
 
   * Either `:accounting` or `:currency`.
 
-  ## Examples
+  ### Examples
 
       iex> Cldr.Currency.currency_format_from_locale("en", MyApp.Cldr)
       :currency
@@ -679,7 +734,7 @@ defmodule Cldr.Currency do
   codes and a list of historic and the current
   currency for those territories.
 
-  ## Example
+  ### Example
 
       iex> Cldr.Currency.territory_currencies() |> Map.get(:LT)
       %{
@@ -699,20 +754,20 @@ defmodule Cldr.Currency do
   Returns a list of currencies associated with
   a given territory.
 
-  ## Arguments
+  ### Arguments
 
   * `territory` is any valid ISO 3166 Alpha-2 territory code.
      See `Cldr.validate_territory/1`.
 
-  ## Returns
+  ### Returns
 
-  * `{:ok, map}` where `map` has as its key a `t:Cldr.Currency`
+  * `{:ok, map}` where `map` has as its key a `t:Cldr.Currency.t/0`
     struct and the value is a map of validity dates for that
     currency; or
 
   * `{:error, {exception, reason}}`
 
-  ## Example
+  ### Example
 
       iex> Cldr.Currency.territory_currencies(:LT)
       {:ok, %{
@@ -744,20 +799,20 @@ defmodule Cldr.Currency do
   Returns a list of currencies associated with
   a given territory.
 
-  ## Arguments
+  ### Arguments
 
   * `territory` is any valid ISO 3166 Alpha-2 territory code.
      See `Cldr.validate_territory/1`.
 
-  ## Returns
+  ### Returns
 
-  * `map` where `map` has as its key a `t:Cldr.Currency`
+  * `map` where `map` has as its key a `t:Cldr.Currency.t/0`
     struct and the value is a map of validity dates for that
     currency; or
 
   * raises an exception.
 
-  ## Example
+  ### Example
 
       iex> Cldr.Currency.territory_currencies!(:LT)
       %{
@@ -785,7 +840,7 @@ defmodule Cldr.Currency do
   Antartica, territory code `:AQ`) then no
   mapping is returned for that territory.
 
-  ## Returns
+  ### Returns
 
   * A map of `{territory_code => currency.code}`
 
@@ -817,7 +872,7 @@ defmodule Cldr.Currency do
   Returns a list of historic and the current
   currency for a given locale.
 
-  ## Arguments
+  ### Arguments
 
   * `locale` is any valid locale name returned by `Cldr.known_locale_names/1`
     or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`.
@@ -825,7 +880,7 @@ defmodule Cldr.Currency do
   * `backend` is any module that includes `use Cldr` and therefore
     is a `Cldr` backend module.
 
-  ## Example
+  ### Example
 
       iex> Cldr.Currency.currency_history_for_locale("en", MyApp.Cldr)
       {:ok,
@@ -863,7 +918,7 @@ defmodule Cldr.Currency do
   `Cldr.Currency.currency_from_locale/1` in most
   circumstances.
 
-  ## Arguments
+  ### Arguments
 
   * `locale` is any valid locale name returned by `Cldr.known_locale_names/1`
     or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`.
@@ -871,7 +926,7 @@ defmodule Cldr.Currency do
   * `backend` is any module that includes `use Cldr` and therefore
     is a `Cldr` backend module.
 
-  ## Examples
+  ### Examples
 
       iex> Cldr.Currency.current_currency_from_locale("en", MyApp.Cldr)
       :USD
@@ -901,12 +956,12 @@ defmodule Cldr.Currency do
   @doc """
   Returns the current currency for a given territory.
 
-  ## Arguments
+  ### Arguments
 
   * `territory` is any valid territory name returned by
     `Cldr.known_territories/0`
 
-  ## Examples
+  ### Examples
 
       iex> Cldr.Currency.current_currency_for_territory(:US)
       :USD
@@ -933,10 +988,10 @@ defmodule Cldr.Currency do
   @doc """
   Returns the currency metadata for the requested currency code.
 
-  ## Arguments
+  ### Arguments
 
   * `currency_or_currency_code` is a `binary` or `atom` representation
-      of an ISO 4217 currency code, or a `t:Cldr.Currency` struct.
+      of an ISO 4217 currency code, or a `t:Cldr.Currency.t/0` struct.
 
   * `backend` is any module that includes `use Cldr` and therefore
     is a `Cldr` backend module. The default is `Cldr.default_backend!/0`.
@@ -944,18 +999,18 @@ defmodule Cldr.Currency do
   * `options` is a `Keyword` list of options. The default is
     `[]`.
 
-  ## Options
+  ### Options
 
   * `:locale` is any valid locale name returned by `Cldr.known_locale_names/1`
     or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
 
-  ## Returns
+  ### Returns
 
   * A `{:ok, currency}` or
 
   * `{:error, {exception, reason}}`
 
-  ## Examples
+  ### Examples
 
       iex> Cldr.Currency.currency_for_code(:AUD, MyApp.Cldr)
       {:ok,
@@ -1008,7 +1063,7 @@ defmodule Cldr.Currency do
       when is_atom(backend) and is_list(options) do
     {locale, backend} = Cldr.locale_and_backend_from(options[:locale], backend)
 
-    with {:ok, code} <- Cldr.validate_currency(currency_code),
+    with {:ok, code} <- validate_currency(currency_code),
          {:ok, locale} <- Cldr.validate_locale(locale, backend),
          {:ok, currencies} <- currencies_for_locale(locale, backend) do
       {:ok, Map.get_lazy(currencies, code, fn -> Map.get(private_currencies(), code) end)}
@@ -1022,28 +1077,28 @@ defmodule Cldr.Currency do
   @doc """
   Returns the currency metadata for the requested currency code.
 
-  ## Arguments
+  ### Arguments
 
   * `currency_or_currency_code` is a `binary` or `atom` representation
-      of an ISO 4217 currency code, or a `t:Cldr.Currency` struct.
+      of an ISO 4217 currency code, or a `t:Cldr.Currency.t/0` struct.
 
   * `backend` is any module that includes `use Cldr` and therefore
     is a `Cldr` backend module
 
   * `options` is a `Keyword` list of options.
 
-  ## Options
+  ### Options
 
   * `:locale` is any valid locale name returned by `Cldr.known_locale_names/1`
     or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
 
-  ## Returns
+  ### Returns
 
   * A `t:Cldr.Current.t/0` or
 
   * raises an exception
 
-  ## Examples
+  ### Examples
 
       iex> Cldr.Currency.currency_for_code!("AUD", MyApp.Cldr)
       %Cldr.Currency{
@@ -1092,7 +1147,7 @@ defmodule Cldr.Currency do
   Returns a map of the metadata for all currencies for
   a given locale.
 
-  ## Arguments
+  ### Arguments
 
   * `locale` is any valid locale name returned by `Cldr.known_locale_names/1`
     or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
@@ -1104,13 +1159,13 @@ defmodule Cldr.Currency do
     `unannotated` or `:tender`; or a list of one or more status.
     The default is `:all`. See `Cldr.Currency.currency_filter/2`.
 
-  ## Returns
+  ### Returns
 
   * `{:ok, currency_map}` or
 
   * `{:error, {exception, reason}}`
 
-  ## Example
+  ### Example
 
     => Cldr.Currency.currencies_for_locale("en", MyApp.Cldr)
     {:ok,
@@ -1165,7 +1220,7 @@ defmodule Cldr.Currency do
   Returns a map of the metadata for all currencies for
   a given locale and raises on error.
 
-  ## Arguments
+  ### Arguments
 
   * `locale` is any valid locale name returned by `Cldr.known_locale_names/1`
     or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
@@ -1177,13 +1232,13 @@ defmodule Cldr.Currency do
     `unannotated` or `:tender`; or a list of one or more status.
     The default is `:all`. See `Cldr.Currency.currency_filter/2`.
 
-  ## Returns
+  ### Returns
 
   * `{:ok, currency_map}` or
 
   * raises an exception
 
-  ## Example
+  ### Example
 
     #=> MyApp.Cldr.Currency.currencies_for_locale!("en")
     %{
@@ -1240,7 +1295,7 @@ defmodule Cldr.Currency do
   A currency string is a localised name or symbol
   representing a currency in a locale-specific manner.
 
-  ## Arguments
+  ### Arguments
 
   * `locale` is any valid locale name returned by `Cldr.known_locale_names/1`
     or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`.
@@ -1249,13 +1304,13 @@ defmodule Cldr.Currency do
     `unannotated` or `:tender`; or a list of one or more status
     The default is `:all`. See `Cldr.Currency.currency_filter/2`.
 
-  ## Returns
+  ### Returns
 
   * `{:ok, currency_string_map}` or
 
   * `{:error, {exception, reason}}`
 
-  ## Example
+  ### Example
 
       => Cldr.Currency.currency_strings("en", MyApp.Cldr)
       {:ok,
@@ -1305,7 +1360,7 @@ defmodule Cldr.Currency do
   A currency string is a localised name or symbol
   representing a currency in a locale-specific manner.
 
-  ## Arguments
+  ### Arguments
 
   * `locale` is any valid locale name returned by `Cldr.known_locale_names/1`
     or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`.
@@ -1314,13 +1369,13 @@ defmodule Cldr.Currency do
     `unannotated` or `:tender`; or a list of one or more status.
     The default is `:all`. See `Cldr.Currency.currency_filter/2`.
 
-  ## Returns
+  ### Returns
 
   * `{:ok, currency_string_map}` or
 
   * raises an exception.
 
-  ## Example
+  ### Example
 
       => Cldr.Currency.currency_strings!("en", MyApp.Cldr)
       %{
@@ -1354,7 +1409,7 @@ defmodule Cldr.Currency do
   Returns the strings associated with a currency
   in a given locale.
 
-  ## Arguments
+  ### Arguments
 
   * `currency` is an ISO4217 currency code
 
@@ -1364,13 +1419,13 @@ defmodule Cldr.Currency do
   * `backend` is any module that includes `use Cldr` and therefore
     is a `Cldr` backend module
 
-  ## Returns
+  ### Returns
 
   * A list of strings or
 
   * `{:error, {exception, reason}}`
 
-  ## Example
+  ### Example
 
       iex> Cldr.Currency.strings_for_currency(:AUD, "en", MyApp.Cldr) |> Enum.sort
       ["a$", "aud", "australian dollar", "australian dollars"]
@@ -1399,9 +1454,9 @@ defmodule Cldr.Currency do
   Return only those currencies meeting the
   filter criteria.
 
-  ## Arguments
+  ### Arguments
 
-  * `currency` is a `t:Cldr.Currency`, a list of `t:Cldr.Currency` or a
+  * `currency` is a `t:Cldr.Currency.t/0`, a list of `t:Cldr.Currency.t/0` or a
     map where the values of each item is a `Cldr.Currency.t`
 
   * `only` is `:all`, `:current`, `:historic`, `:tender`
@@ -1515,11 +1570,11 @@ defmodule Cldr.Currency do
   Historic means that the currency is no longer
   in use.
 
-  ## Arguments
+  ### Arguments
 
-  * `currency` is a `t:Cldr.Currency`
+  * `currency` is a `t:Cldr.Currency.t/0`
 
-  ## Returns
+  ### Returns
 
   * `true` or `false`
 
@@ -1538,11 +1593,11 @@ defmodule Cldr.Currency do
   as a means to settle a public or private debt or
   meet a financial obligation.
 
-  ## Arguments
+  ### Arguments
 
-  * `currency` is a `t:Cldr.Currency`
+  * `currency` is a `t:Cldr.Currency.t/0`
 
-  ## Returns
+  ### Returns
 
   * `true` or `false`
 
@@ -1559,11 +1614,11 @@ defmodule Cldr.Currency do
   Current means that the currency is in current
   use.
 
-  ## Arguments
+  ### Arguments
 
-  * `currency` is a `t:Cldr.Currency`
+  * `currency` is a `t:Cldr.Currency.t/0`
 
-  ## Returns
+  ### Returns
 
   * `true` or `false`
 
@@ -1582,11 +1637,11 @@ defmodule Cldr.Currency do
   This is mostly found in currency codes used as
   financial instruments (not legal tender).
 
-  ## Arguments
+  ### Arguments
 
-  * `currency` is a `t:Cldr.Currency`
+  * `currency` is a `t:Cldr.Currency.t/0`
 
-  ## Returns
+  ### Returns
 
   * `true` or `false`
 
@@ -1605,11 +1660,11 @@ defmodule Cldr.Currency do
   This is mostly found in currency codes used as
   financial instruments (not legal tender).
 
-  ## Arguments
+  ### Arguments
 
-  * `currency` is a `t:Cldr.Currency`
+  * `currency` is a `t:Cldr.Currency.t/0`
 
-  ## Returns
+  ### Returns
 
   * `true` or `false`
 
