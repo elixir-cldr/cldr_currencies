@@ -15,19 +15,19 @@ defmodule Cldr.Currency do
           | :percent
           | :scientific
 
-  @type code :: atom()
+  @type currency_code :: atom()
 
-  @type currency_reference :: code() | binary
+  @type currency_reference :: currency_code() | binary
 
   @type currency_status :: :all | :current | :historic | :tender | :unannotated | :private
 
-  @type filter :: list(currency_status | code) | currency_status | code
+  @type filter :: list(currency_status | currency_code) | currency_status | currency_code
 
   @type territory :: atom() | String.t()
 
   @type t :: %__MODULE__{
-          code: code,
-          alt_code: code,
+          code: currency_code,
+          alt_code: currency_code,
           name: String.t(),
           tender: boolean,
           symbol: String.t(),
@@ -65,6 +65,7 @@ defmodule Cldr.Currency do
   @default_options [quiet: true]
 
   @valid_custom_currency_code ~r/[A-Z][A-Z0-9]{3,10}/
+  @valid_private_currency_code ~r/X[A-Z]{2}/
 
   # Starts the supervisor for the private use
   # currencies, delegated to Eternal which
@@ -184,9 +185,8 @@ defmodule Cldr.Currency do
   @spec new(binary | atom, map | list) :: {:ok, t} | {:error, {module(), String.t()}}
   def new(currency, options \\ [])
 
-  def new(currency, options) when is_list(options) do
-    with {:ok, currency_code} <- validate_currency(currency),
-         {:ok, currency_code} <- validate_new_currency(currency_code),
+  def new(currency_code, options) when is_list(options) do
+    with {:ok, currency_code} <- validate_new_currency(currency_code),
          {:ok, options} <- validate_options(currency_code, options) do
       currency = struct(__MODULE__, [{:code, currency_code} | options])
       store_currency(currency)
@@ -195,7 +195,9 @@ defmodule Cldr.Currency do
 
   @doc """
   Validate an ISO4217 or custom currency code and
-  return its canonical code.
+  return its canonical code. If the currency code
+  is a custom code it must also have been created
+  with `Cldr.Currency.new/2`.
 
   ### Arguments
 
@@ -216,27 +218,93 @@ defmodule Cldr.Currency do
   """
   def validate_currency(currency_code) do
     case Cldr.validate_currency(currency_code) do
-      {:ok, currency_code} -> {:ok, currency_code}
-      {:error, _} -> validate_new_currency_code(currency_code)
+      {:ok, currency_code} ->
+        if currency_code in known_currency_codes() do
+          {:ok, currency_code}
+        else
+          {:error, Cldr.unknown_currency_error(currency_code)}
+        end
+
+      {:error, _} ->
+        validate_custom_currency(currency_code)
     end
   end
 
-  defp validate_new_currency_code(currency_code) when is_binary(currency_code) do
+  defp validate_custom_currency(currency_code) do
+    case validate_custom_currency_code(currency_code) do
+      {:ok, currency_code} ->
+        if currency_code in known_currency_codes() do
+          {:ok, currency_code}
+        else
+          {:error, Cldr.unknown_currency_error(currency_code)}
+        end
+
+      {:error, error} ->
+        {:error, error}
+    end
+  end
+
+  # Validates the the code is of the right form, returning a
+  # canonical format or an error. It does *not* check if the
+  # currency has already been created.
+
+  defp validate_custom_currency_code(currency_code) when is_binary(currency_code) do
     upcase_currency_code = String.upcase(currency_code)
-    if Regex.match?(@valid_custom_currency_code, upcase_currency_code) do
+    if Regex.match?(@valid_custom_currency_code, upcase_currency_code) ||
+        Regex.match?(@valid_private_currency_code, upcase_currency_code) do
       {:ok, String.to_atom(upcase_currency_code)}
     else
       {:error, Cldr.unknown_currency_error(currency_code)}
     end
   end
 
-  defp validate_new_currency_code(currency_code) when is_atom(currency_code) do
+  defp validate_custom_currency_code(currency_code) when is_atom(currency_code) do
     string_currency_code = to_string(currency_code)
 
-    case validate_new_currency_code(string_currency_code) do
+    case validate_custom_currency_code(string_currency_code) do
       {:ok, currency_code} -> {:ok, currency_code}
       {:error, _} -> {:error, Cldr.unknown_currency_error(currency_code)}
     end
+  end
+
+  @doc """
+  Determines is a new currency is already
+  defined.
+
+  ### Example
+
+      iex> Cldr.Currency.validate_new_currency(:XAD)
+      {:ok, :XAD}
+
+      iex> Cldr.Currency.validate_new_currency(:USD)
+      {:error, {Cldr.CurrencyAlreadyDefined, "Currency :USD is already defined."}}
+
+  """
+  @spec validate_new_currency(currency_code) :: {:ok, currency_code} | {:error, {module, String.t()}}
+  def validate_new_currency(currency_code) do
+    with {:error, _} <- validate_currency(currency_code) do
+      case validate_custom_currency_code(currency_code) do
+        {:ok, currency_code} ->
+          if  currency_code in known_currency_codes() do
+            {:error, {Cldr.CurrencyAlreadyDefined, currency_already_defined_error(currency_code)}}
+          else
+            {:ok, currency_code}
+          end
+
+        {:error, error} ->
+          {:error, error}
+      end
+    else
+      _ -> {:error, {Cldr.CurrencyAlreadyDefined, currency_already_defined_error(currency_code)}}
+    end
+  end
+
+  defp store_currency(%Cldr.Currency{code: code} = currency) do
+    :ets.insert_new(__MODULE__, {code, currency})
+    {:ok, currency}
+  rescue
+    ArgumentError ->
+      {:error, {Cldr.CurrencyNotSavedError, currency_not_saved_error(code)}}
   end
 
   defp validate_options(code, options) do
@@ -266,36 +334,6 @@ defmodule Cldr.Currency do
     else
       {:error, "Required options are missing. Required options are #{inspect(keys)}"}
     end
-  end
-
-  @doc """
-  Determines is a new currency is already
-  defined.
-
-  ### Example
-
-      iex> Cldr.Currency.validate_new_currency(:XAD)
-      {:ok, :XAD}
-
-      iex> Cldr.Currency.validate_new_currency(:USD)
-      {:error, {Cldr.CurrencyAlreadyDefined, "Currency :USD is already defined."}}
-
-  """
-  @spec validate_new_currency(code) :: {:ok, code} | {:error, {module, String.t()}}
-  def validate_new_currency(code) do
-    if code in known_currency_codes() do
-      {:error, {Cldr.CurrencyAlreadyDefined, currency_already_defined_error(code)}}
-    else
-      {:ok, code}
-    end
-  end
-
-  defp store_currency(%Cldr.Currency{code: code} = currency) do
-    :ets.insert_new(__MODULE__, {code, currency})
-    {:ok, currency}
-  rescue
-    ArgumentError ->
-      {:error, {Cldr.CurrencyNotSavedError, currency_not_saved_error(code)}}
   end
 
   @doc """
@@ -347,7 +385,7 @@ defmodule Cldr.Currency do
       {:error, {Cldr.UnknownCurrencyError, "The currency \\"ZZZ\\" is invalid"}}
 
   """
-  @spec display_name(t() | code(), Keyword.t()) ::
+  @spec display_name(t() | currency_code(), Keyword.t()) ::
           {:ok, String.t()} | {:error, {module(), String.t()}}
 
   def display_name(currency, options \\ [])
@@ -414,7 +452,7 @@ defmodule Cldr.Currency do
       ** (Cldr.UnknownCurrencyError) The currency "ZZZ" is invalid
 
   """
-  @spec display_name!(t() | code(), Keyword.t()) ::
+  @spec display_name!(t() | currency_code(), Keyword.t()) ::
           String.t() | no_return
 
   def display_name!(currency, options \\ []) do
@@ -471,7 +509,7 @@ defmodule Cldr.Currency do
       {:ok, "dollar des États-Unis"}
 
   """
-  @spec pluralize(pos_integer, code(), Cldr.backend(), Keyword.t()) ::
+  @spec pluralize(pos_integer, currency_code(), Cldr.backend(), Keyword.t()) ::
           {:ok, String.t()} | {:error, {module(), String.t()}}
 
   def pluralize(number, currency, backend, options \\ []) do
@@ -498,7 +536,7 @@ defmodule Cldr.Currency do
       iex> Cldr.Currency.known_currency_codes()
 
   """
-  @spec known_currency_codes() :: [code(), ...]
+  @spec known_currency_codes() :: [currency_code(), ...]
   def known_currency_codes do
     Cldr.known_currencies() ++ private_currency_codes()
   end
@@ -530,7 +568,7 @@ defmodule Cldr.Currency do
       false
 
   """
-  @spec known_currency_code?(code()) :: boolean
+  @spec known_currency_code?(currency_code()) :: boolean
   def known_currency_code?(currency_code) do
     with {:ok, currency_code} <- Cldr.validate_currency(currency_code) do
       currency_code in known_currency_codes()
@@ -565,7 +603,7 @@ defmodule Cldr.Currency do
       {:error, {Cldr.UnknownCurrencyError, "The currency \\"GGG\\" is invalid"}}
 
   """
-  @spec known_currency_code(code()) :: {:ok, code} | {:error, {module, String.t()}}
+  @spec known_currency_code(currency_code()) :: {:ok, currency_code} | {:error, {module, String.t()}}
   def known_currency_code(currency_code) do
     with {:ok, currency_code} <- Cldr.validate_currency(currency_code) do
       if currency_code in known_currency_codes() do
@@ -592,7 +630,7 @@ defmodule Cldr.Currency do
   `Cldr.Currency.new/2`.
 
   """
-  @spec private_currencies :: %{code => t}
+  @spec private_currencies :: %{currency_code => t}
   def private_currencies do
     __MODULE__
     |> :ets.tab2list()
@@ -868,7 +906,7 @@ defmodule Cldr.Currency do
   """
   @doc since: "2.15.0"
 
-  @spec current_territory_currencies() :: %{Cldr.Locale.territory_code() => code()}
+  @spec current_territory_currencies() :: %{Cldr.Locale.territory_code() => currency_code()}
   def current_territory_currencies do
     territory_currencies()
     |> Enum.map(fn
@@ -914,7 +952,7 @@ defmodule Cldr.Currency do
 
   """
   @spec currency_history_for_locale(LanguageTag.t()) ::
-          {:ok, %{(currency :: code()) => map()}} | {:error, {module(), String.t()}}
+          {:ok, %{(currency :: currency_code()) => map()}} | {:error, {module(), String.t()}}
 
   def currency_history_for_locale(%LanguageTag{} = locale) do
     locale
@@ -957,7 +995,7 @@ defmodule Cldr.Currency do
 
   """
   @spec current_currency_from_locale(LanguageTag.t()) ::
-          code() | {:error, {module(), String.t()}}
+          currency_code() | {:error, {module(), String.t()}}
 
   def current_currency_from_locale(%LanguageTag{} = locale) do
     locale
@@ -966,7 +1004,7 @@ defmodule Cldr.Currency do
   end
 
   @spec current_currency_from_locale(Locale.locale_name() | String.t(), Cldr.backend()) ::
-          code() | nil | {:error, {module(), String.t()}}
+          currency_code() | nil | {:error, {module(), String.t()}}
 
   def current_currency_from_locale(locale_name, backend) do
     with {:ok, locale} <- Cldr.validate_locale(locale_name, backend) do
@@ -992,7 +1030,7 @@ defmodule Cldr.Currency do
 
   """
   @spec current_currency_for_territory(Cldr.Locale.territory_code()) ::
-          code() | nil | {:error, {module(), String.t()}}
+          currency_code() | nil | {:error, {module(), String.t()}}
 
   def current_currency_for_territory(territory) do
     with {:ok, territory} <- Cldr.validate_territory(territory),
@@ -1154,7 +1192,7 @@ defmodule Cldr.Currency do
   """
   @doc since: "2.14.0"
 
-  @spec currency_for_code!(code() | t(), Cldr.backend(), Keyword.t()) ::
+  @spec currency_for_code!(currency_code() | t(), Cldr.backend(), Keyword.t()) ::
           t() | no_return()
 
   def currency_for_code!(currency_or_currency_code, backend \\ nil, options \\ []) do
