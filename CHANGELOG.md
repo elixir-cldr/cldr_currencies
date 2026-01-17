@@ -4,6 +4,10 @@
 
 This is the changelog for Cldr_Currencies v2.17.0 released on January 18th, 2026.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
 
+### Bug Fixes
+
+* Fix compiler warnings on Elixir 1.17.0
+
 ### Enhancements
 
 * Add support for custom currency codes. Custom currency codes are not valid ISO4217 codes. To distinguish them, a custom code consists of a Latin alphametic character followed by 3 or more Latin alphnumeric characters.
