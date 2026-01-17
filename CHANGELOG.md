@@ -6,7 +6,7 @@ This is the changelog for Cldr_Currencies v2.17.0 released on January 18th, 2026
 
 ### Bug Fixes
 
-* Fix compiler warnings on Elixir 1.17.0
+* Fix compiler warnings on Elixir 1.20.0.
 
 ### Enhancements
 
