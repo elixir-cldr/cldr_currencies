@@ -216,27 +216,27 @@ defmodule Cldr.Currency do
         {:ok, :AUD}
 
   """
-  def validate_currency(currency_code) do
-    case Cldr.validate_currency(currency_code) do
+  def validate_currency(original_currency_code) do
+    case Cldr.validate_currency(original_currency_code) do
       {:ok, currency_code} ->
         if currency_code in known_currency_codes() do
           {:ok, currency_code}
         else
-          {:error, Cldr.unknown_currency_error(currency_code)}
+          {:error, Cldr.unknown_currency_error(original_currency_code)}
         end
 
       {:error, _} ->
-        validate_custom_currency(currency_code)
+        validate_custom_currency(original_currency_code)
     end
   end
 
-  defp validate_custom_currency(currency_code) do
-    case validate_custom_currency_code(currency_code) do
+  defp validate_custom_currency(original_currency_code) do
+    case validate_custom_currency_code(original_currency_code) do
       {:ok, currency_code} ->
         if currency_code in known_currency_codes() do
           {:ok, currency_code}
         else
-          {:error, Cldr.unknown_currency_error(currency_code)}
+          {:error, Cldr.unknown_currency_error(original_currency_code)}
         end
 
       {:error, error} ->
