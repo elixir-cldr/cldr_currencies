@@ -2,9 +2,6 @@ defmodule Cldr.Currency.Backend do
   @moduledoc false
 
   def define_currency_module(config) do
-    require Cldr
-    require Cldr.Currency
-
     module = inspect(__MODULE__)
     backend = config.backend
     config = Macro.escape(config)
