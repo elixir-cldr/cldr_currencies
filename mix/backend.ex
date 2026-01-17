@@ -1,5 +1,5 @@
 if Mix.env() in [:dev] do
-  # require Cldr.Currency.Backend
+  {:nodule, _code} = Code.ensure_compiled(Cldr.Currency.Backend)
 
   defmodule MyApp.Cldr do
     use Cldr,
