@@ -1,5 +1,15 @@
 # Changelog
 
+## Cldr_Currencies v2.17.1
+
+This is the changelog for Cldr_Currencies v2.17.1 released on March 9th, 2026.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
+
+### Bug Fixes
+
+* Fixes compiler warning on Elixir 1.20.0-rc.2.
+
+* Fixes failing tests.
+
 ## Cldr_Currencies v2.17.0
 
 This is the changelog for Cldr_Currencies v2.17.0 released on January 18th, 2026.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)

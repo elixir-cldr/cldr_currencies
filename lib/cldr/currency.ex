@@ -179,7 +179,7 @@ defmodule Cldr.Currency do
       iex> MyApp.Cldr.Currency.new(:XAB, name: "Private Use Name")
       {:error, "Required options are missing. Required options are [:name, :digits]"}
       iex> Cldr.Currency.new(:ZAA, name: "Invalid Private Use Name", digits: 0)
-      {:error, {Cldr.UnknownCurrencyError, "The currency :ZAA is invalid"}}
+      {:error, {Cldr.UnknownCurrencyError, "The currency :ZAA is unknown"}}
 
   """
   @spec new(binary | atom, map | list) :: {:ok, t} | {:error, {module(), String.t()}}
@@ -382,7 +382,7 @@ defmodule Cldr.Currency do
         "The currency \\"XCG\\" has no display name in locale :aa"}}
 
       iex> Cldr.Currency.display_name "ZZZ", backend: MyApp.Cldr
-      {:error, {Cldr.UnknownCurrencyError, "The currency \\"ZZZ\\" is invalid"}}
+      {:error, {Cldr.UnknownCurrencyError, "The currency \\"ZZZ\\" is unknown"}}
 
   """
   @spec display_name(t() | currency_code(), Keyword.t()) ::
@@ -600,7 +600,7 @@ defmodule Cldr.Currency do
       {:ok, :AUD}
 
       iex> Cldr.Currency.known_currency_code("GGG")
-      {:error, {Cldr.UnknownCurrencyError, "The currency \\"GGG\\" is invalid"}}
+      {:error, {Cldr.UnknownCurrencyError, "The currency \\"GGG\\" is unknown"}}
 
   """
   @spec known_currency_code(currency_code()) :: {:ok, currency_code} | {:error, {module, String.t()}}
@@ -1127,10 +1127,6 @@ defmodule Cldr.Currency do
          {:ok, currencies} <- currencies_for_locale(locale, backend) do
       {:ok, Map.get_lazy(currencies, code, fn -> Map.get(private_currencies(), code) end)}
     end
-  end
-
-  def currency_for_code(currency_code, nil, [] = options) when is_list(options) do
-    currency_for_code(currency_code, nil, options)
   end
 
   @doc """

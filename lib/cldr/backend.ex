@@ -193,7 +193,7 @@ defmodule Cldr.Currency.Backend do
             {:ok, :AUD}
 
             iex> #{inspect(__MODULE__)}.known_currency_code("GGG")
-            {:error, {Cldr.UnknownCurrencyError, "The currency \\"GGG\\" is invalid"}}
+            {:error, {Cldr.UnknownCurrencyError, "The currency \\"GGG\\" is unknown"}}
 
         """
         @spec known_currency_code(Currency.currency_code()) ::
