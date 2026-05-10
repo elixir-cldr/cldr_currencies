@@ -1535,7 +1535,7 @@ defmodule Cldr.Currency do
     or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`.
 
   * `backend` is any module that includes `use Cldr` and therefore
-    is a `Cldr` backend module
+    is a `Cldr` backend module.
 
   ### Returns
 
