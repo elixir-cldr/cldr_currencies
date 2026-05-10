@@ -8,6 +8,10 @@ This is the changelog for Cldr_Currencies v2.17.2 released on May 11th, 2026.  F
 
 * `Cldr.Currency.currency_for_code/3` no longer returns `{:ok, nil}` when a valid currency has no localized data in the requested locale. It now returns `{:error, {Cldr.CurrencyNotLocalized, _}}`. Pass `fallback: true` to walk the CLDR locale fallback chain (and the backend's default locale) before failing. Thanks to @neilberkman for the report. Closes #19.
 
+### Enhancements
+
+* Fix doctest code example formats. Thanks to @princemaple for the PR.
+
 ## Cldr_Currencies v2.17.1
 
 This is the changelog for Cldr_Currencies v2.17.1 released on March 16th, 2026.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_currencies/tags)
