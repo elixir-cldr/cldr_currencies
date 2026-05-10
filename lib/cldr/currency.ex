@@ -454,7 +454,7 @@ defmodule Cldr.Currency do
       "Euro"
 
       iex> Cldr.Currency.display_name! "ZZZ", backend: MyApp.Cldr
-      ** (Cldr.UnknownCurrencyError) The currency "ZZZ" is invalid
+      ** (Cldr.UnknownCurrencyError) The currency "ZZZ" is unknown
 
   """
   @spec display_name!(t() | currency_code(), Keyword.t()) ::
@@ -1067,13 +1067,21 @@ defmodule Cldr.Currency do
   ### Options
 
   * `:locale` is any valid locale name returned by `Cldr.known_locale_names/1`
-    or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`
+    or a `Cldr.LanguageTag` struct returned by `Cldr.Locale.new!/2`.
+
+  * `:fallback` is a boolean indicating whether, when no localised data exists
+    for the currency in the requested locale, the function should search the
+    locale's CLDR fallback chain (parent locales) for localised data. The
+    default is `false`.
 
   ### Returns
 
-  * A `{:ok, currency}` or
+  * `{:ok, currency}` or
 
-  * `{:error, {exception, reason}}`
+  * `{:error, {exception, reason}}`. In particular, when the currency is a
+    valid ISO 4217 code but no localised data exists for it in the requested
+    locale (and `:fallback` is `false` or the fallback chain yields nothing),
+    the error is `{Cldr.CurrencyNotLocalized, _}`.
 
   ### Examples
 
@@ -1127,12 +1135,61 @@ defmodule Cldr.Currency do
   def currency_for_code(currency_code, backend, options)
       when is_atom(backend) and is_list(options) do
     {locale, backend} = Cldr.locale_and_backend_from(options[:locale], backend)
+    fallback? = Keyword.get(options, :fallback, false)
 
     with {:ok, code} <- validate_currency(currency_code),
-         {:ok, locale} <- Cldr.validate_locale(locale, backend),
-         {:ok, currencies} <- currencies_for_locale(locale, backend) do
-      {:ok, Map.get_lazy(currencies, code, fn -> Map.get(private_currencies(), code) end)}
+         {:ok, locale} <- Cldr.validate_locale(locale, backend) do
+      resolve_currency_for_code(code, locale, backend, fallback?)
     end
+  end
+
+  defp resolve_currency_for_code(code, locale, backend, fallback?) do
+    with {:ok, currencies} <- currencies_for_locale(locale, backend) do
+      case Map.get(currencies, code) do
+        nil ->
+          case Map.get(private_currencies(), code) do
+            nil when fallback? -> fallback_currency_for_code(code, locale, backend)
+            nil -> {:error, currency_not_localized_error(code, locale)}
+            currency -> {:ok, currency}
+          end
+
+        currency ->
+          {:ok, currency}
+      end
+    end
+  end
+
+  defp fallback_currency_for_code(code, locale, backend) do
+    chain =
+      case Cldr.Locale.fallback_locales(locale) do
+        {:ok, [_locale | parents]} -> parents
+        _ -> []
+      end
+
+    chain = chain ++ [Cldr.default_locale(backend)]
+
+    Enum.reduce_while(chain, :error, fn fallback_locale, _acc ->
+      case currencies_for_locale(fallback_locale, backend) do
+        {:ok, currencies} ->
+          case Map.get(currencies, code) do
+            nil -> {:cont, :error}
+            currency -> {:halt, {:ok, currency}}
+          end
+
+        _other ->
+          {:cont, :error}
+      end
+    end)
+    |> case do
+      {:ok, _currency} = ok -> ok
+      :error -> {:error, currency_not_localized_error(code, locale)}
+    end
+  end
+
+  defp currency_not_localized_error(code, locale) do
+    {Cldr.CurrencyNotLocalized,
+     "The currency #{inspect(code)} has no localized data in locale " <>
+       "#{inspect(locale.cldr_locale_name)}"}
   end
 
   @doc """
@@ -1488,13 +1545,13 @@ defmodule Cldr.Currency do
 
   ### Example
 
-      iex> Cldr.Currency.strings_for_currency(:AUD, "en", MyApp.Cldr) |> Enum.sort
+      iex> Cldr.Currency.strings_for_currency(:AUD, "en", MyApp.Cldr) |> Enum.sort()
       ["a$", "aud", "australian dollar", "australian dollars"]
 
-      iex> Cldr.Currency.strings_for_currency(:AUD, "de", MyApp.Cldr) |> Enum.sort
+      iex> Cldr.Currency.strings_for_currency(:AUD, "de", MyApp.Cldr) |> Enum.sort()
       ["au$", "aud", "australische dollar", "australischer dollar"]
 
-      iex> Cldr.Currency.strings_for_currency(:AUD, "zh", MyApp.Cldr) |> Enum.sort
+      iex> Cldr.Currency.strings_for_currency(:AUD, "zh", MyApp.Cldr) |> Enum.sort()
       ["au$", "aud", "澳大利亚元"]
 
   """

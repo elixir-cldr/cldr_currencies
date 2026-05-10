@@ -67,6 +67,24 @@ defmodule Cldr.Currency.Test do
     assert to_string(currency) == "Australian Dollar"
   end
 
+  test "currency_for_code/3 returns an error when the currency has no data in the requested locale" do
+    assert {:error, {Cldr.CurrencyNotLocalized, message}} =
+             Cldr.Currency.currency_for_code(:VED, MyApp.Cldr, locale: "de")
+
+    assert message =~ ":VED"
+    assert message =~ ":de"
+  end
+
+  test "currency_for_code/3 resolves through the fallback chain when fallback: true" do
+    assert {:ok, %Cldr.Currency{code: "VED"}} =
+             Cldr.Currency.currency_for_code(:VED, MyApp.Cldr, locale: "de", fallback: true)
+  end
+
+  test "currency_for_code/3 still returns the currency when localized data exists" do
+    assert {:ok, %Cldr.Currency{code: "AUD"}} =
+             Cldr.Currency.currency_for_code(:AUD, MyApp.Cldr, locale: "de")
+  end
+
   test "Currency from locale" do
     {:ok, locale} = Cldr.validate_locale("fr", MyApp.Cldr)
     assert _currency = Cldr.Currency.currency_from_locale(locale, MyApp.Cldr)

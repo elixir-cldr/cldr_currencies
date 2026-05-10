@@ -22,6 +22,18 @@ defmodule Cldr.CurencyNoDisplayName do
   end
 end
 
+defmodule Cldr.CurrencyNotLocalized do
+  @moduledoc """
+  Exception raised when no localised data exists
+  for a currency in the requested locale.
+  """
+  defexception [:message]
+
+  def exception(message) do
+    %__MODULE__{message: message}
+  end
+end
+
 defmodule Cldr.CurencyAlreadyDefined do
   @moduledoc """
   Exception raised when the new currency code
