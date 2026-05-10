@@ -408,41 +408,41 @@ defmodule Cldr.Currency.Backend do
 
         ## Example
 
-          MyApp.Cldr.Currency.currencies_for_locale("en")
-          => {:ok,
-           %{
-             FJD: %Cldr.Currency{
-               cash_digits: 2,
-               cash_rounding: 0,
-               code: "FJD",
-               count: %{one: "Fijian dollar", other: "Fijian dollars"},
-               digits: 2,
-               from: nil,
-               iso_digits: 2,
-               name: "Fijian Dollar",
-               narrow_symbol: "$",
-               rounding: 0,
-               symbol: "FJD",
-               tender: true,
-               to: nil
-             },
-             SUR: %Cldr.Currency{
-               cash_digits: 2,
-               cash_rounding: 0,
-               code: "SUR",
-               count: %{one: "Soviet rouble", other: "Soviet roubles"},
-               digits: 2,
-               from: nil,
-               iso_digits: nil,
-               name: "Soviet Rouble",
-               narrow_symbol: nil,
-               rounding: 0,
-               symbol: "SUR",
-               tender: true,
-               to: nil
-             },
-             ...
-            }}
+            => MyApp.Cldr.Currency.currencies_for_locale("en")
+            {:ok,
+              %{
+                FJD: %Cldr.Currency{
+                  cash_digits: 2,
+                  cash_rounding: 0,
+                  code: "FJD",
+                  count: %{one: "Fijian dollar", other: "Fijian dollars"},
+                  digits: 2,
+                  from: nil,
+                  iso_digits: 2,
+                  name: "Fijian Dollar",
+                  narrow_symbol: "$",
+                  rounding: 0,
+                  symbol: "FJD",
+                  tender: true,
+                  to: nil
+                },
+                SUR: %Cldr.Currency{
+                  cash_digits: 2,
+                  cash_rounding: 0,
+                  code: "SUR",
+                  count: %{one: "Soviet rouble", other: "Soviet roubles"},
+                  digits: 2,
+                  from: nil,
+                  iso_digits: nil,
+                  name: "Soviet Rouble",
+                  narrow_symbol: nil,
+                  rounding: 0,
+                  symbol: "SUR",
+                  tender: true,
+                  to: nil
+                },
+                ...
+              }}
 
         """
         @spec currencies_for_locale(
@@ -478,8 +478,8 @@ defmodule Cldr.Currency.Backend do
 
         ## Example
 
-            MyApp.Cldr.Currency.currency_strings("en")
-            => {:ok,
+            => MyApp.Cldr.Currency.currency_strings("en")
+            {:ok,
              %{
                "mexican silver pesos" => :MXP,
                "sudanese dinar" => :SDD,
@@ -636,40 +636,40 @@ defmodule Cldr.Currency.Backend do
 
         ## Example
 
-          MyApp.Cldr.Currency.currencies_for_locale!("en")
-          => %{
-            FJD: %Cldr.Currency{
-              cash_digits: 2,
-              cash_rounding: 0,
-              code: "FJD",
-              count: %{one: "Fijian dollar", other: "Fijian dollars"},
-              digits: 2,
-              from: nil,
-              iso_digits: 2,
-              name: "Fijian Dollar",
-              narrow_symbol: "$",
-              rounding: 0,
-              symbol: "FJD",
-              tender: true,
-              to: nil
-            },
-            SUR: %Cldr.Currency{
-              cash_digits: 2,
-              cash_rounding: 0,
-              code: "SUR",
-              count: %{one: "Soviet rouble", other: "Soviet roubles"},
-              digits: 2,
-              from: nil,
-              iso_digits: nil,
-              name: "Soviet Rouble",
-              narrow_symbol: nil,
-              rounding: 0,
-              symbol: "SUR",
-              tender: true,
-              to: nil
-            },
-            ...
-           }
+            => MyApp.Cldr.Currency.currencies_for_locale!("en")
+            %{
+              FJD: %Cldr.Currency{
+                cash_digits: 2,
+                cash_rounding: 0,
+                code: "FJD",
+                count: %{one: "Fijian dollar", other: "Fijian dollars"},
+                digits: 2,
+                from: nil,
+                iso_digits: 2,
+                name: "Fijian Dollar",
+                narrow_symbol: "$",
+                rounding: 0,
+                symbol: "FJD",
+                tender: true,
+                to: nil
+              },
+              SUR: %Cldr.Currency{
+                cash_digits: 2,
+                cash_rounding: 0,
+                code: "SUR",
+                count: %{one: "Soviet rouble", other: "Soviet roubles"},
+                digits: 2,
+                from: nil,
+                iso_digits: nil,
+                name: "Soviet Rouble",
+                narrow_symbol: nil,
+                rounding: 0,
+                symbol: "SUR",
+                tender: true,
+                to: nil
+              },
+              ...
+            }
 
         """
         @spec currencies_for_locale!(
@@ -710,8 +710,8 @@ defmodule Cldr.Currency.Backend do
 
         ## Example
 
-            MyApp.Cldr.Currency.currency_strings!("en")
-            => %{
+            => MyApp.Cldr.Currency.currency_strings!("en")
+            %{
               "mexican silver pesos" => :MXP,
               "sudanese dinar" => :SDD,
               "bad" => :BAD,

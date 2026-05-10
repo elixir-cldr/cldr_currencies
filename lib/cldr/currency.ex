@@ -250,8 +250,9 @@ defmodule Cldr.Currency do
 
   defp validate_custom_currency_code(currency_code) when is_binary(currency_code) do
     upcase_currency_code = String.upcase(currency_code)
+
     if Regex.match?(@valid_custom_currency_code, upcase_currency_code) ||
-        Regex.match?(@valid_private_currency_code, upcase_currency_code) do
+         Regex.match?(@valid_private_currency_code, upcase_currency_code) do
       {:ok, String.to_atom(upcase_currency_code)}
     else
       {:error, Cldr.unknown_currency_error(currency_code)}
@@ -280,12 +281,13 @@ defmodule Cldr.Currency do
       {:error, {Cldr.CurrencyAlreadyDefined, "Currency :USD is already defined."}}
 
   """
-  @spec validate_new_currency(currency_code) :: {:ok, currency_code} | {:error, {module, String.t()}}
+  @spec validate_new_currency(currency_code) ::
+          {:ok, currency_code} | {:error, {module, String.t()}}
   def validate_new_currency(currency_code) do
     with {:error, _} <- validate_currency(currency_code) do
       case validate_custom_currency_code(currency_code) do
         {:ok, currency_code} ->
-          if  currency_code in known_currency_codes() do
+          if currency_code in known_currency_codes() do
             {:error, {Cldr.CurrencyAlreadyDefined, currency_already_defined_error(currency_code)}}
           else
             {:ok, currency_code}
@@ -395,7 +397,10 @@ defmodule Cldr.Currency do
       {:ok, currency.name}
     else
       {locale, _backend} = Cldr.locale_and_backend_from(options)
-      {:error, {Cldr.CurencyNoDisplayName, "The currency #{inspect currency.code} has no display name in locale #{inspect locale}"}}
+
+      {:error,
+       {Cldr.CurencyNoDisplayName,
+        "The currency #{inspect(currency.code)} has no display name in locale #{inspect(locale)}"}}
     end
   end
 
@@ -448,7 +453,7 @@ defmodule Cldr.Currency do
       iex> Cldr.Currency.display_name! "EUR", backend: MyApp.Cldr, locale: "de"
       "Euro"
 
-      #=> Cldr.Currency.display_name! "ZZZ", backend: MyApp.Cldr
+      iex> Cldr.Currency.display_name! "ZZZ", backend: MyApp.Cldr
       ** (Cldr.UnknownCurrencyError) The currency "ZZZ" is invalid
 
   """
@@ -603,7 +608,8 @@ defmodule Cldr.Currency do
       {:error, {Cldr.UnknownCurrencyError, "The currency \\"GGG\\" is unknown"}}
 
   """
-  @spec known_currency_code(currency_code()) :: {:ok, currency_code} | {:error, {module, String.t()}}
+  @spec known_currency_code(currency_code()) ::
+          {:ok, currency_code} | {:error, {module, String.t()}}
   def known_currency_code(currency_code) do
     with {:ok, currency_code} <- Cldr.validate_currency(currency_code) do
       if currency_code in known_currency_codes() do
@@ -1222,41 +1228,41 @@ defmodule Cldr.Currency do
 
   ### Example
 
-    => Cldr.Currency.currencies_for_locale("en", MyApp.Cldr)
-    {:ok,
-     %{
-       FJD: %Cldr.Currency{
-         cash_digits: 2,
-         cash_rounding: 0,
-         code: "FJD",
-         count: %{one: "Fijian dollar", other: "Fijian dollars"},
-         digits: 2,
-         from: nil,
-         iso_digits: 2,
-         name: "Fijian Dollar",
-         narrow_symbol: "$",
-         rounding: 0,
-         symbol: "FJD",
-         tender: true,
-         to: nil
-       },
-       SUR: %Cldr.Currency{
-         cash_digits: 2,
-         cash_rounding: 0,
-         code: "SUR",
-         count: %{one: "Soviet rouble", other: "Soviet roubles"},
-         digits: 2,
-         from: nil,
-         iso_digits: nil,
-         name: "Soviet Rouble",
-         narrow_symbol: nil,
-         rounding: 0,
-         symbol: "SUR",
-         tender: true,
-         to: nil
-       },
-       ...
-      }}
+      => Cldr.Currency.currencies_for_locale("en", MyApp.Cldr)
+      {:ok,
+        %{
+          FJD: %Cldr.Currency{
+            cash_digits: 2,
+            cash_rounding: 0,
+            code: "FJD",
+            count: %{one: "Fijian dollar", other: "Fijian dollars"},
+            digits: 2,
+            from: nil,
+            iso_digits: 2,
+            name: "Fijian Dollar",
+            narrow_symbol: "$",
+            rounding: 0,
+            symbol: "FJD",
+            tender: true,
+            to: nil
+          },
+          SUR: %Cldr.Currency{
+            cash_digits: 2,
+            cash_rounding: 0,
+            code: "SUR",
+            count: %{one: "Soviet rouble", other: "Soviet roubles"},
+            digits: 2,
+            from: nil,
+            iso_digits: nil,
+            name: "Soviet Rouble",
+            narrow_symbol: nil,
+            rounding: 0,
+            symbol: "SUR",
+            tender: true,
+            to: nil
+          },
+          ...
+        }}
 
   """
   @spec currencies_for_locale(
@@ -1295,40 +1301,40 @@ defmodule Cldr.Currency do
 
   ### Example
 
-    #=> MyApp.Cldr.Currency.currencies_for_locale!("en")
-    %{
-      FJD: %Cldr.Currency{
-        cash_digits: 2,
-        cash_rounding: 0,
-        code: "FJD",
-        count: %{one: "Fijian dollar", other: "Fijian dollars"},
-        digits: 2,
-        from: nil,
-        iso_digits: 2,
-        name: "Fijian Dollar",
-        narrow_symbol: "$",
-        rounding: 0,
-        symbol: "FJD",
-        tender: true,
-        to: nil
-      },
-      SUR: %Cldr.Currency{
-        cash_digits: 2,
-        cash_rounding: 0,
-        code: "SUR",
-        count: %{one: "Soviet rouble", other: "Soviet roubles"},
-        digits: 2,
-        from: nil,
-        iso_digits: nil,
-        name: "Soviet Rouble",
-        narrow_symbol: nil,
-        rounding: 0,
-        symbol: "SUR",
-        tender: true,
-        to: nil
-      },
-      ...
-     }
+      => MyApp.Cldr.Currency.currencies_for_locale!("en")
+      %{
+        FJD: %Cldr.Currency{
+          cash_digits: 2,
+          cash_rounding: 0,
+          code: "FJD",
+          count: %{one: "Fijian dollar", other: "Fijian dollars"},
+          digits: 2,
+          from: nil,
+          iso_digits: 2,
+          name: "Fijian Dollar",
+          narrow_symbol: "$",
+          rounding: 0,
+          symbol: "FJD",
+          tender: true,
+          to: nil
+        },
+        SUR: %Cldr.Currency{
+          cash_digits: 2,
+          cash_rounding: 0,
+          code: "SUR",
+          count: %{one: "Soviet rouble", other: "Soviet roubles"},
+          digits: 2,
+          from: nil,
+          iso_digits: nil,
+          name: "Soviet Rouble",
+          narrow_symbol: nil,
+          rounding: 0,
+          symbol: "SUR",
+          tender: true,
+          to: nil
+        },
+        ...
+      }
 
   """
   @spec currencies_for_locale!(
